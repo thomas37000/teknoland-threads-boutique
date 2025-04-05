@@ -1,3 +1,4 @@
+
 import { Product } from "@/types";
 
 export const products: Product[] = [
@@ -12,16 +13,6 @@ export const products: Product[] = [
     isNew: true,
     sizes: ["S", "M", "L", "XL"],
     colors: ["Black", "White", "Blue"]
-  },
-  {
-    id: "2",
-    name: "Hacker Hoodie",
-    description: "Stay warm and stylish with our premium cotton-blend hoodie. Features minimalist code pattern and convenient kangaroo pocket.",
-    price: 49.99,
-    image: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?auto=format&fit=crop&w=800&h=600",
-    category: "Hoodies",
-    sizes: ["M", "L", "XL", "XXL"],
-    colors: ["Black", "Gray"]
   },
   {
     id: "3",
@@ -41,16 +32,6 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?auto=format&fit=crop&w=800&h=600",
     category: "Accessories",
     isNew: true
-  },
-  {
-    id: "5",
-    name: "Digital Storm Pullover",
-    description: "Lightweight pullover hoodie with our digital storm pattern. Perfect for cool evenings.",
-    price: 44.99,
-    image: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?auto=format&fit=crop&w=800&h=600",
-    category: "Hoodies",
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Gray", "Black"]
   },
   {
     id: "6",
