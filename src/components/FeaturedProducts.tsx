@@ -9,9 +9,14 @@ const FeaturedProducts = () => {
   const [featured, setFeatured] = useState<Product[]>([]);
   
   useEffect(() => {
-    // In a real app, you might fetch these from an API
-    // Filter products marked as featured or select a few
-    const featuredItems = products.slice(0, 4);
+    // Select a mix of products to feature including new shirts
+    const featuredItems = [
+      products.find(p => p.id === "9"), // Cyber Grid Button-Up
+      products.find(p => p.id === "14"), // Digital Bloom Tee
+      products.find(p => p.id === "1"), // Circuit Board Tee
+      products.find(p => p.id === "12"), // Tech Pioneer Denim Shirt
+    ].filter(Boolean) as Product[];
+    
     setFeatured(featuredItems);
   }, []);
   

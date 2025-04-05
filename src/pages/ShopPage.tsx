@@ -33,7 +33,7 @@ const ShopPage = () => {
     // Apply category filter
     if (selectedCategory !== "all") {
       result = result.filter(p => 
-        p.category.toLowerCase() === selectedCategory
+        p.category.toLowerCase().includes(selectedCategory)
       );
     }
     
@@ -85,6 +85,26 @@ const ShopPage = () => {
             </button>
             <button
               className={`px-4 py-2 text-sm rounded-full border ${
+                selectedCategory === "men"
+                  ? "bg-tekno-black text-white border-tekno-black"
+                  : "border-gray-300 hover:border-tekno-black"
+              }`}
+              onClick={() => setSelectedCategory("men")}
+            >
+              Men's Shirts
+            </button>
+            <button
+              className={`px-4 py-2 text-sm rounded-full border ${
+                selectedCategory === "women"
+                  ? "bg-tekno-black text-white border-tekno-black"
+                  : "border-gray-300 hover:border-tekno-black"
+              }`}
+              onClick={() => setSelectedCategory("women")}
+            >
+              Women's T-Shirts
+            </button>
+            <button
+              className={`px-4 py-2 text-sm rounded-full border ${
                 selectedCategory === "hoodies"
                   ? "bg-tekno-black text-white border-tekno-black"
                   : "border-gray-300 hover:border-tekno-black"
@@ -127,7 +147,7 @@ const ShopPage = () => {
       
       {/* Products Grid */}
       {filteredProducts.length > 0 ? (
-        <div className="product-grid">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
