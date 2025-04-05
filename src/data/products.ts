@@ -1,73 +1,14 @@
 import { Product } from "@/types";
 
 export const products: Product[] = [
-  // Original products
-  {
-    id: "1",
-    name: "Circuit Board Tee",
-    description: "100% cotton t-shirt featuring our iconic circuit board design. Perfect for everyday wear with a futuristic look.",
-    price: 29.99,
-    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&h=600",
-    category: "T-Shirts",
-    isNew: true,
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Black", "White", "Blue"]
-  },
-  {
-    id: "3",
-    name: "Quantum Wave T-Shirt",
-    description: "Soft cotton tee with our exclusive quantum wave design. Makes a bold statement with any outfit.",
-    price: 34.99,
-    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&h=600",
-    category: "T-Shirts",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["White", "Blue", "Black"]
-  },
-  {
-    id: "4",
-    name: "Binary Code Cap",
-    description: "Adjustable cotton cap featuring our signature binary code embroidery. One size fits most.",
-    price: 24.99,
-    image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?auto=format&fit=crop&w=800&h=600",
-    category: "Accessories",
-    isNew: true
-  },
-  {
-    id: "6",
-    name: "Pixel Art Tee",
-    description: "Classic fit tee featuring retro pixel art design. Made from organic cotton.",
-    price: 32.99,
-    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&h=600",
-    category: "T-Shirts",
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["White", "Black"]
-  },
-  {
-    id: "7",
-    name: "Tech Beanie",
-    description: "Warm knitted beanie with subtle tech pattern. Perfect for colder days.",
-    price: 19.99,
-    image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?auto=format&fit=crop&w=800&h=600",
-    category: "Accessories"
-  },
-  {
-    id: "8",
-    name: "Digital Nomad Backpack",
-    description: "Water-resistant backpack with multiple compartments for all your tech needs.",
-    price: 79.99,
-    image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?auto=format&fit=crop&w=800&h=600",
-    category: "Accessories",
-    isNew: true
-  },
-  
-  // Men's Shirts - removing requested items (9, 11, 13) and keeping the others
+  // Men's T-Shirtss - removing requested items (9, 11, 13) and keeping the others
   {
     id: "10",
     name: "Digital Matrix Oxford",
     description: "Classic oxford shirt with our signature digital matrix pattern. Business-casual with a tech twist.",
     price: 64.99,
     image: "https://images.unsplash.com/photo-1573766707566-14de00312558?auto=format&fit=crop&w=800&h=600",
-    category: "Men's Shirts",
+    category: "Man's T-Shirts",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Light Blue", "White", "Black"]
   },
@@ -77,7 +18,7 @@ export const products: Product[] = [
     description: "Durable denim shirt with subtle tech-inspired embroidery. Versatile and stylish for any casual occasion.",
     price: 69.99,
     image: "https://images.unsplash.com/photo-1607345366928-199ea26cfe3e?auto=format&fit=crop&w=800&h=600",
-    category: "Men's Shirts",
+    category: "Man's T-Shirts",
     isNew: true,
     sizes: ["S", "M", "L", "XL"],
     colors: ["Light Wash", "Dark Wash"]
@@ -190,5 +131,60 @@ export const products: Product[] = [
     isNew: true,
     sizes: ["S/M", "L/XL", "XXL"],
     colors: ["Black", "Charcoal", "Dark Blue"]
+  },
+  // Vinyls
+  {
+    id: "24",
+    name: "Teknoland 09",
+    description: "Premium oversized hoodie with flowing matrix code pattern. Made from soft cotton blend for ultimate comfort.",
+    price: 20.99,
+    image: "https://f4.bcbits.com/img/0030996771_10.jpg",
+    category: "Vinyls",
+    isNew: false,
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Black", "Dark Green", "Navy"]
+  },
+  {
+    id: "25",
+    name: "Doomland 02",
+    description: "Lightweight pullover hoodie with abstract digital wave pattern. Perfect for layering in any season.",
+    price: 25.99,
+    image: "https://f4.bcbits.com/img/0030776803_10.jpg",
+    category: "Vinyls",
+    isNew: false,
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Gray", "Blue", "Purple"]
+  },
+  {
+    id: "26",
+    name: "Tribeland",
+    description: "Full-zip hoodie with embroidered circuit pattern. Features convenient side pockets and adjustable hood.",
+    price: 30.99,
+    image: "https://f4.bcbits.com/img/a1258539820_10.jpg",
+    category: "Vinyls",
+    sizes: ["M", "L", "XL", "XXL"],
+    colors: ["Black", "White", "Red"],
+  },
+  {
+    id: "27",
+    name: "Spiral Electric",
+    description: "Premium oversized hoodie with flowing matrix code pattern. Made from soft cotton blend for ultimate comfort.",
+    price: 23.99,
+    image: "https://f4.bcbits.com/img/0036839488_10.jpg",
+    category: "Vinyls",
+    isNew: true,
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Black", "Dark Green", "Navy"]
+  },
+  {
+    id: "28",
+    name: "The Dark Side",
+    description: "Lightweight pullover hoodie with abstract digital wave pattern. Perfect for layering in any season.",
+    price: 19.99,
+    image: "https://f4.bcbits.com/img/0034417410_10.jpg",
+    category: "Vinyls",
+    isNew: false,
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Gray", "Blue", "Purple"]
   }
 ];

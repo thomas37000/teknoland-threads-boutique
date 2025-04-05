@@ -5,20 +5,20 @@ const categories = [
   {
     id: "tshirts",
     name: "T-Shirts",
-    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&h=600",
+    image: "https://images.unsplash.com/photo-1578681994506-b8f463449011?auto=format&fit=crop&w=800&h=600",
     link: "/shop?category=tshirts"
   },
   {
     id: "hoodies",
-    name: "Hoodies",
-    image: "https://images.unsplash.com/photo-1578681994506-b8f463449011?auto=format&fit=crop&w=800&h=600",
+    name: "Sweats",
+    image: "https://images.unsplash.com/photo-1579572331145-5e53b299c64e?auto=format&fit=crop&w=800&h=600",
     link: "/shop?category=hoodies"
   },
   {
-    id: "accessories",
-    name: "Accessories",
-    image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?auto=format&fit=crop&w=800&h=600",
-    link: "/shop?category=accessories"
+    id: "vinyls",
+    name: "Vinyles",
+    image: "https://f4.bcbits.com/img/0030996771_10.jpg",
+    link: "/shop?category=vinyls"
   }
 ];
 

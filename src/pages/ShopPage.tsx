@@ -52,7 +52,7 @@ const ShopPage = () => {
   return (
     <div className="tekno-container py-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Shop Teknoland</h1>
+        <h1 className="text-3xl font-bold mb-2">Shop | Teknoland Clothes</h1>
         <p className="text-tekno-gray">
           Discover our unique collection of tech-inspired apparel and accessories.
         </p>
@@ -75,23 +75,23 @@ const ShopPage = () => {
             </button>
             <button
               className={`px-4 py-2 text-sm rounded-full border ${
-                selectedCategory === "tshirts"
+                selectedCategory === "t-shirts"
                   ? "bg-tekno-black text-white border-tekno-black"
                   : "border-gray-300 hover:border-tekno-black"
               }`}
-              onClick={() => setSelectedCategory("tshirts")}
+              onClick={() => setSelectedCategory("t-shirts")}
             >
               T-Shirts
             </button>
             <button
               className={`px-4 py-2 text-sm rounded-full border ${
-                selectedCategory === "men"
+                selectedCategory === "man"
                   ? "bg-tekno-black text-white border-tekno-black"
                   : "border-gray-300 hover:border-tekno-black"
               }`}
-              onClick={() => setSelectedCategory("men")}
+              onClick={() => setSelectedCategory("man")}
             >
-              Men's Shirts
+              T-shirts Homme
             </button>
             <button
               className={`px-4 py-2 text-sm rounded-full border ${
@@ -101,7 +101,7 @@ const ShopPage = () => {
               }`}
               onClick={() => setSelectedCategory("women")}
             >
-              Women's T-Shirts
+              T-shirts Femme
             </button>
             <button
               className={`px-4 py-2 text-sm rounded-full border ${
@@ -111,7 +111,7 @@ const ShopPage = () => {
               }`}
               onClick={() => setSelectedCategory("hoodies")}
             >
-              Hoodies
+              Sweats
             </button>
             <button
               className={`px-4 py-2 text-sm rounded-full border ${
@@ -122,6 +122,16 @@ const ShopPage = () => {
               onClick={() => setSelectedCategory("accessories")}
             >
               Accessories
+            </button>
+            <button
+              className={`px-4 py-2 text-sm rounded-full border ${
+                selectedCategory === "vinyls"
+                  ? "bg-tekno-black text-white border-tekno-black"
+                  : "border-gray-300 hover:border-tekno-black"
+              }`}
+              onClick={() => setSelectedCategory("vinyls")}
+            >
+              Vinyles
             </button>
           </div>
         </div>

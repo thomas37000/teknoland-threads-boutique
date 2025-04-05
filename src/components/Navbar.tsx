@@ -16,7 +16,7 @@ const Navbar = () => {
     <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b">
       <div className="tekno-container flex justify-between items-center h-16">
         <Link to="/" className="text-2xl font-bold text-tekno-black">
-          TEKNOLAND
+          Teknoland Clothes
         </Link>
         
         {/* Mobile Menu Button */}

@@ -99,7 +99,7 @@ const CartPage = () => {
                 {/* Price */}
                 <div className="sm:col-span-2 flex items-center sm:justify-center">
                   <div className="sm:hidden font-medium mr-2">Price:</div>
-                  <div>${item.product.price.toFixed(2)}</div>
+                  <div>{item.product.price.toFixed(2)} €</div>
                 </div>
                 
                 {/* Quantity */}
@@ -129,7 +129,7 @@ const CartPage = () => {
                 <div className="sm:col-span-2 flex items-center sm:justify-end">
                   <div className="sm:hidden font-medium mr-2">Total:</div>
                   <div className="font-medium">
-                    ${(item.product.price * item.quantity).toFixed(2)}
+                    {(item.product.price * item.quantity).toFixed(2)} €
                   </div>
                 </div>
               </div>
@@ -153,15 +153,15 @@ const CartPage = () => {
             <div className="space-y-3 mb-6">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>{subtotal.toFixed(2)} €</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
-                <span>{subtotal > 50 ? "Free" : "$4.99"}</span>
+                <span>{subtotal > 50 ? "Free" : "4.99 €"} </span>
               </div>
               <div className="border-t pt-3 font-bold flex justify-between">
                 <span>Total</span>
-                <span>${(subtotal > 50 ? subtotal : subtotal + 4.99).toFixed(2)}</span>
+                <span>{(subtotal > 50 ? subtotal : subtotal + 4.99).toFixed(2)} €</span>
               </div>
             </div>
             
