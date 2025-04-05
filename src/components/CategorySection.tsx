@@ -11,7 +11,7 @@ const categories = [
   {
     id: "hoodies",
     name: "Hoodies",
-    image: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?auto=format&fit=crop&w=800&h=600",
+    image: "https://images.unsplash.com/photo-1578681994506-b8f463449011?auto=format&fit=crop&w=800&h=600",
     link: "/shop?category=hoodies"
   },
   {

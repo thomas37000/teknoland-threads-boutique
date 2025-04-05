@@ -1,4 +1,3 @@
-
 import { Product } from "@/types";
 
 export const products: Product[] = [
@@ -187,5 +186,60 @@ export const products: Product[] = [
     category: "Women's T-Shirts",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Black", "White", "Gray", "Navy"]
+  },
+  
+  // New Hoodies - 5 items
+  {
+    id: "19",
+    name: "Matrix Code Hoodie",
+    description: "Premium oversized hoodie with flowing matrix code pattern. Made from soft cotton blend for ultimate comfort.",
+    price: 69.99,
+    image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=800&h=600",
+    category: "Hoodies",
+    isNew: true,
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Black", "Dark Green", "Navy"]
+  },
+  {
+    id: "20",
+    name: "Digital Wave Pullover",
+    description: "Lightweight pullover hoodie with abstract digital wave pattern. Perfect for layering in any season.",
+    price: 59.99,
+    image: "https://images.unsplash.com/photo-1579572331145-5e53b299c64e?auto=format&fit=crop&w=800&h=600",
+    category: "Hoodies",
+    isNew: true,
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Gray", "Blue", "Purple"]
+  },
+  {
+    id: "21",
+    name: "Cyber Circuit Zip-Up",
+    description: "Full-zip hoodie with embroidered circuit pattern. Features convenient side pockets and adjustable hood.",
+    price: 74.99,
+    image: "https://images.unsplash.com/photo-1578681041175-9717c638d482?auto=format&fit=crop&w=800&h=600",
+    category: "Hoodies",
+    sizes: ["M", "L", "XL", "XXL"],
+    colors: ["Black", "White", "Red"]
+  },
+  {
+    id: "22",
+    name: "Tech Minimalist Hoodie",
+    description: "Clean, minimalist design with subtle tech-inspired details. Made from organic cotton for eco-conscious comfort.",
+    price: 64.99,
+    image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=800&h=600",
+    category: "Hoodies",
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["White", "Light Gray", "Sand"]
+  },
+  {
+    id: "23",
+    name: "Binary Oversized Hoodie",
+    description: "Trendy oversized fit with binary code pattern. Features dropped shoulders and extra-long sleeves.",
+    price: 69.99,
+    image: "https://images.unsplash.com/photo-1578681994506-b8f463449011?auto=format&fit=crop&w=800&h=600",
+    category: "Hoodies",
+    isNew: true,
+    sizes: ["S/M", "L/XL", "XXL"],
+    colors: ["Black", "Charcoal", "Dark Blue"]
   }
 ];
