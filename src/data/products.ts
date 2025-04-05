@@ -1,4 +1,3 @@
-
 import { Product } from "@/types";
 
 export const products: Product[] = [
@@ -61,18 +60,7 @@ export const products: Product[] = [
     isNew: true
   },
   
-  // Men's Shirts - 5 new items
-  {
-    id: "9",
-    name: "Cyber Grid Button-Up",
-    description: "Stylish button-up shirt with subtle tech grid pattern. Perfect for both casual and semi-formal occasions.",
-    price: 59.99,
-    image: "https://images.unsplash.com/photo-1563630423918-b58f07336ac9?auto=format&fit=crop&w=800&h=600",
-    category: "Men's Shirts",
-    isNew: true,
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Navy", "White", "Dark Gray"]
-  },
+  // Men's Shirts - removing requested items (9, 11, 13) and keeping the others
   {
     id: "10",
     name: "Digital Matrix Oxford",
@@ -82,16 +70,6 @@ export const products: Product[] = [
     category: "Men's Shirts",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Light Blue", "White", "Black"]
-  },
-  {
-    id: "11",
-    name: "Binary Code Flannel",
-    description: "Warm and comfortable flannel shirt featuring a subtle binary code pattern. Perfect for cooler days.",
-    price: 54.99,
-    image: "https://images.unsplash.com/photo-1589310243389-96a5483213a8?auto=format&fit=crop&w=800&h=600",
-    category: "Men's Shirts",
-    sizes: ["M", "L", "XL", "XXL"],
-    colors: ["Red/Black", "Blue/Black", "Green/Black"]
   },
   {
     id: "12",
@@ -104,18 +82,8 @@ export const products: Product[] = [
     sizes: ["S", "M", "L", "XL"],
     colors: ["Light Wash", "Dark Wash"]
   },
-  {
-    id: "13",
-    name: "Circuit Board Cuban",
-    description: "Relaxed fit Cuban collar shirt with our signature circuit board pattern. Perfect for summer days.",
-    price: 49.99,
-    image: "https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?auto=format&fit=crop&w=800&h=600",
-    category: "Men's Shirts",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Black", "Navy", "Teal"]
-  },
   
-  // Women's T-shirts - 5 new items
+  // Women's T-shirts - 5 items
   {
     id: "14",
     name: "Digital Bloom Tee",
@@ -169,7 +137,7 @@ export const products: Product[] = [
     colors: ["Black", "White", "Gray", "Navy"]
   },
   
-  // New Hoodies - 5 items
+  // Hoodies - 5 items
   {
     id: "19",
     name: "Matrix Code Hoodie",

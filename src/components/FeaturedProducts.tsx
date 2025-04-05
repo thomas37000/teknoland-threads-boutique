@@ -9,9 +9,9 @@ const FeaturedProducts = () => {
   const [featured, setFeatured] = useState<Product[]>([]);
   
   useEffect(() => {
-    // Select a mix of products to feature including new shirts and hoodies
+    // Select a mix of products to feature (updated to use available products)
     const featuredItems = [
-      products.find(p => p.id === "9"), // Cyber Grid Button-Up
+      products.find(p => p.id === "10"), // Digital Matrix Oxford
       products.find(p => p.id === "14"), // Digital Bloom Tee
       products.find(p => p.id === "19"), // Matrix Code Hoodie
       products.find(p => p.id === "12"), // Tech Pioneer Denim Shirt
