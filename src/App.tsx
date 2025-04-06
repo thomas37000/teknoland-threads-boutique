@@ -17,6 +17,9 @@ import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
+// Import the Tabs component
+import "@/components/ui/tabs";
+
 const queryClient = new QueryClient();
 
 const App = () => (
