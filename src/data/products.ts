@@ -1,3 +1,4 @@
+
 import { Product } from "@/types";
 
 export const products: Product[] = [
@@ -10,7 +11,8 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1573766707566-14de00312558?auto=format&fit=crop&w=800&h=600",
     category: "Man's T-Shirts",
     sizes: ["S", "M", "L", "XL"],
-    colors: ["Light Blue", "White", "Black"]
+    colors: ["Light Blue", "White", "Black"],
+    stock: 42
   },
   {
     id: "12",
@@ -21,7 +23,8 @@ export const products: Product[] = [
     category: "Man's T-Shirts",
     isNew: true,
     sizes: ["S", "M", "L", "XL"],
-    colors: ["Light Wash", "Dark Wash"]
+    colors: ["Light Wash", "Dark Wash"],
+    stock: 38
   },
   
   // Women's T-shirts - 5 items
@@ -34,7 +37,8 @@ export const products: Product[] = [
     category: "Women's T-Shirts",
     isNew: true,
     sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Purple", "Teal", "White"]
+    colors: ["Purple", "Teal", "White"],
+    stock: 65
   },
   {
     id: "15",
@@ -44,7 +48,8 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1503342394128-c104d54dba01?auto=format&fit=crop&w=800&h=600",
     category: "Women's T-Shirts",
     sizes: ["XS", "S", "M", "L"],
-    colors: ["Black", "White", "Pink"]
+    colors: ["Black", "White", "Pink"],
+    stock: 27
   },
   {
     id: "16",
@@ -55,7 +60,8 @@ export const products: Product[] = [
     category: "Women's T-Shirts",
     isNew: true,
     sizes: ["S", "M", "L", "XL"],
-    colors: ["Red", "Black", "Gray"]
+    colors: ["Red", "Black", "Gray"],
+    stock: 50
   },
   {
     id: "17",
@@ -65,7 +71,8 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=800&h=600",
     category: "Women's T-Shirts",
     sizes: ["XS", "S", "M", "L"],
-    colors: ["Neon Blue", "Neon Pink", "Black"]
+    colors: ["Neon Blue", "Neon Pink", "Black"],
+    stock: 33
   },
   {
     id: "18",
@@ -75,7 +82,8 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=800&h=600",
     category: "Women's T-Shirts",
     sizes: ["S", "M", "L", "XL"],
-    colors: ["Black", "White", "Gray", "Navy"]
+    colors: ["Black", "White", "Gray", "Navy"],
+    stock: 45
   },
   
   // Hoodies - 5 items
@@ -88,7 +96,8 @@ export const products: Product[] = [
     category: "Hoodies",
     isNew: true,
     sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Black", "Dark Green", "Navy"]
+    colors: ["Black", "Dark Green", "Navy"],
+    stock: 78
   },
   {
     id: "20",
@@ -99,7 +108,8 @@ export const products: Product[] = [
     category: "Hoodies",
     isNew: true,
     sizes: ["S", "M", "L", "XL"],
-    colors: ["Gray", "Blue", "Purple"]
+    colors: ["Gray", "Blue", "Purple"],
+    stock: 53
   },
   {
     id: "21",
@@ -109,7 +119,8 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1578681041175-9717c638d482?auto=format&fit=crop&w=800&h=600",
     category: "Hoodies",
     sizes: ["M", "L", "XL", "XXL"],
-    colors: ["Black", "White", "Red"]
+    colors: ["Black", "White", "Red"],
+    stock: 29
   },
   {
     id: "22",
@@ -119,7 +130,8 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=800&h=600",
     category: "Hoodies",
     sizes: ["S", "M", "L", "XL"],
-    colors: ["White", "Light Gray", "Sand"]
+    colors: ["White", "Light Gray", "Sand"],
+    stock: 61
   },
   {
     id: "23",
@@ -130,7 +142,8 @@ export const products: Product[] = [
     category: "Hoodies",
     isNew: true,
     sizes: ["S/M", "L/XL", "XXL"],
-    colors: ["Black", "Charcoal", "Dark Blue"]
+    colors: ["Black", "Charcoal", "Dark Blue"],
+    stock: 47
   },
   // Vinyls
   {
@@ -142,7 +155,8 @@ export const products: Product[] = [
     category: "Vinyls",
     isNew: false,
     sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Black", "Dark Green", "Navy"]
+    colors: ["Black", "Dark Green", "Navy"],
+    stock: 15
   },
   {
     id: "25",
@@ -153,7 +167,8 @@ export const products: Product[] = [
     category: "Vinyls",
     isNew: false,
     sizes: ["S", "M", "L", "XL"],
-    colors: ["Gray", "Blue", "Purple"]
+    colors: ["Gray", "Blue", "Purple"],
+    stock: 8
   },
   {
     id: "26",
@@ -164,6 +179,7 @@ export const products: Product[] = [
     category: "Vinyls",
     sizes: ["M", "L", "XL", "XXL"],
     colors: ["Black", "White", "Red"],
+    stock: 22
   },
   {
     id: "27",
@@ -174,7 +190,8 @@ export const products: Product[] = [
     category: "Vinyls",
     isNew: true,
     sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Black", "Dark Green", "Navy"]
+    colors: ["Black", "Dark Green", "Navy"],
+    stock: 19
   },
   {
     id: "28",
@@ -185,6 +202,7 @@ export const products: Product[] = [
     category: "Vinyls",
     isNew: false,
     sizes: ["S", "M", "L", "XL"],
-    colors: ["Gray", "Blue", "Purple"]
+    colors: ["Gray", "Blue", "Purple"],
+    stock: 5
   }
 ];
