@@ -4,14 +4,15 @@ import { Client } from "@/types";
 export const clients: Client[] = [
   {
     id: "1",
-    name: "John Smith",
-    email: "john.smith@example.com",
+    name: "Thomas Chalanson",
+    email: "thomas.chalanson@gmail.com",
     phone: "(555) 123-4567",
     address: "123 Main St, Anytown, CA 94321",
-    totalOrders: 5,
-    totalSpent: 849.95,
-    lastPurchase: "2023-12-15",
-    accountStatus: "active"
+    totalOrders: 0,
+    totalSpent: 0,
+    lastPurchase: "",
+    accountStatus: "active",
+    roles: "admin"
   },
   {
     id: "2",
@@ -22,7 +23,8 @@ export const clients: Client[] = [
     totalOrders: 3,
     totalSpent: 329.85,
     lastPurchase: "2023-11-28",
-    accountStatus: "active"
+    accountStatus: "active",
+    roles: "client"
   },
   {
     id: "3",
@@ -33,7 +35,8 @@ export const clients: Client[] = [
     totalOrders: 8,
     totalSpent: 1249.50,
     lastPurchase: "2024-01-05",
-    accountStatus: "active"
+    accountStatus: "active",
+    roles: "client"
   },
   {
     id: "4",
@@ -44,7 +47,8 @@ export const clients: Client[] = [
     totalOrders: 2,
     totalSpent: 159.90,
     lastPurchase: "2023-10-12",
-    accountStatus: "inactive"
+    accountStatus: "inactive",
+    roles: "client"
   },
   {
     id: "5",
@@ -55,7 +59,8 @@ export const clients: Client[] = [
     totalOrders: 6,
     totalSpent: 920.75,
     lastPurchase: "2023-12-28",
-    accountStatus: "active"
+    accountStatus: "active",
+    roles: "client"
   },
   {
     id: "6",
@@ -66,7 +71,8 @@ export const clients: Client[] = [
     totalOrders: 4,
     totalSpent: 499.80,
     lastPurchase: "2023-11-15",
-    accountStatus: "active"
+    accountStatus: "active",
+    roles: "client"
   },
   {
     id: "7",
@@ -77,7 +83,8 @@ export const clients: Client[] = [
     totalOrders: 1,
     totalSpent: 89.95,
     lastPurchase: "2023-09-20",
-    accountStatus: "inactive"
+    accountStatus: "inactive",
+    roles: "client"
   },
   {
     id: "8",
@@ -88,7 +95,8 @@ export const clients: Client[] = [
     totalOrders: 7,
     totalSpent: 1079.65,
     lastPurchase: "2024-01-10",
-    accountStatus: "active"
+    accountStatus: "active",
+    roles: "client"
   },
   {
     id: "9",
@@ -99,7 +107,8 @@ export const clients: Client[] = [
     totalOrders: 3,
     totalSpent: 359.85,
     lastPurchase: "2023-12-05",
-    accountStatus: "active"
+    accountStatus: "active",
+    roles: "client"
   },
   {
     id: "10",
@@ -110,6 +119,7 @@ export const clients: Client[] = [
     totalOrders: 5,
     totalSpent: 729.75,
     lastPurchase: "2023-11-30",
-    accountStatus: "active"
+    accountStatus: "active",
+    roles: "client"
   }
 ];

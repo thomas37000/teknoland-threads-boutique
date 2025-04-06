@@ -5,12 +5,18 @@ import { Menu, X, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/hooks/use-cart";
+import { Client } from "@/types";
 
-const Navbar = () => {
+interface NavbarProps {
+  currentClient: Client | null;
+}
+
+const Navbar = ({ currentClient }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { cartItems } = useCart();
   
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const isAdmin = currentClient?.roles === "admin";
   
   return (
     <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b">
@@ -33,6 +39,9 @@ const Navbar = () => {
         
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-6">
+        {isAdmin && <Link to="/admin" className="font-medium hover:text-tekno-blue transition-colors">
+            Admin
+          </Link>}
           <Link to="/" className="font-medium hover:text-tekno-blue transition-colors">
             Home
           </Link>
