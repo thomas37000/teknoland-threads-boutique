@@ -1,7 +1,9 @@
 
 import { Link } from "react-router-dom";
+import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
+import { useFavorites } from "@/hooks/use-favorites";
 import { Product } from "@/types";
 
 interface ProductCardProps {
@@ -10,6 +12,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const { addToCart } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
   
   return (
     <div className="group">
@@ -29,9 +32,24 @@ const ProductCard = ({ product }: ProductCardProps) => {
       </Link>
       
       <div className="mt-4">
-        <Link to={`/product/${product.id}`}>
-          <h3 className="font-medium text-lg">{product.name}</h3>
-        </Link>
+        <div className="flex justify-between items-start">
+          <Link to={`/product/${product.id}`}>
+            <h3 className="font-medium text-lg">{product.name}</h3>
+          </Link>
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              toggleFavorite(product);
+            }}
+            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+            aria-label={isFavorite(product.id) ? "Remove from favorites" : "Add to favorites"}
+          >
+            <Heart 
+              size={18} 
+              className={isFavorite(product.id) ? "fill-red-500 text-red-500" : "text-gray-400"}
+            />
+          </button>
+        </div>
         <div className="mt-1 flex items-center justify-between">
           <p className="font-bold">${product.price.toFixed(2)}</p>
           <p className="text-sm text-tekno-gray">{product.category}</p>
