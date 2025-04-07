@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useCart } from "@/hooks/use-cart";
 import { products } from "@/data/products";
 import { Product } from "@/types";
+import { ArrowUp } from "lucide-react";
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,7 +17,9 @@ const ProductPage = () => {
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   
+  const topRef = useRef<HTMLDivElement>(null);
   const { addToCart } = useCart();
   const { toast } = useToast();
   
@@ -34,6 +37,27 @@ const ProductPage = () => {
     }
     setLoading(false);
   }, [id]);
+  
+  // Handle scroll event to show/hide back to top button
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowBackToTop(true);
+      } else {
+        setShowBackToTop(false);
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+  
+  const scrollToTop = () => {
+    topRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
   
   const handleAddToCart = () => {
     if (!product) return;
@@ -79,7 +103,7 @@ const ProductPage = () => {
   }
   
   return (
-    <div className="tekno-container py-12">
+    <div className="tekno-container py-12" ref={topRef}>
       <div className="flex flex-col md:flex-row gap-8">
         {/* Product Image */}
         <div className="w-full md:w-1/2">
@@ -213,6 +237,18 @@ const ProductPage = () => {
           </div>
         </div>
       </div>
+      
+      {/* Back to Top Button */}
+      {showBackToTop && (
+        <Button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 rounded-full p-3 bg-tekno-blue hover:bg-tekno-black text-white shadow-lg z-50"
+          size="icon"
+          aria-label="Back to top"
+        >
+          <ArrowUp className="h-5 w-5" />
+        </Button>
+      )}
     </div>
   );
 };
