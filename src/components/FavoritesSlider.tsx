@@ -11,11 +11,24 @@ import {
 import { useFavorites } from "@/hooks/use-favorites";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
-import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 const FavoritesSlider = () => {
-  const { favorites } = useFavorites();
+  const { favorites, loading } = useFavorites();
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Don't display if loading or no favorites
+  if (loading) {
+    return (
+      <section className="bg-gray-50 py-10 mt-8">
+        <div className="tekno-container text-center">
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-tekno-gray" />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (favorites.length === 0) {
     return null;
