@@ -1,10 +1,11 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, ShoppingBag } from "lucide-react";
+import { Menu, X, ShoppingBag, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/hooks/use-cart";
+import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types";
 
 interface NavbarProps {
@@ -13,10 +14,28 @@ interface NavbarProps {
 
 const Navbar = ({ currentClient }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const { cartItems } = useCart();
   
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const isAdmin = currentClient?.roles === "admin";
+  
+  useEffect(() => {
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUser(data.user);
+    };
+    
+    getUser();
+    
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user || null);
+    });
+    
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
   
   return (
     <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b">
@@ -56,8 +75,8 @@ const Navbar = ({ currentClient }: NavbarProps) => {
           </Link>
         </nav>
         
-        {/* Cart Button */}
-        <div className="hidden md:block">
+        {/* Cart and Profile Buttons */}
+        <div className="hidden md:flex items-center gap-2">
           <Link to="/cart">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingBag size={24} />
@@ -66,6 +85,12 @@ const Navbar = ({ currentClient }: NavbarProps) => {
                   {cartItems.length}
                 </Badge>
               )}
+            </Button>
+          </Link>
+          
+          <Link to="/profile">
+            <Button variant="ghost" size="icon">
+              <User size={24} />
             </Button>
           </Link>
         </div>
@@ -98,10 +123,17 @@ const Navbar = ({ currentClient }: NavbarProps) => {
             </Link>
             <Link 
               to="/contact" 
-              className="py-3 font-medium"
+              className="py-3 border-b font-medium"
               onClick={toggleMenu}
             >
               Contact
+            </Link>
+            <Link 
+              to="/profile" 
+              className="py-3 border-b font-medium"
+              onClick={toggleMenu}
+            >
+              Profile
             </Link>
             <div className="mt-4">
               <Link to="/cart" onClick={toggleMenu}>

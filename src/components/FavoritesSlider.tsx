@@ -1,5 +1,5 @@
 
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { 
   Carousel,
   CarouselContent,
@@ -10,10 +10,29 @@ import {
 import { useFavorites } from "@/hooks/use-favorites";
 import ProductCard from "@/components/ProductCard";
 import { Heart, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const FavoritesSlider = () => {
   const { favorites, loading } = useFavorites();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getUser();
+      setIsAuthenticated(!!data.user);
+    };
+    
+    checkAuth();
+    
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session?.user);
+    });
+    
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   // Don't display if loading or no favorites
   if (loading) {
