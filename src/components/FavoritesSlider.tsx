@@ -1,6 +1,5 @@
 
 import { useRef } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Carousel,
   CarouselContent,
@@ -10,8 +9,7 @@ import {
 } from "@/components/ui/carousel";
 import { useFavorites } from "@/hooks/use-favorites";
 import ProductCard from "@/components/ProductCard";
-import { Button } from "@/components/ui/button";
-import { Heart, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Heart, Loader2 } from "lucide-react";
 
 const FavoritesSlider = () => {
   const { favorites, loading } = useFavorites();

@@ -19,12 +19,25 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
   const [favorites, setFavorites] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{ id: string } | null>(null);
+  const [isSupabaseConnected, setIsSupabaseConnected] = useState<boolean>(true);
 
   // Check for authenticated user
   useEffect(() => {
     const checkUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user);
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        if (error) {
+          console.error("Error checking user:", error);
+          setIsSupabaseConnected(false);
+          setUser(null);
+        } else {
+          setUser(data.user);
+        }
+      } catch (error) {
+        console.error("Failed to connect to Supabase:", error);
+        setIsSupabaseConnected(false);
+        setUser(null);
+      }
     };
     
     checkUser();
@@ -36,10 +49,19 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
       // Clear favorites when user logs out
       if (event === 'SIGNED_OUT') {
         setFavorites([]);
+        // Reload from localStorage when signed out
+        const savedFavorites = localStorage.getItem('teknoland-favorites');
+        if (savedFavorites) {
+          try {
+            setFavorites(JSON.parse(savedFavorites));
+          } catch (error) {
+            console.error('Failed to parse favorites from localStorage:', error);
+          }
+        }
       }
       
       // Reload favorites when user logs in
-      if (event === 'SIGNED_IN' && session?.user) {
+      if (event === 'SIGNED_IN' && session?.user && isSupabaseConnected) {
         fetchFavorites(session.user.id);
       }
     });
@@ -51,7 +73,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
 
   // Fetch favorites from local storage on initial load
   useEffect(() => {
-    if (!user) {
+    if (!user || !isSupabaseConnected) {
       const savedFavorites = localStorage.getItem('teknoland-favorites');
       if (savedFavorites) {
         try {
@@ -65,31 +87,37 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
       // If user is authenticated, fetch favorites from Supabase
       fetchFavorites(user.id);
     }
-  }, [user]);
+  }, [user, isSupabaseConnected]);
 
   // Save anonymous user favorites to localStorage
   useEffect(() => {
-    if (!user) {
+    if (!user || !isSupabaseConnected) {
       localStorage.setItem('teknoland-favorites', JSON.stringify(favorites));
     }
-  }, [favorites, user]);
+  }, [favorites, user, isSupabaseConnected]);
 
   // Fetch favorites from Supabase
   const fetchFavorites = async (userId: string) => {
+    if (!isSupabaseConnected) {
+      setLoading(false);
+      return;
+    }
+    
     setLoading(true);
     try {
+      // Use a generic approach rather than strictly typed
       const { data: favoritesData, error } = await supabase
         .from('favorites')
-        .select('*, product_id')
+        .select('*')
         .eq('user_id', userId);
 
       if (error) {
         throw error;
       }
 
-      if (favoritesData.length > 0) {
+      if (favoritesData && favoritesData.length > 0) {
         // Get product details for each favorite
-        const productIds = favoritesData.map(fav => fav.product_id);
+        const productIds = favoritesData.map((fav: any) => fav.product_id);
         
         const { data: productsData, error: productsError } = await supabase
           .from('products')
@@ -100,13 +128,27 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
           throw productsError;
         }
         
-        setFavorites(productsData);
+        if (productsData) {
+          setFavorites(productsData);
+        } else {
+          setFavorites([]);
+        }
       } else {
         setFavorites([]);
       }
     } catch (error) {
       console.error('Error fetching favorites:', error);
       toast.error('Failed to load favorites');
+      // Fallback to localStorage
+      const savedFavorites = localStorage.getItem('teknoland-favorites');
+      if (savedFavorites) {
+        try {
+          setFavorites(JSON.parse(savedFavorites));
+        } catch (e) {
+          console.error('Failed to parse favorites from localStorage:', e);
+        }
+      }
+      setIsSupabaseConnected(false);
     } finally {
       setLoading(false);
     }
@@ -120,8 +162,8 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
     setFavorites(prev => [...prev, product]);
     toast.success("Added to favorites!");
     
-    // If user is authenticated, save to Supabase
-    if (user) {
+    // If user is authenticated and Supabase is connected, save to Supabase
+    if (user && isSupabaseConnected) {
       try {
         const { error } = await supabase
           .from('favorites')
@@ -136,7 +178,12 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
       } catch (error) {
         console.error('Error saving favorite to database:', error);
         toast.error('Failed to save favorite');
+        setIsSupabaseConnected(false);
       }
+    } else {
+      // Save to localStorage if not authenticated or Supabase is not connected
+      const currentFavorites = [...favorites, product];
+      localStorage.setItem('teknoland-favorites', JSON.stringify(currentFavorites));
     }
   };
 
@@ -144,8 +191,8 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
     setFavorites(prev => prev.filter(item => item.id !== productId));
     toast.success("Removed from favorites");
     
-    // If user is authenticated, remove from Supabase
-    if (user) {
+    // If user is authenticated and Supabase is connected, remove from Supabase
+    if (user && isSupabaseConnected) {
       try {
         const { error } = await supabase
           .from('favorites')
@@ -159,7 +206,12 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
       } catch (error) {
         console.error('Error removing favorite from database:', error);
         toast.error('Failed to remove favorite');
+        setIsSupabaseConnected(false);
       }
+    } else {
+      // Save to localStorage if not authenticated or Supabase is not connected
+      const updatedFavorites = favorites.filter(item => item.id !== productId);
+      localStorage.setItem('teknoland-favorites', JSON.stringify(updatedFavorites));
     }
   };
 
