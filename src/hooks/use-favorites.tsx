@@ -105,9 +105,9 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
     
     setLoading(true);
     try {
-      // Using a more generic approach to avoid TypeScript errors with table names
+      // Use type assertion instead of generic parameters
       const { data: favoritesData, error } = await supabase
-        .from('favorites' as any)
+        .from('favorites' as string)
         .select('*')
         .eq('user_id', userId);
 
@@ -120,7 +120,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
         const productIds = favoritesData.map((fav: any) => fav.product_id);
         
         const { data: productsData, error: productsError } = await supabase
-          .from('products' as any)
+          .from('products' as string)
           .select('*')
           .in('id', productIds);
           
@@ -129,7 +129,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
         }
         
         if (productsData) {
-          setFavorites(productsData);
+          setFavorites(productsData as Product[]);
         } else {
           setFavorites([]);
         }
@@ -166,11 +166,11 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
     if (user && isSupabaseConnected) {
       try {
         const { error } = await supabase
-          .from('favorites' as any)
+          .from('favorites' as string)
           .insert({
             user_id: user.id,
             product_id: product.id
-          } as any);
+          });
           
         if (error) {
           throw error;
@@ -195,7 +195,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
     if (user && isSupabaseConnected) {
       try {
         const { error } = await supabase
-          .from('favorites' as any)
+          .from('favorites' as string)
           .delete()
           .eq('user_id', user.id)
           .eq('product_id', productId);
