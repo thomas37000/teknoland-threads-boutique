@@ -105,7 +105,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
     
     setLoading(true);
     try {
-      // Using proper typing with "any" to bypass TypeScript's type checking for dynamic table names
+      // Using the correct type for Supabase table names
       const { data: favoritesData, error } = await supabase
         .from('favorites')
         .select('*')
@@ -117,7 +117,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
 
       if (favoritesData && favoritesData.length > 0) {
         // Get product details for each favorite
-        const productIds = favoritesData.map((fav: any) => fav.product_id);
+        const productIds = favoritesData.map((fav) => fav.product_id);
         
         const { data: productsData, error: productsError } = await supabase
           .from('products')
@@ -165,6 +165,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
     // If user is authenticated and Supabase is connected, save to Supabase
     if (user && isSupabaseConnected) {
       try {
+        // Using the correct type for Supabase table names
         const { error } = await supabase
           .from('favorites')
           .insert({
@@ -194,6 +195,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
     // If user is authenticated and Supabase is connected, remove from Supabase
     if (user && isSupabaseConnected) {
       try {
+        // Using the correct type for Supabase table names
         const { error } = await supabase
           .from('favorites')
           .delete()
