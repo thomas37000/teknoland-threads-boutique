@@ -12,6 +12,11 @@ export const products: Product[] = [
     category: "Man's T-Shirts",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Light Blue", "White", "Black"],
+    colorImages: {
+      "Light Blue": "https://images.unsplash.com/photo-1573766707566-14de00312558?auto=format&fit=crop&w=800&h=600",
+      "White": "https://images.unsplash.com/photo-1564859228273-274232fdb516?auto=format&fit=crop&w=800&h=600",
+      "Black": "https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=800&h=600"
+    },
     stock: 42
   },
   {
@@ -24,6 +29,10 @@ export const products: Product[] = [
     isNew: true,
     sizes: ["S", "M", "L", "XL"],
     colors: ["Light Wash", "Dark Wash"],
+    colorImages: {
+      "Light Wash": "https://images.unsplash.com/photo-1607345366928-199ea26cfe3e?auto=format&fit=crop&w=800&h=600",
+      "Dark Wash": "https://images.unsplash.com/photo-1543076447-215ad9ba6923?auto=format&fit=crop&w=800&h=600"
+    },
     stock: 38
   },
   
@@ -38,6 +47,11 @@ export const products: Product[] = [
     isNew: true,
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["Purple", "Teal", "White"],
+    colorImages: {
+      "Purple": "https://images.unsplash.com/photo-1554568218-0f1715e72254?auto=format&fit=crop&w=800&h=600",
+      "Teal": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&h=600",
+      "White": "https://images.unsplash.com/photo-1503342452485-86b7f54527ef?auto=format&fit=crop&w=800&h=600"
+    },
     stock: 65
   },
   {
@@ -49,6 +63,11 @@ export const products: Product[] = [
     category: "Women's T-Shirts",
     sizes: ["XS", "S", "M", "L"],
     colors: ["Black", "White", "Pink"],
+    colorImages: {
+      "Black": "https://images.unsplash.com/photo-1503342394128-c104d54dba01?auto=format&fit=crop&w=800&h=600",
+      "White": "https://images.unsplash.com/photo-1503342250614-ca440786f637?auto=format&fit=crop&w=800&h=600",
+      "Pink": "https://images.unsplash.com/photo-1503342452485-86b7f54527ef?auto=format&fit=crop&w=800&h=600"
+    },
     stock: 27
   },
   {
@@ -61,6 +80,11 @@ export const products: Product[] = [
     isNew: true,
     sizes: ["S", "M", "L", "XL"],
     colors: ["Red", "Black", "Gray"],
+    colorImages: {
+      "Red": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&h=600",
+      "Black": "https://images.unsplash.com/photo-1503342452485-86b7f54527ef?auto=format&fit=crop&w=800&h=600",
+      "Gray": "https://images.unsplash.com/photo-1503342394128-c104d54dba01?auto=format&fit=crop&w=800&h=600"
+    },
     stock: 50
   },
   {

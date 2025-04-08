@@ -10,6 +10,7 @@ export interface Product {
   isNew?: boolean;
   sizes?: string[];
   colors?: string[];
+  colorImages?: {[color: string]: string};
 }
 
 export interface CartItem {

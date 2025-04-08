@@ -18,6 +18,7 @@ const ProductPage = () => {
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [currentImage, setCurrentImage] = useState<string>("");
   
   const topRef = useRef<HTMLDivElement>(null);
   const { addToCart } = useCart();
@@ -28,15 +29,29 @@ const ProductPage = () => {
     const fetchedProduct = products.find(p => p.id === id);
     if (fetchedProduct) {
       setProduct(fetchedProduct);
+      setCurrentImage(fetchedProduct.image);
+      
       if (fetchedProduct.sizes && fetchedProduct.sizes.length > 0) {
         setSelectedSize(fetchedProduct.sizes[0]);
       }
+      
       if (fetchedProduct.colors && fetchedProduct.colors.length > 0) {
         setSelectedColor(fetchedProduct.colors[0]);
+        // Set initial image based on the first color if color images exist
+        if (fetchedProduct.colorImages && fetchedProduct.colorImages[fetchedProduct.colors[0]]) {
+          setCurrentImage(fetchedProduct.colorImages[fetchedProduct.colors[0]]);
+        }
       }
     }
     setLoading(false);
   }, [id]);
+  
+  // Update image when color changes
+  useEffect(() => {
+    if (product && selectedColor && product.colorImages && product.colorImages[selectedColor]) {
+      setCurrentImage(product.colorImages[selectedColor]);
+    }
+  }, [selectedColor, product]);
   
   // Handle scroll event to show/hide back to top button
   useEffect(() => {
@@ -109,9 +124,9 @@ const ProductPage = () => {
         <div className="w-full md:w-1/2">
           <div className="rounded-lg overflow-hidden bg-gray-100">
             <img 
-              src={product.image} 
+              src={currentImage} 
               alt={product.name} 
-              className="w-full h-auto object-cover"
+              className="w-full h-auto object-cover aspect-square"
             />
           </div>
         </div>

@@ -1,5 +1,5 @@
 
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { 
   Carousel,
   CarouselContent,
@@ -14,13 +14,17 @@ import { supabase } from "@/integrations/supabase/client";
 
 const FavoritesSlider = () => {
   const { favorites, loading } = useFavorites();
-  const scrollRef = useRef<HTMLDivElement>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   
   useEffect(() => {
     const checkAuth = async () => {
-      const { data } = await supabase.auth.getUser();
-      setIsAuthenticated(!!data.user);
+      try {
+        const { data } = await supabase.auth.getUser();
+        setIsAuthenticated(!!data.user);
+      } catch (error) {
+        console.error("Error checking user:", error);
+        setIsAuthenticated(false);
+      }
     };
     
     checkAuth();
