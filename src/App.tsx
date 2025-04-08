@@ -19,7 +19,6 @@ import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import FavoritesSlider from "./components/FavoritesSlider";
-
 // Import the Tabs component
 import "@/components/ui/tabs";
 
@@ -45,27 +44,27 @@ const App = () => {
         <Toaster />
         <Sonner />
         <CartProvider>
-          <FavoritesProvider>
-            <BrowserRouter>
-              <div className="min-h-screen flex flex-col">
-                <Navbar currentClient={currentClient} />
-                <main className="flex-grow">
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/shop" element={<ShopPage />} />
-                    <Route path="/product/:id" element={<ProductPage />} />
-                    <Route path="/cart" element={<CartPage />} />
-                    <Route path="/about" element={<AboutPage />} />
-                    <Route path="/contact" element={<ContactPage />} />
-                    <Route path="/admin" element={<AdminPage />} />
-                    <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </main>
-                <FavoritesSlider />
-                <Footer />
-              </div>
-            </BrowserRouter>
+        <FavoritesProvider>
+          <BrowserRouter>
+            <div className="min-h-screen flex flex-col">
+              <Navbar currentClient={currentClient} />
+              <main className="flex-grow">
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/shop" element={<ShopPage />} />
+                  <Route path="/product/:id" element={<ProductPage />} />
+                  <Route path="/cart" element={<CartPage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/admin" element={<AdminPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </main>
+              <FavoritesSlider />
+              <Footer />
+            </div>
+          </BrowserRouter>
           </FavoritesProvider>
         </CartProvider>
       </TooltipProvider>
