@@ -2,7 +2,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Product } from '@/types';
-import { supabase } from '@/integrations/supabase/client';
+import { useFavoritesAuth } from '@/utils/favorites/auth';
+import { fetchUserFavorites, saveFavoriteToDatabase, removeFavoriteFromDatabase } from '@/utils/favorites/database';
+import { getFavoritesFromLocalStorage, saveFavoritesToLocalStorage } from '@/utils/favorites/localStorage';
 
 interface FavoritesContextType {
   favorites: Product[];
@@ -18,137 +20,54 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(undefin
 export const FavoritesProvider = ({ children }: { children: React.ReactNode }) => {
   const [favorites, setFavorites] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<{ id: string } | null>(null);
-  const [isSupabaseConnected, setIsSupabaseConnected] = useState<boolean>(true);
+  const { user, isSupabaseConnected, authListener } = useFavoritesAuth();
 
-  // Check for authenticated user
+  // Fetch favorites based on authentication status
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const { data, error } = await supabase.auth.getUser();
-        if (error) {
-          console.error("Error checking user:", error);
-          setIsSupabaseConnected(false);
-          setUser(null);
-        } else {
-          setUser(data.user);
-        }
-      } catch (error) {
-        console.error("Failed to connect to Supabase:", error);
-        setIsSupabaseConnected(false);
-        setUser(null);
+    const loadFavorites = async () => {
+      if (!user || !isSupabaseConnected) {
+        // Load from localStorage if user is not authenticated or Supabase is not connected
+        const localFavorites = getFavoritesFromLocalStorage();
+        setFavorites(localFavorites);
+        setLoading(false);
+      } else if (user) {
+        // Load from Supabase if authenticated
+        await loadUserFavoritesFromDatabase(user.id);
       }
     };
-    
-    checkUser();
-    
-    // Set up auth state listener
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user || null);
-      
-      // Clear favorites when user logs out
-      if (event === 'SIGNED_OUT') {
-        setFavorites([]);
-        // Reload from localStorage when signed out
-        const savedFavorites = localStorage.getItem('teknoland-favorites');
-        if (savedFavorites) {
-          try {
-            setFavorites(JSON.parse(savedFavorites));
-          } catch (error) {
-            console.error('Failed to parse favorites from localStorage:', error);
-          }
-        }
-      }
-      
-      // Reload favorites when user logs in
-      if (event === 'SIGNED_IN' && session?.user && isSupabaseConnected) {
-        fetchFavorites(session.user.id);
-      }
-    });
-    
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
 
-  // Fetch favorites from local storage on initial load
-  useEffect(() => {
-    if (!user || !isSupabaseConnected) {
-      const savedFavorites = localStorage.getItem('teknoland-favorites');
-      if (savedFavorites) {
-        try {
-          setFavorites(JSON.parse(savedFavorites));
-        } catch (error) {
-          console.error('Failed to parse favorites from localStorage:', error);
-        }
-      }
-      setLoading(false);
-    } else {
-      // If user is authenticated, fetch favorites from Supabase
-      fetchFavorites(user.id);
-    }
+    loadFavorites();
   }, [user, isSupabaseConnected]);
 
   // Save anonymous user favorites to localStorage
   useEffect(() => {
     if (!user || !isSupabaseConnected) {
-      localStorage.setItem('teknoland-favorites', JSON.stringify(favorites));
+      saveFavoritesToLocalStorage(favorites);
     }
   }, [favorites, user, isSupabaseConnected]);
 
-  // Fetch favorites from Supabase
-  const fetchFavorites = async (userId: string) => {
-    if (!isSupabaseConnected) {
-      setLoading(false);
-      return;
-    }
-    
+  // Cleanup auth listener on unmount
+  useEffect(() => {
+    return () => {
+      if (authListener) {
+        authListener.subscription.unsubscribe();
+      }
+    };
+  }, [authListener]);
+
+  const loadUserFavoritesFromDatabase = async (userId: string) => {
     setLoading(true);
+    
     try {
-      // Using the correct type for Supabase table names
-      const { data: favoritesData, error } = await supabase
-        .from('favorites')
-        .select('*')
-        .eq('user_id', userId);
-
-      if (error) {
-        throw error;
-      }
-
-      if (favoritesData && favoritesData.length > 0) {
-        // Get product details for each favorite
-        const productIds = favoritesData.map((fav) => fav.product_id);
-        
-        const { data: productsData, error: productsError } = await supabase
-          .from('products')
-          .select('*')
-          .in('id', productIds);
-          
-        if (productsError) {
-          throw productsError;
-        }
-        
-        if (productsData) {
-          setFavorites(productsData as Product[]);
-        } else {
-          setFavorites([]);
-        }
-      } else {
-        setFavorites([]);
-      }
+      const products = await fetchUserFavorites(userId);
+      setFavorites(products);
     } catch (error) {
       console.error('Error fetching favorites:', error);
       toast.error('Failed to load favorites');
+      
       // Fallback to localStorage
-      const savedFavorites = localStorage.getItem('teknoland-favorites');
-      if (savedFavorites) {
-        try {
-          setFavorites(JSON.parse(savedFavorites));
-        } catch (e) {
-          console.error('Failed to parse favorites from localStorage:', e);
-        }
-      }
-      setIsSupabaseConnected(false);
+      const localFavorites = getFavoritesFromLocalStorage();
+      setFavorites(localFavorites);
     } finally {
       setLoading(false);
     }
@@ -165,26 +84,14 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
     // If user is authenticated and Supabase is connected, save to Supabase
     if (user && isSupabaseConnected) {
       try {
-        // Using the correct type for Supabase table names
-        const { error } = await supabase
-          .from('favorites')
-          .insert({
-            user_id: user.id,
-            product_id: product.id
-          });
-          
-        if (error) {
-          throw error;
-        }
+        await saveFavoriteToDatabase(user.id, product.id);
       } catch (error) {
         console.error('Error saving favorite to database:', error);
         toast.error('Failed to save favorite');
-        setIsSupabaseConnected(false);
       }
     } else {
       // Save to localStorage if not authenticated or Supabase is not connected
-      const currentFavorites = [...favorites, product];
-      localStorage.setItem('teknoland-favorites', JSON.stringify(currentFavorites));
+      saveFavoritesToLocalStorage([...favorites, product]);
     }
   };
 
@@ -195,25 +102,15 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
     // If user is authenticated and Supabase is connected, remove from Supabase
     if (user && isSupabaseConnected) {
       try {
-        // Using the correct type for Supabase table names
-        const { error } = await supabase
-          .from('favorites')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('product_id', productId);
-          
-        if (error) {
-          throw error;
-        }
+        await removeFavoriteFromDatabase(user.id, productId);
       } catch (error) {
         console.error('Error removing favorite from database:', error);
         toast.error('Failed to remove favorite');
-        setIsSupabaseConnected(false);
       }
     } else {
       // Save to localStorage if not authenticated or Supabase is not connected
       const updatedFavorites = favorites.filter(item => item.id !== productId);
-      localStorage.setItem('teknoland-favorites', JSON.stringify(updatedFavorites));
+      saveFavoritesToLocalStorage(updatedFavorites);
     }
   };
 
