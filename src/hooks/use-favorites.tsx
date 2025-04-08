@@ -105,9 +105,9 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
     
     setLoading(true);
     try {
-      // Use type assertion instead of generic parameters
+      // Using proper typing with "any" to bypass TypeScript's type checking for dynamic table names
       const { data: favoritesData, error } = await supabase
-        .from('favorites' as string)
+        .from('favorites')
         .select('*')
         .eq('user_id', userId);
 
@@ -120,7 +120,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
         const productIds = favoritesData.map((fav: any) => fav.product_id);
         
         const { data: productsData, error: productsError } = await supabase
-          .from('products' as string)
+          .from('products')
           .select('*')
           .in('id', productIds);
           
@@ -166,7 +166,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
     if (user && isSupabaseConnected) {
       try {
         const { error } = await supabase
-          .from('favorites' as string)
+          .from('favorites')
           .insert({
             user_id: user.id,
             product_id: product.id
@@ -195,7 +195,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
     if (user && isSupabaseConnected) {
       try {
         const { error } = await supabase
-          .from('favorites' as string)
+          .from('favorites')
           .delete()
           .eq('user_id', user.id)
           .eq('product_id', productId);
