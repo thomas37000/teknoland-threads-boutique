@@ -17,32 +17,32 @@ const Navbar = ({ currentClient }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { cartItems } = useCart();
   const { user, signOut, isAdmin } = useAuth();
-  
+
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  
+
   const handleSignOut = async () => {
     await signOut();
   };
-  
+
   return (
     <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b">
       <div className="tekno-container flex justify-between items-center h-16">
         <Link to="/" className="text-2xl font-bold text-tekno-black">
           Teknoland Clothes
         </Link>
-        
+
         {/* Mobile Menu Button */}
         <div className="flex md:hidden">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={toggleMenu}
             aria-label="Toggle Menu"
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </Button>
         </div>
-        
+
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-6">
           {isAdmin && (
@@ -51,32 +51,18 @@ const Navbar = ({ currentClient }: NavbarProps) => {
             </Link>
           )}
           <Link to="/" className="font-medium hover:text-tekno-blue transition-colors">
-            Home
+            Accueil
           </Link>
           <Link to="/shop" className="font-medium hover:text-tekno-blue transition-colors">
             Shop
-          </Link>
-          <Link to="/about" className="font-medium hover:text-tekno-blue transition-colors">
-            About
           </Link>
           <Link to="/contact" className="font-medium hover:text-tekno-blue transition-colors">
             Contact
           </Link>
         </nav>
-        
+
         {/* Cart and Profile Buttons */}
         <div className="hidden md:flex items-center gap-2">
-          <Link to="/cart">
-            <Button variant="ghost" size="icon" className="relative">
-              <ShoppingBag size={24} />
-              {cartItems.length > 0 && (
-                <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 bg-tekno-blue text-white rounded-full">
-                  {cartItems.length}
-                </Badge>
-              )}
-            </Button>
-          </Link>
-          
           {user ? (
             <>
               <Link to="/profile">
@@ -91,48 +77,59 @@ const Navbar = ({ currentClient }: NavbarProps) => {
           ) : (
             <Link to="/auth">
               <Button variant="ghost" size="icon">
-                <LogIn size={24} />
+                Connexion
               </Button>
             </Link>
           )}
+
+          <Link to="/cart">
+            <Button variant="ghost" size="icon" className="relative">
+              <ShoppingBag size={24} />
+              {cartItems.length > 0 && (
+                <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 bg-tekno-blue text-white rounded-full">
+                  {cartItems.length}
+                </Badge>
+              )}
+            </Button>
+          </Link>
         </div>
       </div>
-      
+
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden absolute w-full bg-white border-b animate-fade-in">
           <div className="tekno-container py-4 flex flex-col">
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="py-3 border-b font-medium"
               onClick={toggleMenu}
             >
               Home
             </Link>
-            <Link 
-              to="/shop" 
+            <Link
+              to="/shop"
               className="py-3 border-b font-medium"
               onClick={toggleMenu}
             >
               Shop
             </Link>
-            <Link 
-              to="/about" 
+            <Link
+              to="/about"
               className="py-3 border-b font-medium"
               onClick={toggleMenu}
             >
               About
             </Link>
-            <Link 
-              to="/contact" 
+            <Link
+              to="/contact"
               className="py-3 border-b font-medium"
               onClick={toggleMenu}
             >
               Contact
             </Link>
             {isAdmin && (
-              <Link 
-                to="/admin" 
+              <Link
+                to="/admin"
                 className="py-3 border-b font-medium text-tekno-blue"
                 onClick={toggleMenu}
               >
@@ -141,14 +138,14 @@ const Navbar = ({ currentClient }: NavbarProps) => {
             )}
             {user ? (
               <>
-                <Link 
-                  to="/profile" 
+                <Link
+                  to="/profile"
                   className="py-3 border-b font-medium"
                   onClick={toggleMenu}
                 >
                   Profile
                 </Link>
-                <button 
+                <button
                   className="py-3 border-b font-medium text-left"
                   onClick={() => {
                     handleSignOut();
@@ -159,8 +156,8 @@ const Navbar = ({ currentClient }: NavbarProps) => {
                 </button>
               </>
             ) : (
-              <Link 
-                to="/auth" 
+              <Link
+                to="/auth"
                 className="py-3 border-b font-medium"
                 onClick={toggleMenu}
               >

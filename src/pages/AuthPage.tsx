@@ -104,13 +104,13 @@ const AuthPage = () => {
       <div className="w-full max-w-md p-8 rounded-lg shadow-lg bg-white">
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-tekno-black mb-2">Teknoland</h1>
-          <p className="text-gray-500">Sign in to your account or create a new one</p>
+          <p className="text-gray-500">Connectez vous ou créez un nouveau compte</p>
         </div>
         
         {verificationSent ? (
           <Alert>
             <AlertDescription className="text-center py-4">
-              Verification email sent! Please check your inbox and click the link to verify your account.
+              Vérification email envoyé! Svp regardez dans vos emails et cliquez sur le lien reçu.
               <Button 
                 className="mt-4 w-full"
                 variant="outline"
@@ -123,8 +123,8 @@ const AuthPage = () => {
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Sign up</TabsTrigger>
+              <TabsTrigger value="login">Connexion</TabsTrigger>
+              <TabsTrigger value="signup">Créer un compte</TabsTrigger>
             </TabsList>
             
             <TabsContent value="login">
@@ -134,7 +134,7 @@ const AuthPage = () => {
                   <Input 
                     id="email" 
                     type="email" 
-                    placeholder="Enter your email" 
+                    placeholder="Tapez votre email" 
                     value={email} 
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -146,7 +146,7 @@ const AuthPage = () => {
                   <Input 
                     id="password" 
                     type="password" 
-                    placeholder="Enter your password" 
+                    placeholder="********" 
                     value={password} 
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -166,11 +166,11 @@ const AuthPage = () => {
             <TabsContent value="signup">
               <form onSubmit={handleSignup} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
+                  <Label htmlFor="fullName">Nom entier</Label>
                   <Input 
                     id="fullName" 
                     type="text" 
-                    placeholder="Enter your full name" 
+                    placeholder="prénom nom" 
                     value={fullName} 
                     onChange={(e) => setFullName(e.target.value)}
                     required
@@ -182,7 +182,7 @@ const AuthPage = () => {
                   <Input 
                     id="signupEmail" 
                     type="email" 
-                    placeholder="Enter your email" 
+                    placeholder="Entrez votre email" 
                     value={email} 
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -194,7 +194,7 @@ const AuthPage = () => {
                   <Input 
                     id="signupPassword" 
                     type="password" 
-                    placeholder="Choose a password" 
+                    placeholder="Créer un mot de passe à 6 caractères minimum" 
                     value={password} 
                     onChange={(e) => setPassword(e.target.value)}
                     required
