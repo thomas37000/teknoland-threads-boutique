@@ -42,14 +42,12 @@ const ClientTable = ({
   return (
     <div>
       <Table>
-        <TableCaption>A list of all clients.</TableCaption>
+        <TableCaption>A list of all users.</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead>Orders</TableHead>
-            <TableHead className="text-right">Total Spent</TableHead>
+            <TableHead>Role</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -57,21 +55,21 @@ const ClientTable = ({
         <TableBody>
           {clients.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-10">
-                No clients found.
+              <TableCell colSpan={5} className="text-center py-10">
+                No users found.
               </TableCell>
             </TableRow>
           ) : (
             clients.map((client) => (
               <TableRow key={client.id}>
-                <TableCell className="font-medium">{client.name}</TableCell>
+                <TableCell className="font-medium">{client.name || "Unknown"}</TableCell>
                 <TableCell>{client.email}</TableCell>
-                <TableCell>{client.phone}</TableCell>
-                <TableCell>{client.totalOrders}</TableCell>
-                <TableCell className="text-right">${client.totalSpent.toFixed(2)}</TableCell>
+                <TableCell>
+                  <Badge variant="outline">{client.roles || "client"}</Badge>
+                </TableCell>
                 <TableCell>
                   <Badge variant={client.accountStatus === "active" ? "default" : "outline"}>
-                    {client.accountStatus}
+                    {client.accountStatus || "active"}
                   </Badge>
                 </TableCell>
                 <TableCell>
@@ -87,6 +85,7 @@ const ClientTable = ({
                       variant="outline"
                       size="icon"
                       onClick={() => openDeleteDialog(client)}
+                      disabled={true} // Disable delete button for now
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

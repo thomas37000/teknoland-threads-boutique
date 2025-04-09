@@ -3,7 +3,6 @@ import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Package, Users } from "lucide-react";
 import { products } from "@/data/products";
-import { clients } from "@/data/clients";
 import ProductManagement from "@/components/admin/ProductManagement";
 import ClientManagement from "@/components/admin/ClientManagement";
 
@@ -20,7 +19,7 @@ const AdminPage = () => {
           </TabsTrigger>
           <TabsTrigger value="clients" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
-            Clients
+            Users
           </TabsTrigger>
         </TabsList>
         
@@ -29,7 +28,7 @@ const AdminPage = () => {
         </TabsContent>
         
         <TabsContent value="clients">
-          <ClientManagement initialClients={clients} />
+          <ClientManagement />
         </TabsContent>
       </Tabs>
     </div>

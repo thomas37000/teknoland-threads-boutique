@@ -7,20 +7,22 @@ import { Plus, Filter, Search } from "lucide-react";
 import { Client } from "@/types";
 import ClientTable from "./ClientTable";
 import ClientDialogs from "./ClientDialogs";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ClientManagementProps {
-  initialClients: Client[];
+  initialClients?: Client[];
 }
 
 const ITEMS_PER_PAGE = 5;
 
-const ClientManagement = ({ initialClients }: ClientManagementProps) => {
-  const [clients, setClients] = useState<Client[]>(initialClients);
-  const [filteredClients, setFilteredClients] = useState<Client[]>(initialClients);
+const ClientManagement = ({ initialClients = [] }: ClientManagementProps) => {
+  const [clients, setClients] = useState<Client[]>([]);
+  const [filteredClients, setFilteredClients] = useState<Client[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [isLoading, setIsLoading] = useState(true);
   
   // Dialog states
   const [isAddClientDialogOpen, setIsAddClientDialogOpen] = useState(false);
@@ -38,6 +40,48 @@ const ClientManagement = ({ initialClients }: ClientManagementProps) => {
     lastPurchase: new Date().toISOString().split('T')[0],
     accountStatus: "active"
   });
+
+  // Fetch profiles from Supabase
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*');
+        
+        if (error) {
+          throw error;
+        }
+        
+        if (data) {
+          // Convert Supabase profiles to Client format
+          const formattedClients: Client[] = data.map(profile => ({
+            id: profile.id,
+            name: profile.full_name || 'Unknown',
+            email: profile.email,
+            phone: '',  // These fields don't exist in profiles table
+            address: '',
+            totalOrders: 0,
+            totalSpent: 0,
+            lastPurchase: new Date().toISOString().split('T')[0],
+            accountStatus: profile.role === "admin" ? "active" : "active",
+            roles: profile.role || "client"
+          }));
+          
+          setClients(formattedClients);
+          setFilteredClients(formattedClients);
+        }
+      } catch (error) {
+        console.error('Error fetching profiles:', error);
+        toast.error('Failed to load users');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfiles();
+  }, []);
 
   // Calculate total pages
   const totalPages = Math.ceil(filteredClients.length / ITEMS_PER_PAGE);
@@ -57,9 +101,9 @@ const ClientManagement = ({ initialClients }: ClientManagementProps) => {
       const lowerQuery = searchQuery.toLowerCase();
       result = result.filter(
         client => 
-          client.name.toLowerCase().includes(lowerQuery) || 
+          (client.name?.toLowerCase().includes(lowerQuery) || false) || 
           client.email.toLowerCase().includes(lowerQuery) ||
-          client.phone.includes(searchQuery)
+          (client.phone?.includes(searchQuery) || false)
       );
     }
     
@@ -72,61 +116,45 @@ const ClientManagement = ({ initialClients }: ClientManagementProps) => {
     setCurrentPage(1); // Reset to first page when filters change
   }, [clients, searchQuery, statusFilter]);
 
-  const handleAddClient = () => {
-    const clientToAdd = {
-      ...newClient,
-      id: String(Date.now()), // Generate a unique ID
-      totalOrders: Number(newClient.totalOrders) || 0,
-      totalSpent: Number(newClient.totalSpent) || 0,
-    } as Client;
-    
-    setClients([...clients, clientToAdd]);
-    setNewClient({
-      id: "",
-      name: "",
-      email: "",
-      phone: "",
-      address: "",
-      totalOrders: 0,
-      totalSpent: 0,
-      lastPurchase: new Date().toISOString().split('T')[0],
-      accountStatus: "active"
-    });
+  const handleAddClient = async () => {
+    // This would require adding a new user to Supabase Auth
+    // For simplicity, we'll just show a message
+    toast.info("Adding new users requires registration through auth system");
     setIsAddClientDialogOpen(false);
-    toast({
-      title: "Client added",
-      description: `${clientToAdd.name} has been added successfully.`
-    });
   };
 
-  const handleEditClient = () => {
+  const handleEditClient = async () => {
     if (!currentClient) return;
     
-    const updatedClient = {
-      ...currentClient,
-      totalOrders: Number(currentClient.totalOrders) || 0,
-      totalSpent: Number(currentClient.totalSpent) || 0,
-    };
-    
-    setClients(
-      clients.map((c) => (c.id === updatedClient.id ? updatedClient : c))
-    );
-    setIsEditClientDialogOpen(false);
-    toast({
-      title: "Client updated",
-      description: `${updatedClient.name} has been updated successfully.`
-    });
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          full_name: currentClient.name,
+          role: currentClient.roles || 'client'
+        })
+        .eq('id', currentClient.id);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setClients(
+        clients.map((c) => (c.id === currentClient.id ? currentClient : c))
+      );
+      
+      setIsEditClientDialogOpen(false);
+      toast.success(`${currentClient.name} has been updated successfully.`);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Failed to update user');
+    }
   };
 
-  const handleDeleteClient = () => {
+  const handleDeleteClient = async () => {
     if (!currentClient) return;
     
-    setClients(clients.filter((c) => c.id !== currentClient.id));
+    toast.info("Deleting users is not supported through the admin interface");
     setIsDeleteClientDialogOpen(false);
-    toast({
-      title: "Client deleted",
-      description: `${currentClient.name} has been deleted successfully.`
-    });
   };
 
   const openEditClientDialog = (client: Client) => {
@@ -146,10 +174,10 @@ const ClientManagement = ({ initialClients }: ClientManagementProps) => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Manage Clients</h2>
-        <Button onClick={() => setIsAddClientDialogOpen(true)}>
+        <h2 className="text-2xl font-bold">Manage Users</h2>
+        <Button onClick={() => setIsAddClientDialogOpen(true)} disabled={true}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Client
+          Add User
         </Button>
       </div>
 
@@ -158,7 +186,7 @@ const ClientManagement = ({ initialClients }: ClientManagementProps) => {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Search clients..."
+            placeholder="Search users..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-8"
@@ -180,14 +208,20 @@ const ClientManagement = ({ initialClients }: ClientManagementProps) => {
         </div>
       </div>
 
-      <ClientTable 
-        clients={currentItems}
-        openEditDialog={openEditClientDialog}
-        openDeleteDialog={openDeleteClientDialog}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+      {isLoading ? (
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-tekno-blue"></div>
+        </div>
+      ) : (
+        <ClientTable 
+          clients={currentItems}
+          openEditDialog={openEditClientDialog}
+          openDeleteDialog={openDeleteClientDialog}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      )}
 
       <ClientDialogs 
         isAddClientDialogOpen={isAddClientDialogOpen}
