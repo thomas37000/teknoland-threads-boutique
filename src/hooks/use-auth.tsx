@@ -18,6 +18,15 @@ interface AuthContextType {
   isAdmin: boolean;
 }
 
+// Define the profile data structure based on our database
+interface Profile {
+  id: string;
+  email: string;
+  full_name?: string | null;
+  avatar_url?: string | null;
+  role: string;
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -41,7 +50,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       
-      if (data && data.role) {
+      // Make sure we handle the case where data might be null or undefined
+      if (data) {
         setUserRole(data.role);
         setIsAdmin(data.role === 'admin');
       }
