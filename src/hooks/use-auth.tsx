@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // and safely check if the role property exists
       if (data) {
         // Type assertion to work with the data
-        const profile = data as any;
+        const profile = data as Profile;
         if (profile && profile.role) {
           setUserRole(profile.role);
           setIsAdmin(profile.role === 'admin');
