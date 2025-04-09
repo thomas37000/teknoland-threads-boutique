@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,14 +8,39 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/hooks/use-auth";
 
 const AuthPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
+  const { user } = useAuth();
+  
+  // Check if user is redirected from email verification
+  useEffect(() => {
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const error = hashParams.get("error");
+    const errorDescription = hashParams.get("error_description");
+    
+    if (error) {
+      toast.error(errorDescription || "Verification failed");
+    }
+  }, []);
+  
+  // If user is already logged in, redirect to home
+  useEffect(() => {
+    if (user) {
+      // Get the redirect path from location state or default to home
+      const from = location.state?.from?.pathname || "/";
+      navigate(from, { replace: true });
+    }
+  }, [user, navigate, location]);
 
   // Handle login with email and password
   const handleLogin = async (e: React.FormEvent) => {
@@ -47,6 +72,9 @@ const AuthPage = () => {
     setIsLoading(true);
     
     try {
+      // Use the redirect URL based on window.location.origin to ensure it works in all environments
+      const redirectTo = `${window.location.origin}/auth`;
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -54,6 +82,7 @@ const AuthPage = () => {
           data: {
             full_name: fullName,
           },
+          emailRedirectTo: redirectTo
         },
       });
       
@@ -61,8 +90,8 @@ const AuthPage = () => {
         throw error;
       }
       
+      setVerificationSent(true);
       toast.success("Registration successful! Please check your email for verification.");
-      setActiveTab("login");
     } catch (error: any) {
       toast.error(error.message || "Failed to sign up");
     } finally {
@@ -78,96 +107,111 @@ const AuthPage = () => {
           <p className="text-gray-500">Sign in to your account or create a new one</p>
         </div>
         
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="signup">Sign up</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="login">
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="Enter your email" 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  placeholder="Enter your password" 
-                  value={password} 
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              
+        {verificationSent ? (
+          <Alert>
+            <AlertDescription className="text-center py-4">
+              Verification email sent! Please check your inbox and click the link to verify your account.
               <Button 
-                type="submit" 
-                className="w-full bg-tekno-blue hover:bg-tekno-blue/90" 
-                disabled={isLoading}
+                className="mt-4 w-full"
+                variant="outline"
+                onClick={() => setVerificationSent(false)}
               >
-                {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait</> : "Login"}
+                Return to login
               </Button>
-            </form>
-          </TabsContent>
-          
-          <TabsContent value="signup">
-            <form onSubmit={handleSignup} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input 
-                  id="fullName" 
-                  type="text" 
-                  placeholder="Enter your full name" 
-                  value={fullName} 
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="signupEmail">Email</Label>
-                <Input 
-                  id="signupEmail" 
-                  type="email" 
-                  placeholder="Enter your email" 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="signupPassword">Password</Label>
-                <Input 
-                  id="signupPassword" 
-                  type="password" 
-                  placeholder="Choose a password" 
-                  value={password} 
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full bg-tekno-blue hover:bg-tekno-blue/90" 
-                disabled={isLoading}
-              >
-                {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait</> : "Sign Up"}
-              </Button>
-            </form>
-          </TabsContent>
-        </Tabs>
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="signup">Sign up</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="login">
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="Enter your email" 
+                    value={email} 
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    placeholder="Enter your password" 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full bg-tekno-blue hover:bg-tekno-blue/90" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait</> : "Login"}
+                </Button>
+              </form>
+            </TabsContent>
+            
+            <TabsContent value="signup">
+              <form onSubmit={handleSignup} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input 
+                    id="fullName" 
+                    type="text" 
+                    placeholder="Enter your full name" 
+                    value={fullName} 
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="signupEmail">Email</Label>
+                  <Input 
+                    id="signupEmail" 
+                    type="email" 
+                    placeholder="Enter your email" 
+                    value={email} 
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="signupPassword">Password</Label>
+                  <Input 
+                    id="signupPassword" 
+                    type="password" 
+                    placeholder="Choose a password" 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full bg-tekno-blue hover:bg-tekno-blue/90" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait</> : "Sign Up"}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
+        )}
       </div>
     </div>
   );
