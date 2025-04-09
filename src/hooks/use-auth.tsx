@@ -24,7 +24,7 @@ interface Profile {
   email: string;
   full_name?: string | null;
   avatar_url?: string | null;
-  role: string;
+  role?: string | null;  // Make role optional since it might not exist in the database yet
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('role')
+        .select('*')  // Select all columns to ensure we get whatever is available
         .eq('id', userId)
         .single();
       
@@ -51,9 +51,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       // Make sure we handle the case where data might be null or undefined
+      // and safely check if the role property exists
       if (data) {
-        setUserRole(data.role);
-        setIsAdmin(data.role === 'admin');
+        // Type assertion to work with the data
+        const profile = data as any;
+        if (profile && profile.role) {
+          setUserRole(profile.role);
+          setIsAdmin(profile.role === 'admin');
+        } else {
+          console.log("Role not found in profile data:", profile);
+          // Default to 'client' role if not specified
+          setUserRole('client');
+          setIsAdmin(false);
+        }
       }
     } catch (error) {
       console.error("Error fetching user role:", error);
