@@ -4,20 +4,51 @@ import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
 import { toast } from "sonner";
 
+interface UserWithRole extends User {
+  role?: string;
+}
+
 interface AuthContextType {
-  user: User | null;
+  user: UserWithRole | null;
   session: Session | null;
   isLoading: boolean;
+  userRole: string | null;
   signOut: () => Promise<void>;
   verifyOtp: (email: string, token: string) => Promise<void>;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserWithRole | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Fetch user role from profiles table
+  const fetchUserRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+      
+      if (error) {
+        console.error("Error fetching user role:", error);
+        return;
+      }
+      
+      if (data) {
+        setUserRole(data.role);
+        setIsAdmin(data.role === 'admin');
+      }
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+    }
+  };
 
   useEffect(() => {
     // Handle URL fragment for email verification
@@ -50,9 +81,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Handle auth events
         if (event === 'SIGNED_OUT') {
           console.log('User signed out');
+          setUserRole(null);
+          setIsAdmin(false);
           toast.info("You have been signed out");
         } else if (event === 'SIGNED_IN') {
           console.log('User signed in');
+          // Fetch user role after sign in
+          if (currentSession?.user) {
+            setTimeout(() => {
+              fetchUserRole(currentSession.user.id);
+            }, 0);
+          }
           toast.success("Successfully signed in!");
         } else if (event === 'USER_UPDATED') {
           console.log('User updated');
@@ -67,6 +106,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       setIsLoading(false);
+      
+      // Fetch user role if session exists
+      if (currentSession?.user) {
+        fetchUserRole(currentSession.user.id);
+      }
     });
 
     return () => {
@@ -101,8 +145,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     session,
     isLoading,
+    userRole,
     signOut,
     verifyOtp,
+    isAdmin
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

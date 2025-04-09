@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { Client } from "@/types";
+import { toast } from "sonner";
 
 interface NavbarProps {
   currentClient: Client | null;
@@ -15,10 +16,9 @@ interface NavbarProps {
 const Navbar = ({ currentClient }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { cartItems } = useCart();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
   
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const isAdmin = currentClient?.roles === "admin";
   
   const handleSignOut = async () => {
     await signOut();
@@ -45,9 +45,11 @@ const Navbar = ({ currentClient }: NavbarProps) => {
         
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-6">
-        {isAdmin && <Link to="/admin" className="font-medium hover:text-tekno-blue transition-colors">
-            Admin
-          </Link>}
+          {isAdmin && (
+            <Link to="/admin" className="font-medium hover:text-tekno-blue transition-colors">
+              Admin
+            </Link>
+          )}
           <Link to="/" className="font-medium hover:text-tekno-blue transition-colors">
             Home
           </Link>
@@ -128,6 +130,15 @@ const Navbar = ({ currentClient }: NavbarProps) => {
             >
               Contact
             </Link>
+            {isAdmin && (
+              <Link 
+                to="/admin" 
+                className="py-3 border-b font-medium text-tekno-blue"
+                onClick={toggleMenu}
+              >
+                Admin
+              </Link>
+            )}
             {user ? (
               <>
                 <Link 

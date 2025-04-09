@@ -9,6 +9,7 @@ import { FavoritesProvider } from "@/hooks/use-favorites";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Client } from "@/types";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 import Index from "./pages/Index";
 import ShopPage from "./pages/ShopPage";
 import ProductPage from "./pages/ProductPage";
@@ -63,9 +64,9 @@ const App = () => {
                       <Route 
                         path="/admin" 
                         element={
-                          <ProtectedRoute>
+                          <AdminRoute>
                             <AdminPage />
-                          </ProtectedRoute>
+                          </AdminRoute>
                         } 
                       />
                       <Route 
