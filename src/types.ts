@@ -30,5 +30,7 @@ export interface Client {
   totalSpent: number;
   lastPurchase: string;
   accountStatus: "active" | "inactive";
-  roles: "client"| "admin"
+  roles: "client" | "admin";
+  cookieConsent?: boolean;
+  cookieConsentDate?: string;
 }

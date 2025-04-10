@@ -23,6 +23,7 @@ import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import FavoritesSlider from "./components/FavoritesSlider";
+import CookieConsent from "./components/CookieConsent";
 // Import the Tabs component
 import "@/components/ui/tabs";
 
@@ -83,6 +84,7 @@ const App = () => {
                   </main>
                   <FavoritesSlider />
                   <Footer />
+                  <CookieConsent />
                 </div>
               </BrowserRouter>
             </FavoritesProvider>
