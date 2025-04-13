@@ -22,9 +22,13 @@ interface AuthContextType {
 interface Profile {
   id: string;
   email: string;
-  full_name?: string | null;
+  name?: string | null;
   avatar_url?: string | null;
-  role?: string | null;  // Make role optional since it might not exist in the database yet
+  role?: string | null;  
+  roles?: string | null;  // Use either role or roles
+  accountStatus?: string | null;
+  cookieConsent?: boolean | null;
+  cookieConsentDate?: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')  // Select all columns to ensure we get whatever is available
+        .select('*')
         .eq('id', userId)
         .single();
       
@@ -50,20 +54,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       
-      // Make sure we handle the case where data might be null or undefined
-      // and safely check if the role property exists
       if (data) {
         // Type assertion to work with the data
         const profile = data as Profile;
-        if (profile && profile.role) {
-          setUserRole(profile.role);
-          setIsAdmin(profile.role === 'admin');
-        } else {
-          console.log("Role not found in profile data:", profile);
-          // Default to 'client' role if not specified
-          setUserRole('client');
-          setIsAdmin(false);
-        }
+        
+        // Check for 'roles' or 'role' property
+        const roleValue = profile.roles || profile.role || 'client';
+        
+        console.log("User profile data:", profile);
+        console.log("Role detected:", roleValue);
+        
+        setUserRole(roleValue);
+        // Set admin status - checking both lowercase and uppercase versions
+        const isUserAdmin = 
+          roleValue?.toLowerCase() === 'admin' || 
+          profile.accountStatus?.toLowerCase() === 'admin';
+        
+        setIsAdmin(isUserAdmin);
+        console.log("Is admin:", isUserAdmin);
       }
     } catch (error) {
       console.error("Error fetching user role:", error);
@@ -125,12 +133,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
-      setIsLoading(false);
       
       // Fetch user role if session exists
       if (currentSession?.user) {
         fetchUserRole(currentSession.user.id);
       }
+      
+      setIsLoading(false);
     });
 
     return () => {

@@ -30,19 +30,6 @@ import "@/components/ui/tabs";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const currentClient: Client = {
-    id: "1",
-    name: "Admin User",
-    email: "admin@tekno.com",
-    phone: "0000000000",
-    address: "123 Admin St",
-    totalOrders: 42,
-    totalSpent: 9999,
-    lastPurchase: "2025-04-01",
-    accountStatus: "active",
-    roles: "client",
-  };
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -53,7 +40,7 @@ const App = () => {
             <FavoritesProvider>
               <BrowserRouter>
                 <div className="min-h-screen flex flex-col">
-                  <Navbar currentClient={currentClient} />
+                  <Navbar />
                   <main className="flex-grow">
                     <Routes>
                       <Route path="/" element={<Index />} />

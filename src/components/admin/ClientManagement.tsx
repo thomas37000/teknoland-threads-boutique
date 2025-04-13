@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Client } from "@/types";
 import ClientTable from "./ClientTable";
@@ -37,8 +38,8 @@ const ClientManagement = () => {
             lastPurchase: profile.lastPurchase || "",
             accountStatus: (profile.accountStatus as "active" | "inactive") || "active",
             roles: (profile.roles as "client" | "admin") || "client",
-            cookieConsent: profile.cookieConsent,
-            cookieConsentDate: profile.cookieConsentDate
+            cookieConsent: profile.cookieConsent as boolean | undefined,
+            cookieConsentDate: profile.cookieConsentDate as string | undefined
           }));
           
           setClients(transformedClients);
@@ -111,7 +112,6 @@ const ClientManagement = () => {
 
       <ClientTable
         clients={filteredClients}
-        isLoading={isLoading}
         onEdit={handleOpenEditDialog}
       />
 

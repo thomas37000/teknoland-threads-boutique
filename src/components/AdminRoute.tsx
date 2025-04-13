@@ -8,8 +8,12 @@ interface AdminRouteProps {
 }
 
 const AdminRoute = ({ children }: AdminRouteProps) => {
-  const { user, isLoading, isAdmin } = useAuth();
+  const { user, isLoading, isAdmin, userRole } = useAuth();
   const location = useLocation();
+
+  console.log("AdminRoute - User:", user);
+  console.log("AdminRoute - isAdmin:", isAdmin);
+  console.log("AdminRoute - userRole:", userRole);
 
   if (isLoading) {
     return (

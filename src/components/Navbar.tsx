@@ -1,19 +1,13 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, ShoppingBag, User, LogIn, LogOut } from "lucide-react";
+import { Menu, X, ShoppingBag, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
-import { Client } from "@/types";
-import { toast } from "sonner";
 
-interface NavbarProps {
-  currentClient: Client | null;
-}
-
-const Navbar = ({ currentClient }: NavbarProps) => {
+const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { cartItems } = useCart();
   const { user, signOut, isAdmin } = useAuth();
