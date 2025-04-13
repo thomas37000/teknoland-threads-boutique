@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 
 const categories = [
@@ -6,7 +5,7 @@ const categories = [
     id: "tshirts",
     name: "T-Shirts",
     image: "https://images.unsplash.com/photo-1578681994506-b8f463449011?auto=format&fit=crop&w=800&h=600",
-    link: "/shop?category=tshirts"
+    link: "/shop?category=t-shirts"
   },
   {
     id: "hoodies",
