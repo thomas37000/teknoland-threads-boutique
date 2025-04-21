@@ -124,7 +124,7 @@ const ProductPage = () => {
         <div className="w-full md:w-1/2">
           <div className="rounded-lg overflow-hidden bg-gray-100">
             <img 
-              src={currentImage} 
+              src={product.image} 
               alt={product.name} 
               className="w-full h-auto object-cover aspect-square"
             />

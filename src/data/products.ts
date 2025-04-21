@@ -5,10 +5,10 @@ export const products: Product[] = [
   // Men's T-Shirtss - removing requested items (9, 11, 13) and keeping the others
   {
     id: "10",
-    name: "Digital Matrix Oxford",
-    description: "Classic oxford shirt with our signature digital matrix pattern. Business-casual with a tech twist.",
-    price: 64.99,
-    image: "https://images.unsplash.com/photo-1573766707566-14de00312558?auto=format&fit=crop&w=800&h=600",
+    name: "Sound System",
+    description: "Lorem Ipsum.",
+    price: 29.99,
+    image: "https://thwkmsuqkevfgqwlayqv.supabase.co/storage/v1/object/public/tshirts//T%20shirt%20Enceintes%20de%20Teuf.png",
     category: "Man's T-Shirts",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Light Blue", "White", "Black"],
@@ -21,10 +21,90 @@ export const products: Product[] = [
   },
   {
     id: "12",
-    name: "Tech Pioneer Denim Shirt",
-    description: "Durable denim shirt with subtle tech-inspired embroidery. Versatile and stylish for any casual occasion.",
-    price: 69.99,
-    image: "https://images.unsplash.com/photo-1607345366928-199ea26cfe3e?auto=format&fit=crop&w=800&h=600",
+    name: "Labyrinthe",
+    description: "Lorem Ipsum.",
+    price: 29.99,
+    image: "https://thwkmsuqkevfgqwlayqv.supabase.co/storage/v1/object/public/tshirts//T%20shirt%20Labyrinthe.png",
+    category: "Man's T-Shirts",
+    isNew: true,
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Light Wash", "Dark Wash"],
+    colorImages: {
+      "Light Wash": "https://images.unsplash.com/photo-1607345366928-199ea26cfe3e?auto=format&fit=crop&w=800&h=600",
+      "Dark Wash": "https://images.unsplash.com/photo-1543076447-215ad9ba6923?auto=format&fit=crop&w=800&h=600"
+    },
+    stock: 38
+  },
+  {
+    id: "29",
+    name: "Optik dos",
+    description: "Lorem Ipsum.",
+    price: 29.99,
+    image: "https://thwkmsuqkevfgqwlayqv.supabase.co/storage/v1/object/public/tshirts//T-shirt-Optik-dos.jpg",
+    category: "Man's T-Shirts",
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Light Blue", "White", "Black"],
+    colorImages: {
+      "Light Blue": "https://images.unsplash.com/photo-1573766707566-14de00312558?auto=format&fit=crop&w=800&h=600",
+      "White": "https://images.unsplash.com/photo-1564859228273-274232fdb516?auto=format&fit=crop&w=800&h=600",
+      "Black": "https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=800&h=600"
+    },
+    stock: 42
+  },
+  {
+    id: "30",
+    name: "Teknoland dos",
+    description: "Lorem Ipsum.",
+    price: 19.99,
+    image: "https://thwkmsuqkevfgqwlayqv.supabase.co/storage/v1/object/public/tshirts//T-shirts-Teknoland-DOS.jpg",
+    category: "Man's T-Shirts",
+    isNew: true,
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Light Wash", "Dark Wash"],
+    colorImages: {
+      "Light Wash": "https://images.unsplash.com/photo-1607345366928-199ea26cfe3e?auto=format&fit=crop&w=800&h=600",
+      "Dark Wash": "https://images.unsplash.com/photo-1543076447-215ad9ba6923?auto=format&fit=crop&w=800&h=600"
+    },
+    stock: 38
+  },
+  {
+    id: "31",
+    name: "Teknoland",
+    description: "Lorem Ipsum.",
+    price: 19.99,
+    image: "https://thwkmsuqkevfgqwlayqv.supabase.co/storage/v1/object/public/tshirts//T-shirts-Teknoland.jpg",
+    category: "Man's T-Shirts",
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Light Blue", "White", "Black"],
+    colorImages: {
+      "Light Blue": "https://images.unsplash.com/photo-1573766707566-14de00312558?auto=format&fit=crop&w=800&h=600",
+      "White": "https://images.unsplash.com/photo-1564859228273-274232fdb516?auto=format&fit=crop&w=800&h=600",
+      "Black": "https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=800&h=600"
+    },
+    stock: 42
+  },
+  {
+    id: "32",
+    name: "Table de Mixage",
+    description: "Lorem Ipsum.",
+    price: 19.99,
+    image: "https://thwkmsuqkevfgqwlayqv.supabase.co/storage/v1/object/public/tshirts//T%20shirt%20Table%20de%20Mixage.png",
+    category: "Man's T-Shirts",
+    isNew: true,
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Light Wash", "Dark Wash"],
+    colorImages: {
+      "Light Wash": "https://images.unsplash.com/photo-1607345366928-199ea26cfe3e?auto=format&fit=crop&w=800&h=600",
+      "Dark Wash": "https://images.unsplash.com/photo-1543076447-215ad9ba6923?auto=format&fit=crop&w=800&h=600"
+    },
+    stock: 38
+  },
+  {
+    id: "33",
+    name: "Table de Mixage Terminator",
+    description: "lorem ipsum",
+    price: 19.99,
+    image: "https://thwkmsuqkevfgqwlayqv.supabase.co/storage/v1/object/public/tshirts//T%20shirt%20Table%20de%20Mixage%20%20Terminator.png",
     category: "Man's T-Shirts",
     isNew: true,
     sizes: ["S", "M", "L", "XL"],
@@ -136,22 +216,11 @@ export const products: Product[] = [
     stock: 53
   },
   {
-    id: "21",
-    name: "Cyber Circuit Zip-Up",
-    description: "Full-zip hoodie with embroidered circuit pattern. Features convenient side pockets and adjustable hood.",
-    price: 74.99,
-    image: "https://images.unsplash.com/photo-1578681041175-9717c638d482?auto=format&fit=crop&w=800&h=600",
-    category: "Hoodies",
-    sizes: ["M", "L", "XL", "XXL"],
-    colors: ["Black", "White", "Red"],
-    stock: 29
-  },
-  {
     id: "22",
     name: "Tech Minimalist Hoodie",
     description: "Clean, minimalist design with subtle tech-inspired details. Made from organic cotton for eco-conscious comfort.",
-    price: 64.99,
-    image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=800&h=600",
+    price: 69.99,
+    image: "https://thwkmsuqkevfgqwlayqv.supabase.co/storage/v1/object/public/sweats//teckno%20Attacks%20Sweat%20Coeur.png",
     category: "Hoodies",
     sizes: ["S", "M", "L", "XL"],
     colors: ["White", "Light Gray", "Sand"],
@@ -162,7 +231,7 @@ export const products: Product[] = [
     name: "Binary Oversized Hoodie",
     description: "Trendy oversized fit with binary code pattern. Features dropped shoulders and extra-long sleeves.",
     price: 69.99,
-    image: "https://images.unsplash.com/photo-1578681994506-b8f463449011?auto=format&fit=crop&w=800&h=600",
+    image: "https://thwkmsuqkevfgqwlayqv.supabase.co/storage/v1/object/public/sweats//teckno%20Attacks%20Sweat%20Dos.png",
     category: "Hoodies",
     isNew: true,
     sizes: ["S/M", "L/XL", "XXL"],
