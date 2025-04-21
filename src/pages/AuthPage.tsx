@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -7,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, mail } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -32,23 +31,30 @@ const AuthPage = () => {
   const [activeTab, setActiveTab] = useState("login");
   const { user } = useAuth();
 
-  // For forgot password workflow
   const [showForgotPw, setShowForgotPw] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSending, setForgotSending] = useState(false);
 
-  // Check if user is redirected from email verification
+  const [showResetPw, setShowResetPw] = useState(false);
+  const [resetPw, setResetPw] = useState("");
+  const [resetPwConfirm, setResetPwConfirm] = useState("");
+  const [resetPwLoading, setResetPwLoading] = useState(false);
+
   useEffect(() => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const error = hashParams.get("error");
     const errorDescription = hashParams.get("error_description");
+    const type = hashParams.get("type");
 
     if (error) {
       toast.error(errorDescription || "Verification failed");
     }
+
+    if (type === "recovery") {
+      setShowResetPw(true);
+    }
   }, []);
 
-  // If user is already logged in, redirect to home
   useEffect(() => {
     if (user) {
       const from = location.state?.from?.pathname || "/";
@@ -56,7 +62,6 @@ const AuthPage = () => {
     }
   }, [user, navigate, location]);
 
-  // Handle login with email and password
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -80,7 +85,6 @@ const AuthPage = () => {
     }
   };
 
-  // Handle signup with email and password
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -112,7 +116,6 @@ const AuthPage = () => {
     }
   };
 
-  // Handle forgot password workflow
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setForgotSending(true);
@@ -136,6 +139,29 @@ const AuthPage = () => {
     setForgotSending(false);
   };
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetPw || !resetPwConfirm) {
+      toast.error("Veuillez entrer et confirmer votre nouveau mot de passe.");
+      return;
+    }
+    if (resetPw !== resetPwConfirm) {
+      toast.error("Les mots de passe ne correspondent pas.");
+      return;
+    }
+    setResetPwLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: resetPw });
+      if (error) throw error;
+      toast.success("Votre mot de passe a été réinitialisé avec succès !");
+      setShowResetPw(false);
+      window.location.hash = "";
+    } catch (error: any) {
+      toast.error(error.message || "Échec de la réinitialisation du mot de passe.");
+    }
+    setResetPwLoading(false);
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center p-4 bg-gray-50">
       <div className="w-full max-w-md p-8 rounded-lg shadow-lg bg-white">
@@ -144,47 +170,55 @@ const AuthPage = () => {
           <p className="text-gray-500">Connectez vous ou créez un nouveau compte</p>
         </div>
 
-        {/* Forgot Password Dialog */}
-        <Dialog open={showForgotPw} onOpenChange={setShowForgotPw}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Réinitialiser le mot de passe</DialogTitle>
-              <DialogDescription>
-                Entrez votre adresse email, nous vous enverrons un lien pour réinitialiser votre mot de passe.
-              </DialogDescription>
-            </DialogHeader>
-            <form className="space-y-4" onSubmit={handleForgotPassword}>
-              <Label htmlFor="forgotEmail">Email</Label>
-              <Input
-                id="forgotEmail"
-                type="email"
-                placeholder="Votre email"
-                value={forgotEmail}
-                onChange={(e) => setForgotEmail(e.target.value)}
-                required
-                autoFocus
-              />
-              <DialogFooter className="pt-2">
-                <Button type="submit" className="w-full" disabled={forgotSending}>
-                  {forgotSending ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <Loader2 className="animate-spin" /> Envoi...
-                    </span>
-                  ) : (
-                    <>
-                      <mail className="mr-2" /> Envoyer le lien
-                    </>
-                  )}
-                </Button>
-                <DialogClose asChild>
-                  <Button variant="outline" className="w-full">
-                    Annuler
+        {showResetPw ? (
+          <Dialog open={showResetPw} onOpenChange={setShowResetPw}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Réinitialiser le mot de passe</DialogTitle>
+                <DialogDescription>
+                  Choisissez un nouveau mot de passe pour votre compte.
+                </DialogDescription>
+              </DialogHeader>
+              <form className="space-y-4" onSubmit={handleResetPassword}>
+                <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  placeholder="Nouveau mot de passe"
+                  value={resetPw}
+                  onChange={(e) => setResetPw(e.target.value)}
+                  required
+                  autoFocus
+                />
+                <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Confirmez le nouveau mot de passe"
+                  value={resetPwConfirm}
+                  onChange={(e) => setResetPwConfirm(e.target.value)}
+                  required
+                />
+                <DialogFooter className="pt-2">
+                  <Button type="submit" className="w-full" disabled={resetPwLoading}>
+                    {resetPwLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <Loader2 className="animate-spin" /> Réinitialisation...
+                      </span>
+                    ) : (
+                      "Changer le mot de passe"
+                    )}
                   </Button>
-                </DialogClose>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+                  <DialogClose asChild>
+                    <Button variant="outline" className="w-full">
+                      Annuler
+                    </Button>
+                  </DialogClose>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        ) : null}
 
         {verificationSent ? (
           <Alert>
@@ -246,7 +280,6 @@ const AuthPage = () => {
                   )}
                 </Button>
               </form>
-              {/* Mot de passe oublié */}
               <div className="flex justify-end mt-2">
                 <button
                   className="text-sm text-tekno-blue hover:underline"
@@ -320,4 +353,3 @@ const AuthPage = () => {
 };
 
 export default AuthPage;
-
