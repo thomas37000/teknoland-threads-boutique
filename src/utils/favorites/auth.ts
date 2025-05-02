@@ -15,26 +15,7 @@ export const useFavoritesAuth = (): AuthHookResult => {
 
   // Check for authenticated user
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const { data, error } = await supabase.auth.getUser();
-        if (error) {
-          console.error("Error checking user:", error);
-          setIsSupabaseConnected(false);
-          setUser(null);
-        } else {
-          setUser(data.user);
-        }
-      } catch (error) {
-        console.error("Failed to connect to Supabase:", error);
-        setIsSupabaseConnected(false);
-        setUser(null);
-      }
-    };
-    
-    checkUser();
-    
-    // Set up auth state listener
+    // Set up auth state listener first
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user || null);
       
@@ -47,6 +28,26 @@ export const useFavoritesAuth = (): AuthHookResult => {
     });
     
     setAuthListener(data);
+    
+    // Then check for existing session
+    const checkUser = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error("Error checking session:", error);
+          setIsSupabaseConnected(false);
+          setUser(null);
+        } else {
+          setUser(data.session?.user || null);
+        }
+      } catch (error) {
+        console.error("Failed to connect to Supabase:", error);
+        setIsSupabaseConnected(false);
+        setUser(null);
+      }
+    };
+    
+    checkUser();
     
     return () => {
       data.subscription.unsubscribe();
