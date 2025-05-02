@@ -54,7 +54,7 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				tekno: {
-					blue: '#0EA5E9',
+					blue: '#2d925b',
 					black: '#151515',
 					gray: '#8A898C',
 					lightgray: '#F6F6F7'
