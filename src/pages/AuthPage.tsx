@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -6,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Mail } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -16,9 +17,9 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import { validatePassword } from "@/utils/passwordValidation";
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -31,14 +32,25 @@ const AuthPage = () => {
   const [activeTab, setActiveTab] = useState("login");
   const { user } = useAuth();
 
+  // Password visibility toggles
+  const [showPassword, setShowPassword] = useState(false);
+  const [showResetPw, setShowResetPw] = useState(false);
+  const [showPasswordIcon, setShowPasswordIcon] = useState(false);
+  const [showResetPasswordIcon, setShowResetPasswordIcon] = useState(false);
+
+  // Password validation state
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+  const [showPasswordErrors, setShowPasswordErrors] = useState(false);
+
   const [showForgotPw, setShowForgotPw] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSending, setForgotSending] = useState(false);
 
-  const [showResetPw, setShowResetPw] = useState(false);
   const [resetPw, setResetPw] = useState("");
   const [resetPwConfirm, setResetPwConfirm] = useState("");
   const [resetPwLoading, setResetPwLoading] = useState(false);
+  const [resetPasswordErrors, setResetPasswordErrors] = useState<string[]>([]);
+  const [showResetPasswordErrors, setShowResetPasswordErrors] = useState(false);
 
   useEffect(() => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -61,6 +73,26 @@ const AuthPage = () => {
       navigate(from, { replace: true });
     }
   }, [user, navigate, location]);
+
+  // Validate password as user types
+  useEffect(() => {
+    if (password) {
+      const { errors } = validatePassword(password);
+      setPasswordErrors(errors);
+    } else {
+      setPasswordErrors([]);
+    }
+  }, [password]);
+
+  // Validate reset password as user types
+  useEffect(() => {
+    if (resetPw) {
+      const { errors } = validatePassword(resetPw);
+      setResetPasswordErrors(errors);
+    } else {
+      setResetPasswordErrors([]);
+    }
+  }, [resetPw]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +119,15 @@ const AuthPage = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate password before signup
+    const { isValid, errors } = validatePassword(password);
+    
+    if (!isValid) {
+      setShowPasswordErrors(true);
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
@@ -141,14 +182,25 @@ const AuthPage = () => {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate reset password
+    const { isValid, errors } = validatePassword(resetPw);
+    
+    if (!isValid) {
+      setShowResetPasswordErrors(true);
+      return;
+    }
+    
     if (!resetPw || !resetPwConfirm) {
       toast.error("Veuillez entrer et confirmer votre nouveau mot de passe.");
       return;
     }
+    
     if (resetPw !== resetPwConfirm) {
       toast.error("Les mots de passe ne correspondent pas.");
       return;
     }
+    
     setResetPwLoading(true);
     try {
       const { error } = await supabase.auth.updateUser({ password: resetPw });
@@ -160,6 +212,21 @@ const AuthPage = () => {
       toast.error(error.message || "Échec de la réinitialisation du mot de passe.");
     }
     setResetPwLoading(false);
+  };
+
+  const renderPasswordRequirements = (errors: string[]) => {
+    if (errors.length === 0) return null;
+    
+    return (
+      <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-md">
+        <p className="text-sm font-medium text-yellow-800 mb-1">Votre mot de passe doit contenir :</p>
+        <ul className="text-xs text-yellow-700 list-disc pl-5">
+          {errors.map((error, index) => (
+            <li key={index}>{error}</li>
+          ))}
+        </ul>
+      </div>
+    );
   };
 
   return (
@@ -180,25 +247,47 @@ const AuthPage = () => {
                 </DialogDescription>
               </DialogHeader>
               <form className="space-y-4" onSubmit={handleResetPassword}>
-                <Label htmlFor="newPassword">Nouveau mot de passe</Label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  placeholder="Nouveau mot de passe"
-                  value={resetPw}
-                  onChange={(e) => setResetPw(e.target.value)}
-                  required
-                  autoFocus
-                />
-                <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="Confirmez le nouveau mot de passe"
-                  value={resetPwConfirm}
-                  onChange={(e) => setResetPwConfirm(e.target.value)}
-                  required
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+                  <div className="relative">
+                    <Input
+                      id="newPassword"
+                      type={showResetPasswordIcon ? "text" : "password"}
+                      placeholder="Nouveau mot de passe"
+                      value={resetPw}
+                      onChange={(e) => setResetPw(e.target.value)}
+                      onFocus={() => setShowResetPasswordErrors(true)}
+                      required
+                      autoFocus
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setShowResetPasswordIcon(!showResetPasswordIcon)}
+                    >
+                      {showResetPasswordIcon ? (
+                        <EyeOff className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                  {showResetPasswordErrors && renderPasswordRequirements(resetPasswordErrors)}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="Confirmez le nouveau mot de passe"
+                    value={resetPwConfirm}
+                    onChange={(e) => setResetPwConfirm(e.target.value)}
+                    required
+                  />
+                </div>
+                
                 <DialogFooter className="pt-2">
                   <Button type="submit" className="w-full" disabled={resetPwLoading}>
                     {resetPwLoading ? (
@@ -256,14 +345,28 @@ const AuthPage = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="********"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="********"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <Button
@@ -290,6 +393,42 @@ const AuthPage = () => {
                   Mot de passe oublié&nbsp;?
                 </button>
               </div>
+              
+              <Dialog open={showForgotPw} onOpenChange={setShowForgotPw}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Réinitialiser votre mot de passe</DialogTitle>
+                    <DialogDescription>
+                      Entrez votre adresse email pour recevoir un lien de réinitialisation.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleForgotPassword} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="forgotEmail">Email</Label>
+                      <Input
+                        id="forgotEmail"
+                        type="email"
+                        placeholder="Entrez votre email"
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        required
+                        autoFocus
+                      />
+                    </div>
+                    <DialogFooter>
+                      <Button type="submit" disabled={forgotSending} className="w-full">
+                        {forgotSending ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <Loader2 className="animate-spin" /> Envoi en cours...
+                          </span>
+                        ) : (
+                          "Envoyer le lien de réinitialisation"
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
             </TabsContent>
 
             <TabsContent value="signup">
@@ -320,20 +459,36 @@ const AuthPage = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="signupPassword">Password</Label>
-                  <Input
-                    id="signupPassword"
-                    type="password"
-                    placeholder="Créer un mot de passe à 6 caractères minimum"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      id="signupPassword"
+                      type={showPasswordIcon ? "text" : "password"}
+                      placeholder="Créer un mot de passe sécurisé"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onFocus={() => setShowPasswordErrors(true)}
+                      required
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setShowPasswordIcon(!showPasswordIcon)}
+                    >
+                      {showPasswordIcon ? (
+                        <EyeOff className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                  {showPasswordErrors && renderPasswordRequirements(passwordErrors)}
                 </div>
 
                 <Button
                   type="submit"
                   className="w-full bg-tekno-blue hover:bg-tekno-blue/90"
-                  disabled={isLoading}
+                  disabled={isLoading || passwordErrors.length > 0}
                 >
                   {isLoading ? (
                     <>
