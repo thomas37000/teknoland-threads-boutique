@@ -102,6 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
+        console.log("Auth state changed:", event);
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         setIsLoading(false);
@@ -113,7 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setIsAdmin(false);
           toast.info("You have been signed out");
         } else if (event === 'SIGNED_IN') {
-          console.log('User signed in');
+          console.log('User signed in', currentSession);
           // Fetch user role after sign in
           if (currentSession?.user) {
             setTimeout(() => {
@@ -130,7 +131,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     // Then check for existing session
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+    supabase.auth.getSession().then(({ data: { session: currentSession }, error }) => {
+      if (error) {
+        console.error("Error getting session:", error);
+      }
+      
+      console.log("Current session:", currentSession);
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
@@ -148,7 +154,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Error signing out:", error);
+        toast.error("Failed to sign out. Please try again.");
+      }
+    } catch (error) {
+      console.error("Exception during signout:", error);
+      toast.error("An unexpected error occurred.");
+    }
   };
 
   const verifyOtp = async (email: string, token: string) => {
