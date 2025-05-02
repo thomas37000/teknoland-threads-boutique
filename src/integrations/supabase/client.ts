@@ -3,10 +3,20 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-
+// Make sure environment variables are defined and log for debugging
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+console.log('Supabase URL:', SUPABASE_URL ? 'exists' : 'missing');
+console.log('Supabase Key:', SUPABASE_PUBLISHABLE_KEY ? 'exists' : 'missing');
+
+if (!SUPABASE_URL) {
+  throw new Error('VITE_SUPABASE_URL environment variable is missing');
+}
+
+if (!SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error('VITE_SUPABASE_PUBLISHABLE_KEY environment variable is missing');
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";

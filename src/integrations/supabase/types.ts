@@ -155,9 +155,11 @@ export type Database = {
           address: string | null
           avatar_url: string | null
           email: string
+          firstname: string | null
+          full_name: string | null
           id: string
+          lastname: string | null
           lastPurchase: string | null
-          name: string | null
           phone: string | null
           roles: string
           totalOrders: number | null
@@ -169,9 +171,11 @@ export type Database = {
           address?: string | null
           avatar_url?: string | null
           email: string
+          firstname?: string | null
+          full_name?: string | null
           id: string
+          lastname?: string | null
           lastPurchase?: string | null
-          name?: string | null
           phone?: string | null
           roles?: string
           totalOrders?: number | null
@@ -183,9 +187,11 @@ export type Database = {
           address?: string | null
           avatar_url?: string | null
           email?: string
+          firstname?: string | null
+          full_name?: string | null
           id?: string
+          lastname?: string | null
           lastPurchase?: string | null
-          name?: string | null
           phone?: string | null
           roles?: string
           totalOrders?: number | null
