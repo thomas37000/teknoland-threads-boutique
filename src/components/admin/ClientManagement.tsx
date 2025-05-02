@@ -29,7 +29,7 @@ const ClientManagement = () => {
         if (data) {
           const transformedClients: Client[] = data.map(profile => ({
             id: profile.id || "",
-            name: profile.name || "No Name",
+            name: profile.full_name || profile.firstname || "No Name", // Use full_name or firstname instead of name
             email: profile.email || "",
             phone: profile.phone || "",
             address: profile.address || "",
@@ -38,8 +38,9 @@ const ClientManagement = () => {
             lastPurchase: profile.lastPurchase || "",
             accountStatus: (profile.accountStatus as "active" | "inactive") || "active",
             roles: (profile.roles as "client" | "admin") || "client",
-            cookieConsent: profile.cookieConsent as boolean | undefined,
-            cookieConsentDate: profile.cookieConsentDate as string | undefined
+            // These fields might not be in the profiles table, so omit them or set defaults
+            cookieConsent: false,
+            cookieConsentDate: ""
           }));
           
           setClients(transformedClients);
@@ -60,7 +61,7 @@ const ClientManagement = () => {
       const { error } = await supabase
         .from('profiles')
         .update({
-          name: client.name,
+          full_name: client.name, // Use full_name instead of name
           phone: client.phone,
           address: client.address,
           accountStatus: client.accountStatus,
