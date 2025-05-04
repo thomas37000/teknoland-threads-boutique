@@ -118,6 +118,7 @@ export type Database = {
           is_new: boolean | null
           name: string
           price: number
+          size_stocks: Json | null
           sizes: string[] | null
           stock: number
         }
@@ -131,6 +132,7 @@ export type Database = {
           is_new?: boolean | null
           name: string
           price: number
+          size_stocks?: Json | null
           sizes?: string[] | null
           stock?: number
         }
@@ -144,6 +146,7 @@ export type Database = {
           is_new?: boolean | null
           name?: string
           price?: number
+          size_stocks?: Json | null
           sizes?: string[] | null
           stock?: number
         }

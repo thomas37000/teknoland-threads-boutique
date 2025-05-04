@@ -8,12 +8,14 @@ import { Product } from "@/types";
 import ProductTable from "./ProductTable";
 import ProductDialogs from "./ProductDialogs";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProductManagementProps {
   initialProducts: Product[];
 }
 
 const ITEMS_PER_PAGE = 5;
+const CATEGORIES = ["T-shirt", "Sweat", "Vinyle"]; // Available categories
 
 const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
@@ -34,8 +36,11 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
     description: "",
     price: 0,
     image: "",
-    category: "",
+    category: CATEGORIES[0], // Default to first category
     stock: 0,
+    sizes: [],
+    colors: [],
+    size_stocks: {}
   });
 
   // Get unique categories for filter
@@ -83,59 +88,154 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
     setCurrentPage(1); // Reset to first page when filters change
   }, [products, searchQuery, categoryFilter, stockFilter]);
 
-  const handleAddProduct = () => {
-    const productToAdd = {
-      ...newProduct,
-      id: String(Date.now()), // Generate a unique ID
-      price: Number(newProduct.price) || 0,
-      stock: Number(newProduct.stock) || 0,
-    } as Product;
-    
-    setProducts([...products, productToAdd]);
-    setNewProduct({
-      id: "",
-      name: "",
-      description: "",
-      price: 0,
-      image: "",
-      category: "",
-      stock: 0,
-    });
-    setIsAddDialogOpen(false);
-    toast({
-      title: "Product added",
-      description: `${productToAdd.name} has been added successfully.`
-    });
+  const handleAddProduct = async () => {
+    try {
+      const productToAdd = {
+        ...newProduct,
+        id: String(Date.now()), // Generate a unique ID
+        price: Number(newProduct.price) || 0,
+        stock: calculateTotalStock(newProduct.size_stocks),
+      } as Product;
+      
+      // Store the product in Supabase if connected
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .insert([{
+            name: productToAdd.name,
+            description: productToAdd.description,
+            price: productToAdd.price,
+            image: productToAdd.image,
+            category: productToAdd.category,
+            stock: productToAdd.stock,
+            sizes: productToAdd.sizes,
+            colors: productToAdd.colors,
+            size_stocks: productToAdd.size_stocks,
+            is_new: true
+          }])
+          .select();
+          
+        if (error) throw error;
+        
+        // If successful, use the returned data for the ID
+        if (data && data.length > 0) {
+          productToAdd.id = data[0].id;
+        }
+      } catch (err) {
+        console.error("Error storing product in Supabase:", err);
+        // Continue with local storage even if Supabase fails
+      }
+      
+      setProducts([...products, productToAdd]);
+      setNewProduct({
+        id: "",
+        name: "",
+        description: "",
+        price: 0,
+        image: "",
+        category: CATEGORIES[0],
+        stock: 0,
+        sizes: [],
+        colors: [],
+        size_stocks: {}
+      });
+      setIsAddDialogOpen(false);
+      toast({
+        title: "Product added",
+        description: `${productToAdd.name} has been added successfully.`
+      });
+    } catch (error) {
+      console.error("Error adding product:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add the product. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleEditProduct = () => {
+  const handleEditProduct = async () => {
     if (!currentProduct) return;
     
-    const updatedProduct = {
-      ...currentProduct,
-      price: Number(currentProduct.price) || 0,
-      stock: Number(currentProduct.stock) || 0,
-    };
-    
-    setProducts(
-      products.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
-    );
-    setIsEditDialogOpen(false);
-    toast({
-      title: "Product updated",
-      description: `${updatedProduct.name} has been updated successfully.`
-    });
+    try {
+      const updatedProduct = {
+        ...currentProduct,
+        price: Number(currentProduct.price) || 0,
+        stock: calculateTotalStock(currentProduct.size_stocks),
+      };
+      
+      // Update the product in Supabase if connected
+      try {
+        const { error } = await supabase
+          .from('products')
+          .update({
+            name: updatedProduct.name,
+            description: updatedProduct.description,
+            price: updatedProduct.price,
+            image: updatedProduct.image,
+            category: updatedProduct.category,
+            stock: updatedProduct.stock,
+            sizes: updatedProduct.sizes,
+            colors: updatedProduct.colors,
+            size_stocks: updatedProduct.size_stocks
+          })
+          .eq('id', updatedProduct.id);
+          
+        if (error) throw error;
+      } catch (err) {
+        console.error("Error updating product in Supabase:", err);
+        // Continue with local update even if Supabase fails
+      }
+      
+      setProducts(
+        products.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
+      );
+      setIsEditDialogOpen(false);
+      toast({
+        title: "Product updated",
+        description: `${updatedProduct.name} has been updated successfully.`
+      });
+    } catch (error) {
+      console.error("Error updating product:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update the product. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleDeleteProduct = () => {
+  const handleDeleteProduct = async () => {
     if (!currentProduct) return;
     
-    setProducts(products.filter((p) => p.id !== currentProduct.id));
-    setIsDeleteDialogOpen(false);
-    toast({
-      title: "Product deleted",
-      description: `${currentProduct.name} has been deleted successfully.`
-    });
+    try {
+      // Delete the product from Supabase if connected
+      try {
+        const { error } = await supabase
+          .from('products')
+          .delete()
+          .eq('id', currentProduct.id);
+          
+        if (error) throw error;
+      } catch (err) {
+        console.error("Error deleting product from Supabase:", err);
+        // Continue with local deletion even if Supabase fails
+      }
+      
+      setProducts(products.filter((p) => p.id !== currentProduct.id));
+      setIsDeleteDialogOpen(false);
+      toast({
+        title: "Product deleted",
+        description: `${currentProduct.name} has been deleted successfully.`
+      });
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete the product. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const openEditDialog = (product: Product) => {
@@ -150,6 +250,12 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  // Helper to calculate total stock from size_stocks object
+  const calculateTotalStock = (sizeStocks?: {[size: string]: number} | null): number => {
+    if (!sizeStocks) return 0;
+    return Object.values(sizeStocks).reduce((sum, stock) => sum + stock, 0);
   };
 
   return (
@@ -183,7 +289,7 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {categories.map(category => (
+                {CATEGORIES.map(category => (
                   <SelectItem key={category} value={category}>{category}</SelectItem>
                 ))}
               </SelectContent>

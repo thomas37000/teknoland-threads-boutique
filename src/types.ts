@@ -11,6 +11,7 @@ export interface Product {
   sizes?: string[];
   colors?: string[];
   colorImages?: {[color: string]: string};
+  size_stocks?: {[size: string]: number} | null;
 }
 
 export interface CartItem {
