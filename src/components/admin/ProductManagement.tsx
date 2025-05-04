@@ -56,8 +56,15 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
         if (error) throw error;
         
         if (data) {
-          setProducts(data);
-          setFilteredProducts(data);
+          // Transform the data to match the Product interface
+          const transformedData: Product[] = data.map(item => ({
+            ...item,
+            size_stocks: item.size_stocks ? (item.size_stocks as any) : {},
+            isNew: item.is_new
+          }));
+          
+          setProducts(transformedData);
+          setFilteredProducts(transformedData);
         }
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -123,7 +130,14 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
       const { data, error } = await supabase.from('products').select('*');
       if (error) throw error;
       if (data) {
-        setProducts(data);
+        // Transform the data to match the Product interface
+        const transformedData: Product[] = data.map(item => ({
+          ...item,
+          size_stocks: item.size_stocks ? (item.size_stocks as any) : {},
+          isNew: item.is_new
+        }));
+        
+        setProducts(transformedData);
       }
     } catch (error) {
       console.error("Error refreshing products:", error);
@@ -137,7 +151,14 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
       const { data, error } = await supabase.from('products').select('*');
       if (error) throw error;
       if (data) {
-        setProducts(data);
+        // Transform the data to match the Product interface
+        const transformedData: Product[] = data.map(item => ({
+          ...item,
+          size_stocks: item.size_stocks ? (item.size_stocks as any) : {},
+          isNew: item.is_new
+        }));
+        
+        setProducts(transformedData);
       }
     } catch (error) {
       console.error("Error refreshing products after edit:", error);
