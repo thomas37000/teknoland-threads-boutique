@@ -1,13 +1,13 @@
 
 import React from "react";
-import { 
-  Table, 
-  TableBody, 
-  TableCaption, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
@@ -30,24 +30,24 @@ interface ProductTableProps {
   onPageChange: (page: number) => void;
 }
 
-const ProductTable = ({ 
-  products, 
-  openEditDialog, 
+const ProductTable = ({
+  products,
+  openEditDialog,
   openDeleteDialog,
   currentPage,
   totalPages,
-  onPageChange 
+  onPageChange
 }: ProductTableProps) => {
   return (
     <div>
       <Table>
-        <TableCaption>A list of all products.</TableCaption>
+        <TableCaption>Tous les produits.</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>ID</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead className="text-right">Price</TableHead>
+            <TableHead>Nom</TableHead>
+            <TableHead>Catégorie</TableHead>
+            <TableHead className="text-right">Prix</TableHead>
             <TableHead className="text-right">Stock</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -56,7 +56,7 @@ const ProductTable = ({
           {products.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6} className="text-center py-10">
-                No products found.
+                Produits non trouvé !
               </TableCell>
             </TableRow>
           ) : (
@@ -101,7 +101,7 @@ const ProductTable = ({
         <Pagination className="mt-4">
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious 
+              <PaginationPrevious
                 onClick={() => onPageChange(Math.max(1, currentPage - 1))}
                 className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
               />

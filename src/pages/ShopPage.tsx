@@ -6,7 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { ArrowUp } from "lucide-react";
 import { Product } from "@/types";
-import { products as allProducts } from "@/data/products";
+// import { products as allProducts } from "@/data/products";
+import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
 
 const ShopPage = () => {
   const [searchParams] = useSearchParams();
@@ -17,6 +19,8 @@ const ShopPage = () => {
   const [sortOption, setSortOption] = useState<string>("default");
   const [pageSize, setPageSize] = useState(8); // Number of products to show initially
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   
   const topRef = useRef<HTMLDivElement>(null);
   
@@ -29,9 +33,35 @@ const ShopPage = () => {
   }, [searchParams]);
   
   // Initialize products
+  // useEffect(() => {
+  //   setProducts(allProducts);
+  // }, []);
+
   useEffect(() => {
-    setProducts(allProducts);
+    getProducts();
   }, []);
+
+async function getProducts() {
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      setError(error);
+    } else {
+      setProducts(data as Product[]);
+    }
+  } catch (error) {
+    console.error(error);
+    setError(error);
+  } finally {
+    setLoading(false);
+  }
+}
+
   
   // Apply filters and sorting
   useEffect(() => {
@@ -95,7 +125,7 @@ const ShopPage = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Shop | Teknoland Clothes</h1>
         <p className="text-tekno-gray">
-          Discover our unique collection of tech-inspired apparel and accessories.
+          Tous les vêtements et vinyles du label Teknoland Production
         </p>
       </div>
       
@@ -146,11 +176,11 @@ const ShopPage = () => {
             </button>
             <button
               className={`px-4 py-2 text-sm rounded-full border ${
-                selectedCategory === "hoodies"
+                selectedCategory === "sweats"
                   ? "bg-tekno-black text-white border-tekno-black"
                   : "border-gray-300 hover:border-tekno-black"
               }`}
-              onClick={() => setSelectedCategory("hoodies")}
+              onClick={() => setSelectedCategory("sweats")}
             >
               Sweats
             </button>
