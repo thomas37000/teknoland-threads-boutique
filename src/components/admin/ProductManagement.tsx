@@ -24,6 +24,7 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [stockFilter, setStockFilter] = useState<string>("all");
+  const [isLoading, setIsLoading] = useState(true);
 
   // Dialog states
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -43,18 +44,36 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
     size_stocks: {}
   });
 
-  // Get unique categories for filter
-  const categories = Array.from(new Set(products.map(product => product.category)));
-  
-  // Calculate total pages
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-  
-  // Current page items
-  const currentItems = filteredProducts.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  // Fetch products from Supabase
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*');
+        
+        if (error) throw error;
+        
+        if (data) {
+          setProducts(data);
+          setFilteredProducts(data);
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load products",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
+    fetchProducts();
+  }, []);
+  
   // Apply filters when dependencies change
   useEffect(() => {
     let result = [...products];
@@ -88,120 +107,40 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
     setCurrentPage(1); // Reset to first page when filters change
   }, [products, searchQuery, categoryFilter, stockFilter]);
 
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  
+  // Current page items
+  const currentItems = filteredProducts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
   const handleAddProduct = async () => {
+    // The actual adding to Supabase is now handled in ProductDialogs.tsx
+    // This function is now just to refresh the product list
     try {
-      const productToAdd = {
-        ...newProduct,
-        id: String(Date.now()), // Generate a unique ID
-        price: Number(newProduct.price) || 0,
-        stock: calculateTotalStock(newProduct.size_stocks),
-      } as Product;
-      
-      // Store the product in Supabase if connected
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .insert([{
-            name: productToAdd.name,
-            description: productToAdd.description,
-            price: productToAdd.price,
-            image: productToAdd.image,
-            category: productToAdd.category,
-            stock: productToAdd.stock,
-            sizes: productToAdd.sizes,
-            colors: productToAdd.colors,
-            size_stocks: productToAdd.size_stocks,
-            is_new: true
-          }])
-          .select();
-          
-        if (error) throw error;
-        
-        // If successful, use the returned data for the ID
-        if (data && data.length > 0) {
-          productToAdd.id = data[0].id;
-        }
-      } catch (err) {
-        console.error("Error storing product in Supabase:", err);
-        // Continue with local storage even if Supabase fails
+      const { data, error } = await supabase.from('products').select('*');
+      if (error) throw error;
+      if (data) {
+        setProducts(data);
       }
-      
-      setProducts([...products, productToAdd]);
-      setNewProduct({
-        id: "",
-        name: "",
-        description: "",
-        price: 0,
-        image: "",
-        category: CATEGORIES[0],
-        stock: 0,
-        sizes: [],
-        colors: [],
-        size_stocks: {}
-      });
-      setIsAddDialogOpen(false);
-      toast({
-        title: "Product added",
-        description: `${productToAdd.name} has been added successfully.`
-      });
     } catch (error) {
-      console.error("Error adding product:", error);
-      toast({
-        title: "Error",
-        description: "Failed to add the product. Please try again.",
-        variant: "destructive"
-      });
+      console.error("Error refreshing products:", error);
     }
   };
 
   const handleEditProduct = async () => {
-    if (!currentProduct) return;
-    
+    // The actual updating in Supabase is now handled in ProductDialogs.tsx
+    // This function is now just to refresh the product list
     try {
-      const updatedProduct = {
-        ...currentProduct,
-        price: Number(currentProduct.price) || 0,
-        stock: calculateTotalStock(currentProduct.size_stocks),
-      };
-      
-      // Update the product in Supabase if connected
-      try {
-        const { error } = await supabase
-          .from('products')
-          .update({
-            name: updatedProduct.name,
-            description: updatedProduct.description,
-            price: updatedProduct.price,
-            image: updatedProduct.image,
-            category: updatedProduct.category,
-            stock: updatedProduct.stock,
-            sizes: updatedProduct.sizes,
-            colors: updatedProduct.colors,
-            size_stocks: updatedProduct.size_stocks
-          })
-          .eq('id', updatedProduct.id);
-          
-        if (error) throw error;
-      } catch (err) {
-        console.error("Error updating product in Supabase:", err);
-        // Continue with local update even if Supabase fails
+      const { data, error } = await supabase.from('products').select('*');
+      if (error) throw error;
+      if (data) {
+        setProducts(data);
       }
-      
-      setProducts(
-        products.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
-      );
-      setIsEditDialogOpen(false);
-      toast({
-        title: "Product updated",
-        description: `${updatedProduct.name} has been updated successfully.`
-      });
     } catch (error) {
-      console.error("Error updating product:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update the product. Please try again.",
-        variant: "destructive"
-      });
+      console.error("Error refreshing products after edit:", error);
     }
   };
 
@@ -209,21 +148,18 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
     if (!currentProduct) return;
     
     try {
-      // Delete the product from Supabase if connected
-      try {
-        const { error } = await supabase
-          .from('products')
-          .delete()
-          .eq('id', currentProduct.id);
-          
-        if (error) throw error;
-      } catch (err) {
-        console.error("Error deleting product from Supabase:", err);
-        // Continue with local deletion even if Supabase fails
-      }
+      // Delete the product from Supabase
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', currentProduct.id);
+        
+      if (error) throw error;
       
+      // Update local state to remove the product
       setProducts(products.filter((p) => p.id !== currentProduct.id));
       setIsDeleteDialogOpen(false);
+      
       toast({
         title: "Product deleted",
         description: `${currentProduct.name} has been deleted successfully.`
@@ -312,14 +248,20 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
         </div>
       </div>
 
-      <ProductTable 
-        products={currentItems} 
-        openEditDialog={openEditDialog}
-        openDeleteDialog={openDeleteDialog}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <p>Loading products...</p>
+        </div>
+      ) : (
+        <ProductTable 
+          products={currentItems} 
+          openEditDialog={openEditDialog}
+          openDeleteDialog={openDeleteDialog}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      )}
 
       <ProductDialogs 
         isAddDialogOpen={isAddDialogOpen}

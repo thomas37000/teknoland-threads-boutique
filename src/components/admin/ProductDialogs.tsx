@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { 
   Dialog, 
@@ -182,46 +181,73 @@ const ProductDialogs = ({
     try {
       // Calculate total stock from size stocks
       const totalStock = Object.values(sizeStocks).reduce((sum, stock) => sum + stock, 0);
+      const colors = selectedColors.split(',').map(c => c.trim()).filter(c => c !== '');
       
-      // Prepare new product with updated fields
-      const productToAdd = {
-        ...newProduct,
-        id: String(Date.now()),
-        price: Number(newProduct.price) || 0,
-        stock: totalStock,
-        category: newProduct.category,
-        sizes: selectedSizes,
-        colors: selectedColors.split(',').map(c => c.trim()).filter(c => c !== ''),
-        size_stocks: sizeStocks
-      } as Product;
-
+      // Prepare product data for Supabase
+      let imageUrl = '';
+      
       // Upload image if selected
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
-        const filePath = `${fileName}`;
+        const filePath = fileName;
         
-        const { data, error } = await supabase.storage
+        // Upload the image to storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
           .from('products')
           .upload(filePath, imageFile);
           
-        if (error) {
-          throw error;
+        if (uploadError) {
+          throw uploadError;
         }
         
-        // Get public URL
+        // Get public URL of the uploaded image
         const { data: urlData } = supabase.storage
           .from('products')
           .getPublicUrl(filePath);
           
-        productToAdd.image = urlData.publicUrl;
+        imageUrl = urlData.publicUrl;
       }
       
-      // Call the original handler with the updated product
-      setNewProduct(productToAdd);
-      handleAddProduct();
+      // Insert the product into the Supabase database
+      const { data: productData, error: insertError } = await supabase
+        .from('products')
+        .insert([{
+          name: newProduct.name || '',
+          description: newProduct.description || '',
+          price: Number(newProduct.price) || 0,
+          image: imageUrl || 'placeholder.png',
+          category: newProduct.category || CATEGORIES[0],
+          stock: totalStock,
+          sizes: selectedSizes,
+          colors: colors,
+          size_stocks: sizeStocks,
+          is_new: true
+        }])
+        .select();
       
-      // Reset form
+      if (insertError) {
+        throw insertError;
+      }
+      
+      // Show success message
+      toast({
+        title: "Success",
+        description: "Product added successfully",
+      });
+      
+      // Reset form and close dialog
+      setNewProduct({
+        name: '',
+        description: '',
+        price: 0,
+        image: '',
+        category: CATEGORIES[0],
+        stock: 0,
+        sizes: [],
+        colors: [],
+        size_stocks: {}
+      });
       setImageFile(null);
       setSizeStocks({
         'S': 0,
@@ -231,6 +257,10 @@ const ProductDialogs = ({
       });
       setSelectedSizes([]);
       setSelectedColors('');
+      setIsAddDialogOpen(false);
+      
+      // Call the original handler to update UI
+      handleAddProduct();
       
     } catch (error) {
       console.error("Error adding product:", error);
@@ -249,30 +279,23 @@ const ProductDialogs = ({
     try {
       // Calculate total stock from size stocks
       const totalStock = Object.values(editSizeStocks).reduce((sum, stock) => sum + stock, 0);
+      const colors = selectedColors.split(',').map(c => c.trim()).filter(c => c !== '');
       
-      // Prepare updated product
-      const updatedProduct = {
-        ...currentProduct,
-        price: Number(currentProduct.price) || 0,
-        stock: totalStock,
-        category: currentProduct.category,
-        sizes: selectedSizes,
-        colors: selectedColors.split(',').map(c => c.trim()).filter(c => c !== ''),
-        size_stocks: editSizeStocks
-      };
-
+      // Prepare product data for update
+      let imageUrl = currentProduct.image;
+      
       // Upload new image if selected
       if (editImageFile) {
         const fileExt = editImageFile.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
-        const filePath = `${fileName}`;
+        const filePath = fileName;
         
-        const { data, error } = await supabase.storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
           .from('products')
           .upload(filePath, editImageFile);
           
-        if (error) {
-          throw error;
+        if (uploadError) {
+          throw uploadError;
         }
         
         // Get public URL
@@ -280,15 +303,42 @@ const ProductDialogs = ({
           .from('products')
           .getPublicUrl(filePath);
           
-        updatedProduct.image = urlData.publicUrl;
+        imageUrl = urlData.publicUrl;
       }
       
-      // Update the current product and call the original handler
-      setCurrentProduct(updatedProduct);
-      handleEditProduct();
+      // Update the product in the Supabase database
+      const { data: updatedData, error: updateError } = await supabase
+        .from('products')
+        .update({
+          name: currentProduct.name,
+          description: currentProduct.description,
+          price: Number(currentProduct.price),
+          image: imageUrl,
+          category: currentProduct.category,
+          stock: totalStock,
+          sizes: selectedSizes,
+          colors: colors,
+          size_stocks: editSizeStocks
+        })
+        .eq('id', currentProduct.id)
+        .select();
       
-      // Reset form
+      if (updateError) {
+        throw updateError;
+      }
+      
+      // Show success message
+      toast({
+        title: "Success", 
+        description: "Product updated successfully"
+      });
+      
+      // Reset form and close dialog
       setEditImageFile(null);
+      setIsEditDialogOpen(false);
+      
+      // Call the original handler to update UI
+      handleEditProduct();
       
     } catch (error) {
       console.error("Error updating product:", error);
