@@ -45,6 +45,7 @@ const ProductTable = ({
         <TableHeader>
           <TableRow>
             <TableHead>ID</TableHead>
+            <TableHead>Image</TableHead>
             <TableHead>Nom</TableHead>
             <TableHead>Catégorie</TableHead>
             <TableHead className="text-right">Prix</TableHead>
@@ -63,9 +64,14 @@ const ProductTable = ({
             products.map((product) => (
               <TableRow key={product.id}>
                 <TableCell className="font-medium">{product.id}</TableCell>
+                <TableCell className="font-medium">
+                  <img src={product.image} alt={product.name}
+                    className="h-20 w-auto object-contain rounded"
+                  />
+                </TableCell>
                 <TableCell>{product.name}</TableCell>
                 <TableCell>{product.category}</TableCell>
-                <TableCell className="text-right">${product.price.toFixed(2)}</TableCell>
+                <TableCell className="text-right">{product.price.toFixed(2)} €</TableCell>
                 <TableCell className="text-right">
                   {product.stock <= 5 ? (
                     <span className="text-red-500 font-medium">{product.stock}</span>

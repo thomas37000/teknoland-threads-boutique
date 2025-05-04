@@ -51,14 +51,14 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </button>
         </div>
         <div className="mt-1 flex items-center justify-between">
-          <p className="font-bold">${product.price.toFixed(2)}</p>
-          <p className="text-sm text-tekno-gray">{product.category}</p>
+          <p className="font-bold">{product.price.toFixed(2)} €</p>
+          {/* <p className="text-sm text-tekno-gray">{product.category}</p> */}
         </div>
         <Button 
           className="w-full mt-3 bg-tekno-black text-white hover:bg-tekno-blue transition-colors"
           onClick={() => addToCart(product)}
         >
-          Add to Cart
+          Ajoutez au panier
         </Button>
       </div>
     </div>

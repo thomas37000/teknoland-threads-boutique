@@ -15,7 +15,7 @@ interface ProductManagementProps {
 }
 
 const ITEMS_PER_PAGE = 5;
-const CATEGORIES = ["Man's T-Shirts","Women's T-Shirts", "Man's Sweats", "Women's Sweats", "Vinyls"]; // Available categories
+const CATEGORIES = ["Man's T-Shirts","Women's T-Shirts", "Sweats", "Vinyls"]; // Available categories
 
 const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
@@ -221,7 +221,7 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
         <h2 className="text-2xl font-bold">Manage Products</h2>
         <Button onClick={() => setIsAddDialogOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Product
+          Ajoutez un produit
         </Button>
       </div>
 
