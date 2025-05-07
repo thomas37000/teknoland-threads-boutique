@@ -8,7 +8,16 @@ import { useToast } from "@/components/ui/use-toast";
 import { useCart } from "@/hooks/use-cart";
 import { supabase } from "@/integrations/supabase/client";
 import { Product } from "@/types";
-import { ArrowUp } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUp, ZoomIn, ZoomOut, Image as ImageIcon } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,7 +28,11 @@ const ProductPage = () => {
   const [quantity, setQuantity] = useState(1);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [currentImage, setCurrentImage] = useState<string>("");
-
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+  
+  const imageRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const { addToCart } = useCart();
   const { toast } = useToast();
@@ -138,6 +151,63 @@ const ProductPage = () => {
     });
   };
 
+  const handleImageClick = (image: string) => {
+    setCurrentImage(image);
+    // Reset zoom when changing image
+    setIsZoomed(false);
+    setZoomLevel(1);
+  };
+
+  const handleZoomIn = () => {
+    if (zoomLevel < 3) {
+      setZoomLevel(prev => prev + 0.5);
+      if (!isZoomed) setIsZoomed(true);
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (zoomLevel > 1) {
+      setZoomLevel(prev => Math.max(1, prev - 0.5));
+      if (zoomLevel <= 1.5) setIsZoomed(false);
+    } else {
+      setIsZoomed(false);
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isZoomed || !imageRef.current) return;
+
+    const { left, top, width, height } = imageRef.current.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    
+    setZoomPosition({ x, y });
+  };
+
+  // Function to get all available images
+  const getAllImages = (): string[] => {
+    if (!product) return [];
+    
+    const allImages: string[] = [product.image];
+    
+    // Add additional images if available
+    if (product.images && product.images.length > 0) {
+      allImages.push(...product.images);
+    }
+    
+    // Add color specific images
+    if (product.colorImages) {
+      Object.values(product.colorImages).forEach(img => {
+        if (!allImages.includes(img)) {
+          allImages.push(img);
+        }
+      });
+    }
+    
+    // Filter out duplicates and limit to first 4
+    return [...new Set(allImages)].slice(0, 4);
+  };
+
   if (loading) {
     return (
       <div className="tekno-container py-16 text-center">
@@ -158,17 +228,90 @@ const ProductPage = () => {
     );
   }
 
+  const allImages = getAllImages();
+
   return (
     <div className="tekno-container py-12" ref={topRef}>
       <div className="flex flex-col md:flex-row gap-8">
-        {/* Product Image */}
+        {/* Product Image Section */}
         <div className="w-full md:w-1/2">
-          <div className="rounded-lg overflow-hidden bg-gray-100">
-            <img
-              src={currentImage || product.image}
-              alt={product.name}
-              className="w-full h-auto object-cover aspect-square"
-            />
+          {/* Main Image with Zoom */}
+          <div 
+            className="rounded-lg overflow-hidden bg-gray-100 relative"
+            ref={imageRef}
+            onMouseMove={handleMouseMove}
+            style={{ cursor: isZoomed ? 'zoom-out' : 'zoom-in' }}
+            onClick={() => isZoomed ? setIsZoomed(false) : handleZoomIn()}
+          >
+            <div 
+              className={`transition-transform duration-200 h-full w-full`}
+              style={{
+                transform: isZoomed ? `scale(${zoomLevel})` : 'scale(1)',
+                transformOrigin: isZoomed ? `${zoomPosition.x}% ${zoomPosition.y}%` : 'center center'
+              }}
+            >
+              <img
+                src={currentImage || product.image}
+                alt={product.name}
+                className="w-full h-auto object-cover aspect-square"
+              />
+            </div>
+            
+            {/* Zoom controls */}
+            <div className="absolute bottom-4 right-4 flex gap-2">
+              <Button
+                size="icon"
+                variant="secondary"
+                className="rounded-full bg-white/80 hover:bg-white"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleZoomIn();
+                }}
+              >
+                <ZoomIn className="h-4 w-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="secondary"
+                className="rounded-full bg-white/80 hover:bg-white"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleZoomOut();
+                }}
+              >
+                <ZoomOut className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Image Gallery Tabs */}
+          <div className="mt-4">
+            {allImages.length > 1 ? (
+              <ScrollArea className="whitespace-nowrap pb-4">
+                <div className="flex gap-2">
+                  {allImages.map((img, index) => (
+                    <div 
+                      key={index}
+                      className={`w-20 h-20 rounded-md overflow-hidden cursor-pointer transition-all ${
+                        currentImage === img ? 'ring-2 ring-tekno-blue' : 'ring-1 ring-gray-200'
+                      }`}
+                      onClick={() => handleImageClick(img)}
+                    >
+                      <img 
+                        src={img} 
+                        alt={`${product.name} - view ${index + 1}`} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            ) : (
+              <div className="py-2 text-center text-sm text-tekno-gray">
+                <ImageIcon className="w-4 h-4 inline mr-1" />
+                No additional images available
+              </div>
+            )}
           </div>
         </div>
 

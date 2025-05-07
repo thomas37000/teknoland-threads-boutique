@@ -115,6 +115,7 @@ export type Database = {
           description: string
           id: string
           image: string
+          images: string[] | null
           is_new: boolean | null
           name: string
           price: number
@@ -129,6 +130,7 @@ export type Database = {
           description: string
           id?: string
           image: string
+          images?: string[] | null
           is_new?: boolean | null
           name: string
           price: number
@@ -143,6 +145,7 @@ export type Database = {
           description?: string
           id?: string
           image?: string
+          images?: string[] | null
           is_new?: boolean | null
           name?: string
           price?: number
