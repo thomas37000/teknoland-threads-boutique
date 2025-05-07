@@ -1,151 +1,208 @@
 
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { ShoppingCart, Heart, CreditCard } from "lucide-react";
+import { useCart } from "@/hooks/use-cart";
+import { useFavorites } from "@/hooks/use-favorites";
 import { Product } from "@/types";
+import { toast } from "sonner";
+import { createCheckoutSession } from "@/utils/stripe";
 
 interface ProductDetailsProps {
   product: Product;
-  selectedSize: string;
-  setSelectedSize: (size: string) => void;
-  selectedColor: string;
-  setSelectedColor: (color: string) => void;
-  quantity: number;
-  setQuantity: (quantity: number) => void;
-  handleAddToCart: () => void;
+  onColorChange?: (color: string) => void;
 }
 
-const ProductDetails = ({
-  product,
-  selectedSize,
-  setSelectedSize,
-  selectedColor,
-  setSelectedColor,
-  quantity,
-  setQuantity,
-  handleAddToCart
-}: ProductDetailsProps) => {
+const ProductDetails = ({ product, onColorChange }: ProductDetailsProps) => {
+  const { addToCart } = useCart();
+  const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
+  const [selectedSize, setSelectedSize] = useState<string | undefined>(
+    product.sizes && product.sizes.length > 0 ? product.sizes[0] : undefined
+  );
+  const [selectedColor, setSelectedColor] = useState<string | undefined>(
+    product.colors && product.colors.length > 0 ? product.colors[0] : undefined
+  );
+  const [quantity, setQuantity] = useState(1);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleAddToCart = () => {
+    addToCart(product, quantity, selectedSize, selectedColor);
+  };
+
+  const toggleFavorite = () => {
+    if (isFavorite(product.id)) {
+      removeFromFavorites(product.id);
+      toast.success("Removed from favorites");
+    } else {
+      addToFavorites(product);
+      toast.success("Added to favorites");
+    }
+  };
+
+  const handleColorChange = (color: string) => {
+    setSelectedColor(color);
+    if (onColorChange) {
+      onColorChange(color);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    try {
+      setIsProcessing(true);
+      const { url } = await createCheckoutSession(
+        product, 
+        quantity, 
+        selectedSize, 
+        selectedColor
+      );
+      
+      if (url) {
+        window.location.href = url;
+      } else {
+        toast.error("Could not create checkout session");
+      }
+    } catch (error) {
+      console.error("Error during checkout:", error);
+      toast.error("Payment processing failed. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
-    <>
-      <Link to="/shop" className="text-tekno-blue hover:underline mb-4 inline-block">
-        ← Back to Shop
-      </Link>
-
-      <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-
-      <div className="flex items-center gap-4 mb-4">
-        <p className="text-2xl font-bold">{product.price.toFixed(2)} €</p>
-        <span className="text-tekno-gray">{product.category}</span>
-        {product.isNew && (
-          <span className="bg-tekno-blue text-white text-xs font-bold uppercase tracking-wider px-2 py-1 rounded">
-            New
-          </span>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">{product.name}</h1>
+        <div className="mt-3 flex items-center">
+          <span className="text-2xl font-bold">{product.price.toFixed(2)} €</span>
+          {product.isNew && (
+            <span className="ml-3 rounded-full bg-tekno-blue px-3 py-1 text-xs text-white">
+              NEW
+            </span>
+          )}
+        </div>
+      </div>
+      
+      <div className="prose prose-gray max-w-none">
+        <p>{product.description}</p>
+      </div>
+      
+      {/* Stock */}
+      <div className="text-sm text-tekno-gray">
+        {product.stock > 0 ? (
+          <span>In Stock ({product.stock} available)</span>
+        ) : (
+          <span className="text-red-500">Out of Stock</span>
         )}
       </div>
-
-      <p className="text-tekno-gray mb-6">{product.description}</p>
-
-      {/* Size Selection */}
+      
+      {/* Size Selector */}
       {product.sizes && product.sizes.length > 0 && (
-        <div className="mb-6">
+        <div>
           <h3 className="font-medium mb-2">Size</h3>
-          <RadioGroup
-            value={selectedSize}
-            onValueChange={setSelectedSize}
-            className="flex flex-wrap gap-2"
-          >
+          <div className="flex flex-wrap gap-2">
             {product.sizes.map((size) => (
-              <div key={size} className="flex items-center">
-                <RadioGroupItem
-                  value={size}
-                  id={`size-${size}`}
-                  className="peer sr-only"
-                />
-                <Label
-                  htmlFor={`size-${size}`}
-                  className="px-4 py-2 border rounded-md cursor-pointer peer-data-[state=checked]:bg-tekno-black peer-data-[state=checked]:text-white peer-data-[state=checked]:border-tekno-black hover:border-tekno-black"
-                >
-                  {size}
-                </Label>
-              </div>
+              <button
+                key={size}
+                onClick={() => setSelectedSize(size)}
+                className={`h-10 w-10 rounded-md border text-center leading-10 ${
+                  selectedSize === size
+                    ? "border-tekno-blue bg-tekno-blue/10"
+                    : "border-gray-200"
+                }`}
+              >
+                {size}
+              </button>
             ))}
-          </RadioGroup>
+          </div>
         </div>
       )}
-
-      {/* Color Selection */}
+      
+      {/* Color Selector */}
       {product.colors && product.colors.length > 0 && (
-        <div className="mb-6">
+        <div>
           <h3 className="font-medium mb-2">Color</h3>
-          <RadioGroup
-            value={selectedColor}
-            onValueChange={setSelectedColor}
-            className="flex flex-wrap gap-2"
-          >
+          <div className="flex flex-wrap gap-2">
             {product.colors.map((color) => (
-              <div key={color} className="flex items-center">
-                <RadioGroupItem
-                  value={color}
-                  id={`color-${color}`}
-                  className="peer sr-only"
-                />
-                <Label
-                  htmlFor={`color-${color}`}
-                  className="px-4 py-2 border rounded-md cursor-pointer peer-data-[state=checked]:bg-tekno-black peer-data-[state=checked]:text-white peer-data-[state=checked]:border-tekno-black hover:border-tekno-black"
-                >
-                  {color}
-                </Label>
-              </div>
+              <button
+                key={color}
+                onClick={() => handleColorChange(color)}
+                className={`h-10 w-10 rounded-full border-2 ${
+                  selectedColor === color ? "border-tekno-blue ring-2 ring-tekno-blue/30" : "border-gray-200"
+                }`}
+                style={{ backgroundColor: color }}
+                aria-label={`Select ${color} color`}
+              />
             ))}
-          </RadioGroup>
+          </div>
         </div>
       )}
-
-      {/* Quantity & Add to Cart */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+      
+      {/* Quantity */}
+      <div>
+        <h3 className="font-medium mb-2">Quantity</h3>
         <div className="flex items-center border rounded-md w-32">
           <button
-            className="px-3 py-2 border-r"
-            onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-            aria-label="Decrease quantity"
+            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            className="px-3 py-1 text-lg border-r"
+            disabled={quantity <= 1}
           >
             -
           </button>
-          <div className="px-4 py-2 flex-1 text-center">{quantity}</div>
+          <div className="px-3 py-1 flex-1 text-center">{quantity}</div>
           <button
-            className="px-3 py-2 border-l"
-            onClick={() => setQuantity(prev => prev + 1)}
-            aria-label="Increase quantity"
+            onClick={() => setQuantity(quantity + 1)}
+            className="px-3 py-1 text-lg border-l"
+            disabled={quantity >= product.stock}
           >
             +
           </button>
         </div>
-
-        <Button
-          className="bg-tekno-blue hover:bg-tekno-blue/90 flex-grow text-white"
-          onClick={handleAddToCart}
+      </div>
+      
+      {/* Actions */}
+      <div className="flex flex-col sm:flex-row gap-2 pt-2">
+        <Button 
+          onClick={handleAddToCart} 
+          className="flex-1 gap-2 bg-tekno-blue text-white hover:bg-tekno-blue/90"
+          disabled={product.stock <= 0}
         >
+          <ShoppingCart className="h-4 w-4" />
           Add to Cart
+        </Button>
+        <Button
+          onClick={toggleFavorite}
+          variant="outline"
+          className={`gap-2 ${isFavorite(product.id) ? "border-tekno-blue text-tekno-blue" : ""}`}
+        >
+          <Heart 
+            className={`h-4 w-4 ${isFavorite(product.id) ? "fill-tekno-blue" : ""}`}
+          />
+          {isFavorite(product.id) ? "Saved" : "Save"}
         </Button>
       </div>
 
-      {/* Additional Info */}
-      <div className="border-t pt-6">
-        <div className="mb-4">
-          <h3 className="font-medium mb-1">Shipping</h3>
-          <p className="text-tekno-gray text-sm">
-            Free shipping on all orders over $50. Standard delivery 3-5 business days.
-          </p>
-        </div>
-        <div>
-          <h3 className="font-medium mb-1">Returns</h3>
-          <p className="text-tekno-gray text-sm">
-            Easy returns within 30 days. See our <Link to="/returns" className="text-tekno-blue hover:underline">return policy</Link> for more details.
-          </p>
-        </div>
+      {/* Stripe Payment Button */}
+      <div className="pt-4">
+        <Button 
+          onClick={handleBuyNow}
+          className="w-full gap-2 bg-black text-white hover:bg-black/80"
+          disabled={isProcessing || product.stock <= 0}
+        >
+          {isProcessing ? (
+            <>
+              <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+              Processing...
+            </>
+          ) : (
+            <>
+              <CreditCard className="h-4 w-4" />
+              Buy Now with Stripe
+            </>
+          )}
+        </Button>
       </div>
-    </>
+    </div>
   );
 };
 
