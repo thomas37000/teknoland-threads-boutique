@@ -31,7 +31,7 @@ const ProductPage = () => {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
-  
+
   const imageRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const { addToCart } = useCart();
@@ -42,19 +42,19 @@ const ProductPage = () => {
     const fetchProduct = async () => {
       setLoading(true);
       if (!id) return;
-      
+
       try {
         const { data, error } = await supabase
           .from('products')
           .select('*')
           .eq('id', id)
           .single();
-        
+
         if (error) {
           console.error("Error fetching product:", error);
           throw error;
         }
-        
+
         if (data) {
           // Transform the data to match the Product interface
           const product: Product = {
@@ -62,7 +62,7 @@ const ProductPage = () => {
             isNew: data.is_new,
             size_stocks: data.size_stocks as Record<string, number> | null,
           };
-          
+
           setProduct(product);
           setCurrentImage(product.image);
 
@@ -144,7 +144,7 @@ const ProductPage = () => {
     }
 
     addToCart(product, quantity, selectedSize, selectedColor);
-    
+
     toast({
       title: "Added to cart",
       description: `${product.name} has been added to your cart`,
@@ -180,21 +180,21 @@ const ProductPage = () => {
     const { left, top, width, height } = imageRef.current.getBoundingClientRect();
     const x = ((e.clientX - left) / width) * 100;
     const y = ((e.clientY - top) / height) * 100;
-    
+
     setZoomPosition({ x, y });
   };
 
   // Function to get all available images
   const getAllImages = (): string[] => {
     if (!product) return [];
-    
+
     const allImages: string[] = [product.image];
-    
+
     // Add additional images if available
     if (product.images && product.images.length > 0) {
       allImages.push(...product.images);
     }
-    
+
     // Add color specific images
     if (product.colorImages) {
       Object.values(product.colorImages).forEach(img => {
@@ -203,7 +203,7 @@ const ProductPage = () => {
         }
       });
     }
-    
+
     // Filter out duplicates and limit to first 4
     return [...new Set(allImages)].slice(0, 4);
   };
@@ -236,14 +236,14 @@ const ProductPage = () => {
         {/* Product Image Section */}
         <div className="w-full md:w-1/2">
           {/* Main Image with Zoom */}
-          <div 
+          <div
             className="rounded-lg overflow-hidden bg-gray-100 relative"
             ref={imageRef}
             onMouseMove={handleMouseMove}
             style={{ cursor: isZoomed ? 'zoom-out' : 'zoom-in' }}
             onClick={() => isZoomed ? setIsZoomed(false) : handleZoomIn()}
           >
-            <div 
+            <div
               className={`transition-transform duration-200 h-full w-full`}
               style={{
                 transform: isZoomed ? `scale(${zoomLevel})` : 'scale(1)',
@@ -256,7 +256,7 @@ const ProductPage = () => {
                 className="w-full h-auto object-cover aspect-square"
               />
             </div>
-            
+
             {/* Zoom controls */}
             <div className="absolute bottom-4 right-4 flex gap-2">
               <Button
@@ -290,16 +290,15 @@ const ProductPage = () => {
               <ScrollArea className="whitespace-nowrap pb-4">
                 <div className="flex gap-2">
                   {allImages.map((img, index) => (
-                    <div 
+                    <div
                       key={index}
-                      className={`w-20 h-20 rounded-md overflow-hidden cursor-pointer transition-all ${
-                        currentImage === img ? 'ring-2 ring-tekno-blue' : 'ring-1 ring-gray-200'
-                      }`}
+                      className={`w-20 h-20 rounded-md overflow-hidden cursor-pointer transition-all ${currentImage === img ? 'ring-2 ring-tekno-blue' : 'ring-1 ring-gray-200'
+                        }`}
                       onClick={() => handleImageClick(img)}
                     >
-                      <img 
-                        src={img} 
-                        alt={`${product.name} - view ${index + 1}`} 
+                      <img
+                        src={img}
+                        alt={`${product.name} - view ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -307,10 +306,7 @@ const ProductPage = () => {
                 </div>
               </ScrollArea>
             ) : (
-              <div className="py-2 text-center text-sm text-tekno-gray">
-                <ImageIcon className="w-4 h-4 inline mr-1" />
-                No additional images available
-              </div>
+              ""
             )}
           </div>
         </div>
@@ -324,7 +320,7 @@ const ProductPage = () => {
           <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
 
           <div className="flex items-center gap-4 mb-4">
-            <p className="text-2xl font-bold">${product.price.toFixed(2)}</p>
+            <p className="text-2xl font-bold">{product.price.toFixed(2)} €</p>
             <span className="text-tekno-gray">{product.category}</span>
             {product.isNew && (
               <span className="bg-tekno-blue text-white text-xs font-bold uppercase tracking-wider px-2 py-1 rounded">
