@@ -14,27 +14,27 @@ const FeaturedProducts = () => {
     getProducts();
   }, []);
 
-async function getProducts() {
-  try {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .limit(4)
-      .order("created_at", { ascending: false });
+  async function getProducts() {
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .limit(4)
+        .order("created_at", { ascending: false });
 
-    if (error) {
+      if (error) {
+        console.error(error);
+        setError(error);
+      } else {
+        setProducts(data as Product[]);
+      }
+    } catch (error) {
       console.error(error);
       setError(error);
-    } else {
-      setProducts(data as Product[]);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error(error);
-    setError(error);
-  } finally {
-    setLoading(false);
   }
-}
   
   return (
     <section className="py-16">

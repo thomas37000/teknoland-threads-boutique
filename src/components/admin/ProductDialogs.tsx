@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { 
   Dialog, 
   DialogContent, 
@@ -28,6 +29,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { X } from "lucide-react";
 
 const CATEGORIES = ["T-shirt", "Sweat", "Vinyle"];
 const SIZE_OPTIONS = ["S", "M", "L", "XL"];
@@ -70,6 +72,8 @@ const ProductDialogs = ({
 }: ProductDialogsProps) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
+  const [multipleImageFiles, setMultipleImageFiles] = useState<File[]>([]);
+  const [editMultipleImageFiles, setEditMultipleImageFiles] = useState<File[]>([]);
   const [sizeStocks, setSizeStocks] = useState<{[size: string]: number}>({
     'S': 0,
     'M': 0,
@@ -81,7 +85,7 @@ const ProductDialogs = ({
   const [selectedColors, setSelectedColors] = useState<string>("");
   
   // Setup initial edit size stocks when a product is loaded
-  React.useEffect(() => {
+  useEffect(() => {
     if (currentProduct && currentProduct.size_stocks) {
       // Initialize from existing size_stocks
       setEditSizeStocks(currentProduct.size_stocks as {[size: string]: number} || {});
@@ -103,7 +107,7 @@ const ProductDialogs = ({
     }
   }, [currentProduct]);
 
-  // Handle image file selection
+  // Handle main image file selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, isEdit: boolean) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -132,6 +136,69 @@ const ProductDialogs = ({
       setEditImageFile(file);
     } else {
       setImageFile(file);
+    }
+  };
+
+  // Handle multiple image file selection
+  const handleMultipleImageChange = (e: React.ChangeEvent<HTMLInputElement>, isEdit: boolean) => {
+    const files = e.target.files;
+    if (!files) return;
+    
+    const selectedFiles: File[] = Array.from(files);
+    
+    // Max 4 images
+    if (isEdit && editMultipleImageFiles.length + selectedFiles.length > 4) {
+      toast({
+        title: "Too many images",
+        description: "You can upload a maximum of 4 images.",
+        variant: "destructive"
+      });
+      return;
+    } else if (!isEdit && multipleImageFiles.length + selectedFiles.length > 4) {
+      toast({
+        title: "Too many images",
+        description: "You can upload a maximum of 4 images.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Validate each file
+    for (const file of selectedFiles) {
+      // Check if file is an image
+      if (!file.type.match('image/(jpeg|png|webp)')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload only JPG, PNG, or WebP images.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Check if file size is less than 10MB
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please upload images smaller than 10MB.",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+    
+    if (isEdit) {
+      setEditMultipleImageFiles(prev => [...prev, ...selectedFiles].slice(0, 4));
+    } else {
+      setMultipleImageFiles(prev => [...prev, ...selectedFiles].slice(0, 4));
+    }
+  };
+
+  // Remove an image from the list
+  const removeImage = (index: number, isEdit: boolean) => {
+    if (isEdit) {
+      setEditMultipleImageFiles(prev => prev.filter((_, i) => i !== index));
+    } else {
+      setMultipleImageFiles(prev => prev.filter((_, i) => i !== index));
     }
   };
 
@@ -185,8 +252,9 @@ const ProductDialogs = ({
       
       // Prepare product data for Supabase
       let imageUrl = '';
+      let additionalImages: string[] = [];
       
-      // Upload image if selected
+      // Upload main image if selected
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
@@ -209,6 +277,31 @@ const ProductDialogs = ({
         imageUrl = urlData.publicUrl;
       }
       
+      // Upload additional images if selected
+      if (multipleImageFiles.length > 0) {
+        for (const file of multipleImageFiles) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+          const filePath = fileName;
+          
+          // Upload the image to storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('products')
+            .upload(filePath, file);
+            
+          if (uploadError) {
+            throw uploadError;
+          }
+          
+          // Get public URL of the uploaded image
+          const { data: urlData } = supabase.storage
+            .from('products')
+            .getPublicUrl(filePath);
+            
+          additionalImages.push(urlData.publicUrl);
+        }
+      }
+      
       // Insert the product into the Supabase database
       const { data: productData, error: insertError } = await supabase
         .from('products')
@@ -217,6 +310,7 @@ const ProductDialogs = ({
           description: newProduct.description || '',
           price: Number(newProduct.price) || 0,
           image: imageUrl || 'placeholder.png',
+          images: additionalImages.length > 0 ? additionalImages : null,
           category: newProduct.category || CATEGORIES[0],
           stock: totalStock,
           sizes: selectedSizes,
@@ -242,6 +336,7 @@ const ProductDialogs = ({
         description: '',
         price: 0,
         image: '',
+        images: [],
         category: CATEGORIES[0],
         stock: 0,
         sizes: [],
@@ -249,6 +344,7 @@ const ProductDialogs = ({
         size_stocks: {}
       });
       setImageFile(null);
+      setMultipleImageFiles([]);
       setSizeStocks({
         'S': 0,
         'M': 0,
@@ -283,8 +379,9 @@ const ProductDialogs = ({
       
       // Prepare product data for update
       let imageUrl = currentProduct.image;
+      let additionalImages = currentProduct.images || [];
       
-      // Upload new image if selected
+      // Upload new main image if selected
       if (editImageFile) {
         const fileExt = editImageFile.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
@@ -306,6 +403,36 @@ const ProductDialogs = ({
         imageUrl = urlData.publicUrl;
       }
       
+      // Upload new additional images if selected
+      if (editMultipleImageFiles.length > 0) {
+        const newImages: string[] = [];
+        
+        for (const file of editMultipleImageFiles) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+          const filePath = fileName;
+          
+          // Upload the image to storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('products')
+            .upload(filePath, file);
+            
+          if (uploadError) {
+            throw uploadError;
+          }
+          
+          // Get public URL of the uploaded image
+          const { data: urlData } = supabase.storage
+            .from('products')
+            .getPublicUrl(filePath);
+            
+          newImages.push(urlData.publicUrl);
+        }
+        
+        // Replace existing additional images
+        additionalImages = newImages;
+      }
+      
       // Update the product in the Supabase database
       const { data: updatedData, error: updateError } = await supabase
         .from('products')
@@ -314,6 +441,7 @@ const ProductDialogs = ({
           description: currentProduct.description,
           price: Number(currentProduct.price),
           image: imageUrl,
+          images: additionalImages.length > 0 ? additionalImages : null,
           category: currentProduct.category,
           stock: totalStock,
           sizes: selectedSizes,
@@ -335,6 +463,7 @@ const ProductDialogs = ({
       
       // Reset form and close dialog
       setEditImageFile(null);
+      setEditMultipleImageFiles([]);
       setIsEditDialogOpen(false);
       
       // Call the original handler to update UI
@@ -414,10 +543,10 @@ const ProductDialogs = ({
               />
             </div>
             
-            {/* Image Upload */}
+            {/* Main Image Upload */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="image" className="text-right">
-                Image
+                Main Image
               </Label>
               <div className="col-span-3">
                 <Input
@@ -430,6 +559,48 @@ const ProductDialogs = ({
                 <p className="text-xs text-muted-foreground mt-1">
                   JPG, PNG, or WebP. Max 10MB.
                 </p>
+              </div>
+            </div>
+            
+            {/* Additional Images Upload */}
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="additional-images" className="text-right">
+                Additional Images
+              </Label>
+              <div className="col-span-3">
+                <Input
+                  id="additional-images"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(e) => handleMultipleImageChange(e, false)}
+                  className="col-span-3"
+                  disabled={multipleImageFiles.length >= 4}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Upload up to 4 additional images. JPG, PNG, or WebP. Max 10MB each.
+                </p>
+                
+                {multipleImageFiles.length > 0 && (
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    {multipleImageFiles.map((file, index) => (
+                      <div key={index} className="relative border rounded p-2">
+                        <img 
+                          src={URL.createObjectURL(file)} 
+                          alt={`Preview ${index}`}
+                          className="h-20 w-full object-contain"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index, false)}
+                          className="absolute top-1 right-1 bg-white rounded-full p-1"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                        <p className="text-xs truncate">{file.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             
@@ -571,10 +742,10 @@ const ProductDialogs = ({
               />
             </div>
             
-            {/* Current Image and Upload New */}
+            {/* Main Image Upload */}
             <div className="grid grid-cols-4 items-start gap-4">
               <Label htmlFor="edit-image" className="text-right">
-                Image
+                Main Image
               </Label>
               <div className="col-span-3 space-y-2">
                 {currentProduct?.image && (
@@ -595,6 +766,63 @@ const ProductDialogs = ({
                 <p className="text-xs text-muted-foreground">
                   JPG, PNG, or WebP. Max 10MB.
                 </p>
+              </div>
+            </div>
+            
+            {/* Additional Images Upload */}
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="edit-additional-images" className="text-right">
+                Additional Images
+              </Label>
+              <div className="col-span-3">
+                {/* Show existing additional images */}
+                {currentProduct?.images && currentProduct.images.length > 0 && (
+                  <div className="grid grid-cols-2 gap-2 mb-2">
+                    {currentProduct.images.map((img, index) => (
+                      <div key={index} className="relative border rounded p-2">
+                        <img 
+                          src={img} 
+                          alt={`Image ${index}`}
+                          className="h-20 w-full object-contain"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <Input
+                  id="edit-additional-images"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(e) => handleMultipleImageChange(e, true)}
+                  className="col-span-3"
+                  disabled={editMultipleImageFiles.length >= 4}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Upload up to 4 new additional images. Will replace existing images. JPG, PNG, or WebP. Max 10MB each.
+                </p>
+                
+                {editMultipleImageFiles.length > 0 && (
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    {editMultipleImageFiles.map((file, index) => (
+                      <div key={index} className="relative border rounded p-2">
+                        <img 
+                          src={URL.createObjectURL(file)} 
+                          alt={`Preview ${index}`}
+                          className="h-20 w-full object-contain"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index, true)}
+                          className="absolute top-1 right-1 bg-white rounded-full p-1"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                        <p className="text-xs truncate">{file.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             
