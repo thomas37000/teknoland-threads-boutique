@@ -3,22 +3,38 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ProductCard from "@/components/ProductCard";
 import { Product } from "@/types";
-import { products } from "@/data/products";
+import { supabase } from "@/integrations/supabase/client";
 
 const FeaturedProducts = () => {
-  const [featured, setFeatured] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    // Select a mix of products to feature (updated to use available products)
-    const featuredItems = [
-      products.find(p => p.id === "10"), // Digital Matrix Oxford
-      products.find(p => p.id === "14"), // Digital Bloom Tee
-      products.find(p => p.id === "19"), // Matrix Code Hoodie
-      products.find(p => p.id === "12"), // Tech Pioneer Denim Shirt
-    ].filter(Boolean) as Product[];
-    
-    setFeatured(featuredItems);
+    getProducts();
   }, []);
+
+async function getProducts() {
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .limit(4)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      setError(error);
+    } else {
+      setProducts(data as Product[]);
+    }
+  } catch (error) {
+    console.error(error);
+    setError(error);
+  } finally {
+    setLoading(false);
+  }
+}
   
   return (
     <section className="py-16">
@@ -38,7 +54,7 @@ const FeaturedProducts = () => {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featured.map((product) => (
+          {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

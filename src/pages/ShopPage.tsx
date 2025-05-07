@@ -6,7 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { ArrowUp } from "lucide-react";
 import { Product } from "@/types";
-// import { products as allProducts } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 
@@ -31,11 +30,6 @@ const ShopPage = () => {
       setSelectedCategory(categoryParam.toLowerCase());
     }
   }, [searchParams]);
-  
-  // Initialize products
-  // useEffect(() => {
-  //   setProducts(allProducts);
-  // }, []);
 
   useEffect(() => {
     getProducts();
