@@ -6,9 +6,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { useCart } from "@/hooks/use-cart";
-// import { products } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
-import { Database } from "@/integrations/supabase/types";
 import { Product } from "@/types";
 import { ArrowUp } from "lucide-react";
 
@@ -25,71 +23,64 @@ const ProductPage = () => {
   const topRef = useRef<HTMLDivElement>(null);
   const { addToCart } = useCart();
   const { toast } = useToast();
-   const [isLoading, setIsLoading] = useState(true);
 
-   // Fetch product detail from Supabase
-   useEffect(() => {
+  // Fetch product detail from Supabase
+  useEffect(() => {
     const fetchProduct = async () => {
-      setIsLoading(true);
+      setLoading(true);
+      if (!id) return;
+      
       try {
         const { data, error } = await supabase
           .from('products')
-          .select('*');
+          .select('*')
+          .eq('id', id)
+          .single();
         
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching product:", error);
+          throw error;
+        }
         
         if (data) {
           // Transform the data to match the Product interface
-          const transformedData: Product[] = data.map(item => ({
-            ...item,
-            size_stocks: item.size_stocks ? (item.size_stocks as any) : {}
-          }));
+          const product: Product = {
+            ...data,
+            isNew: data.is_new,
+            size_stocks: data.size_stocks as Record<string, number> | null,
+          };
           
-          setProduct(transformedData);
+          setProduct(product);
+          setCurrentImage(product.image);
+
+          // Set initial size if available
+          if (product.sizes && product.sizes.length > 0) {
+            setSelectedSize(product.sizes[0]);
+          }
+
+          // Set initial color if available
+          if (product.colors && product.colors.length > 0) {
+            setSelectedColor(product.colors[0]);
+            // Set initial image based on the first color if color images exist
+            if (product.colorImages && product.colorImages[product.colors[0]]) {
+              setCurrentImage(product.colorImages[product.colors[0]]);
+            }
+          }
         }
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("Error fetching product:", error);
         toast({
           title: "Error",
-          description: "Failed to load products",
+          description: "Failed to load product details",
           variant: "destructive"
         });
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
     fetchProduct();
-  }, [id]);
-
-  useEffect(() => {
-    // In a real app, you might fetch this from an API
-    const fetchedProduct = products.find(p => p.id === id);
-
-    // const { data } = supabase
-    //   .from('products')
-    //   .select("*")
-    //   .eq('id', id)
-    //   .single();
-
-    if (fetchedProduct) {
-      setProduct(fetchedProduct);
-      setCurrentImage(fetchedProduct.image);
-
-      if (fetchedProduct.sizes && fetchedProduct.sizes.length > 0) {
-        setSelectedSize(fetchedProduct.sizes[0]);
-      }
-
-      if (fetchedProduct.colors && fetchedProduct.colors.length > 0) {
-        setSelectedColor(fetchedProduct.colors[0]);
-        // Set initial image based on the first color if color images exist
-        if (fetchedProduct.colorImages && fetchedProduct.colorImages[fetchedProduct.colors[0]]) {
-          setCurrentImage(fetchedProduct.colorImages[fetchedProduct.colors[0]]);
-        }
-      }
-    }
-    setLoading(false);
-  }, [id]);
+  }, [id, toast]);
 
   // Update image when color changes
   useEffect(() => {
@@ -140,6 +131,11 @@ const ProductPage = () => {
     }
 
     addToCart(product, quantity, selectedSize, selectedColor);
+    
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart`,
+    });
   };
 
   if (loading) {
@@ -169,7 +165,7 @@ const ProductPage = () => {
         <div className="w-full md:w-1/2">
           <div className="rounded-lg overflow-hidden bg-gray-100">
             <img
-              src={product.image}
+              src={currentImage || product.image}
               alt={product.name}
               className="w-full h-auto object-cover aspect-square"
             />
