@@ -27,6 +27,8 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const { favorites } = useFavorites();
+  const [activeTab, setActiveTab] = useState("account");
+
 
   useEffect(() => {
     const getUser = async () => {
@@ -98,14 +100,14 @@ const ProfilePage = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <Button variant="outline" className="w-full justify-start">
-                  <User className="mr-2 h-4 w-4" /> Account Information
+                <Button variant="outline" className={`w-full justify-start ${activeTab === "account" ? "bg-tekno-blue/80 text-white" : ""}`} onClick={() => setActiveTab("account")}>
+                  <User className="mr-2 h-4 w-4" /> Informations compte
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Heart className="mr-2 h-4 w-4" /> Favorites
+                <Button variant="outline" className={`w-full justify-start ${activeTab === "favorites" ? "bg-tekno-blue/80 text-white" : ""}`} onClick={() => setActiveTab("favorites")}>
+                  <Heart className="mr-2 h-4 w-4" /> Favorits
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Package className="mr-2 h-4 w-4" /> Orders
+                <Button variant="outline" className={`w-full justify-start ${activeTab === "orders" ? "bg-tekno-blue/80 text-white" : ""}`} onClick={() => setActiveTab("orders")}>
+                  <Package className="mr-2 h-4 w-4" /> Achats
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
                   <Settings className="mr-2 h-4 w-4" /> Settings
@@ -115,7 +117,7 @@ const ProfilePage = () => {
                   className="w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50"
                   onClick={() => supabase.auth.signOut()}
                 >
-                  Log Out
+                  Déconnexion
                 </Button>
               </div>
             </CardContent>
@@ -124,11 +126,11 @@ const ProfilePage = () => {
 
         {/* Main Content */}
         <main className="w-full md:w-2/3 lg:w-3/4">
-          <Tabs defaultValue="account">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="account">Account</TabsTrigger>
-              <TabsTrigger value="favorites">Favorites</TabsTrigger>
-              <TabsTrigger value="orders">Order History</TabsTrigger>
+              <TabsTrigger value="account">Compte</TabsTrigger>
+              <TabsTrigger value="favorites">Favorits</TabsTrigger>
+              <TabsTrigger value="orders">Historique achats</TabsTrigger>
             </TabsList>
 
             {/* Account Tab */}
@@ -136,7 +138,7 @@ const ProfilePage = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <User className="mr-2" /> Account Information
+                    <User className="mr-2" /> Informations compte
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -146,14 +148,15 @@ const ProfilePage = () => {
                       <p>{user?.email}</p>
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-gray-500">Name</h3>
+                      <h3 className="text-sm font-medium text-gray-500">Nom</h3>
                       <p>{user?.user_metadata?.full_name || "Not provided"}</p>
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-gray-500">Account Created</h3>
+                      <h3 className="text-sm font-medium text-gray-500">Compte créé le :</h3>
                       <p>{new Date(user?.created_at).toLocaleDateString()}</p>
                     </div>
-                    <Button className="mt-4">Update Information</Button>
+                    <Button className="mt-4">Update Informations</Button>
+                    <Button className="mt-4 ml-2 bg-red-600 hover:bg-red-500">Supprimez votre compte</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -164,7 +167,7 @@ const ProfilePage = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Heart className="mr-2" /> Your Favorites
+                    <Heart className="mr-2" /> Vos Favorits
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -177,10 +180,10 @@ const ProfilePage = () => {
                   ) : (
                     <div className="text-center py-8">
                       <Heart className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                      <h3 className="text-lg font-medium">No favorites yet</h3>
-                      <p className="text-gray-500">Items you add to favorites will appear here.</p>
+                      <h3 className="text-lg font-medium">Pas de favorits encore</h3>
+                      <p className="text-gray-500">Les produits sélectionnés apparaitrons ici.</p>
                       <Button className="mt-4" variant="outline" asChild>
-                        <a href="/shop">Browse Products</a>
+                        <a href="/shop">Voir les produits</a>
                       </Button>
                     </div>
                   )}
@@ -193,7 +196,7 @@ const ProfilePage = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <FileText className="mr-2" /> Order History
+                    <FileText className="mr-2" /> Historique achats
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -201,8 +204,8 @@ const ProfilePage = () => {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Order ID</TableHead>
-                          <TableHead>Product</TableHead>
+                          <TableHead>Achat ID</TableHead>
+                          <TableHead>Produit</TableHead>
                           <TableHead>Date</TableHead>
                           <TableHead>Total</TableHead>
                           <TableHead>Status</TableHead>
@@ -214,7 +217,7 @@ const ProfilePage = () => {
                             <TableCell className="font-medium">{order.id}</TableCell>
                             <TableCell>{order.name}</TableCell>
                             <TableCell>{order.date}</TableCell>
-                            <TableCell>${(order.price * order.quantity).toFixed(2)}</TableCell>
+                            <TableCell>{(order.price * order.quantity).toFixed(2)} €</TableCell>
                             <TableCell>
                               <Badge 
                                 variant="outline" 
@@ -234,10 +237,10 @@ const ProfilePage = () => {
                   ) : (
                     <div className="text-center py-8">
                       <Package className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                      <h3 className="text-lg font-medium">No orders yet</h3>
-                      <p className="text-gray-500">Your purchase history will appear here.</p>
+                      <h3 className="text-lg font-medium">Pas d'achats</h3>
+                      <p className="text-gray-500">Votre historique d'achats sera affiché ici.</p>
                       <Button className="mt-4" variant="outline" asChild>
-                        <a href="/shop">Start Shopping</a>
+                        <a href="/shop">Voir les produits</a>
                       </Button>
                     </div>
                   )}
