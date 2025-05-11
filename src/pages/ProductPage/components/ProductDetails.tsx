@@ -10,23 +10,75 @@ import { createCheckoutSession } from "@/utils/stripe";
 
 interface ProductDetailsProps {
   product: Product;
+  selectedSize?: string;
+  setSelectedSize?: (size: string) => void;
+  selectedColor?: string;
+  setSelectedColor?: (color: string) => void;
+  quantity?: number;
+  setQuantity?: (quantity: number) => void;
+  handleAddToCart?: () => void;
   onColorChange?: (color: string) => void;
 }
 
-const ProductDetails = ({ product, onColorChange }: ProductDetailsProps) => {
+const ProductDetails = ({ 
+  product, 
+  selectedSize, 
+  setSelectedSize, 
+  selectedColor, 
+  setSelectedColor, 
+  quantity = 1, 
+  setQuantity,
+  handleAddToCart: externalHandleAddToCart,
+  onColorChange 
+}: ProductDetailsProps) => {
   const { addToCart } = useCart();
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
-  const [selectedSize, setSelectedSize] = useState<string | undefined>(
-    product.sizes && product.sizes.length > 0 ? product.sizes[0] : undefined
+  const [localSelectedSize, setLocalSelectedSize] = useState<string | undefined>(
+    selectedSize || (product.sizes && product.sizes.length > 0 ? product.sizes[0] : undefined)
   );
-  const [selectedColor, setSelectedColor] = useState<string | undefined>(
-    product.colors && product.colors.length > 0 ? product.colors[0] : undefined
+  const [localSelectedColor, setLocalSelectedColor] = useState<string | undefined>(
+    selectedColor || (product.colors && product.colors.length > 0 ? product.colors[0] : undefined)
   );
-  const [quantity, setQuantity] = useState(1);
+  const [localQuantity, setLocalQuantity] = useState(quantity);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleAddToCart = () => {
-    addToCart(product, quantity, selectedSize, selectedColor);
+  // Use either internal or external state management based on props
+  const handleSizeChange = (size: string) => {
+    if (setSelectedSize) {
+      setSelectedSize(size);
+    } else {
+      setLocalSelectedSize(size);
+    }
+  };
+
+  const handleColorChange = (color: string) => {
+    if (setSelectedColor) {
+      setSelectedColor(color);
+    } else {
+      setLocalSelectedColor(color);
+    }
+    
+    if (onColorChange) {
+      onColorChange(color);
+    }
+  };
+
+  const handleQuantityChange = (newQuantity: number) => {
+    const validQuantity = Math.max(1, Math.min(newQuantity, product.stock));
+    
+    if (setQuantity) {
+      setQuantity(validQuantity);
+    } else {
+      setLocalQuantity(validQuantity);
+    }
+  };
+
+  const internalHandleAddToCart = () => {
+    const currentSize = selectedSize || localSelectedSize;
+    const currentColor = selectedColor || localSelectedColor;
+    const currentQuantity = quantity || localQuantity;
+    
+    addToCart(product, currentQuantity, currentSize, currentColor);
   };
 
   const toggleFavorite = () => {
@@ -39,21 +91,14 @@ const ProductDetails = ({ product, onColorChange }: ProductDetailsProps) => {
     }
   };
 
-  const handleColorChange = (color: string) => {
-    setSelectedColor(color);
-    if (onColorChange) {
-      onColorChange(color);
-    }
-  };
-
   const handleBuyNow = async () => {
     try {
       setIsProcessing(true);
       const { url } = await createCheckoutSession(
         product, 
-        quantity, 
-        selectedSize, 
-        selectedColor
+        quantity || localQuantity, 
+        selectedSize || localSelectedSize, 
+        selectedColor || localSelectedColor
       );
       
       if (url) {
@@ -68,6 +113,11 @@ const ProductDetails = ({ product, onColorChange }: ProductDetailsProps) => {
       setIsProcessing(false);
     }
   };
+
+  // Use either the provided sizes or get from product
+  const currentSize = selectedSize || localSelectedSize;
+  const currentColor = selectedColor || localSelectedColor;
+  const currentQuantity = quantity || localQuantity;
 
   return (
     <div className="space-y-6">
@@ -104,9 +154,9 @@ const ProductDetails = ({ product, onColorChange }: ProductDetailsProps) => {
             {product.sizes.map((size) => (
               <button
                 key={size}
-                onClick={() => setSelectedSize(size)}
+                onClick={() => handleSizeChange(size)}
                 className={`h-10 w-10 rounded-md border text-center leading-10 ${
-                  selectedSize === size
+                  currentSize === size
                     ? "border-tekno-blue bg-tekno-blue/10"
                     : "border-gray-200"
                 }`}
@@ -128,7 +178,7 @@ const ProductDetails = ({ product, onColorChange }: ProductDetailsProps) => {
                 key={color}
                 onClick={() => handleColorChange(color)}
                 className={`h-10 w-10 rounded-full border-2 ${
-                  selectedColor === color ? "border-tekno-blue ring-2 ring-tekno-blue/30" : "border-gray-200"
+                  currentColor === color ? "border-tekno-blue ring-2 ring-tekno-blue/30" : "border-gray-200"
                 }`}
                 style={{ backgroundColor: color }}
                 aria-label={`Select ${color} color`}
@@ -143,17 +193,19 @@ const ProductDetails = ({ product, onColorChange }: ProductDetailsProps) => {
         <h3 className="font-medium mb-2">Quantity</h3>
         <div className="flex items-center border rounded-md w-32">
           <button
-            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            onClick={() => handleQuantityChange(currentQuantity - 1)}
             className="px-3 py-1 text-lg border-r"
-            disabled={quantity <= 1}
+            disabled={currentQuantity <= 1}
+            aria-label="Decrease quantity"
           >
             -
           </button>
-          <div className="px-3 py-1 flex-1 text-center">{quantity}</div>
+          <div className="px-3 py-1 flex-1 text-center">{currentQuantity}</div>
           <button
-            onClick={() => setQuantity(quantity + 1)}
+            onClick={() => handleQuantityChange(currentQuantity + 1)}
             className="px-3 py-1 text-lg border-l"
-            disabled={quantity >= product.stock}
+            disabled={currentQuantity >= product.stock}
+            aria-label="Increase quantity"
           >
             +
           </button>
@@ -163,7 +215,7 @@ const ProductDetails = ({ product, onColorChange }: ProductDetailsProps) => {
       {/* Actions */}
       <div className="flex flex-col sm:flex-row gap-2 pt-2">
         <Button 
-          onClick={handleAddToCart} 
+          onClick={externalHandleAddToCart || internalHandleAddToCart}
           className="flex-1 gap-2 bg-tekno-blue text-white hover:bg-tekno-blue/90"
           disabled={product.stock <= 0}
         >
