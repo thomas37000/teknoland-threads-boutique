@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -31,6 +30,9 @@ const AuthPage = () => {
   const [verificationSent, setVerificationSent] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
   const { user } = useAuth();
+
+  // Login error state
+  const [loginError, setLoginError] = useState("");
 
   // Password visibility toggles
   const [showPassword, setShowPassword] = useState(false);
@@ -97,6 +99,7 @@ const AuthPage = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setLoginError(""); // Clear any previous errors
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -105,13 +108,15 @@ const AuthPage = () => {
       });
 
       if (error) {
-        throw error;
+        // Display inline error instead of toast
+        setLoginError("Email ou mot de passe incorrect. Veuillez réessayer.");
+        return;
       }
 
       toast.success("Successfully logged in!");
       navigate("/");
     } catch (error: any) {
-      toast.error(error.message || "Failed to login");
+      setLoginError("Une erreur est survenue. Veuillez réessayer.");
     } finally {
       setIsLoading(false);
     }
@@ -331,6 +336,14 @@ const AuthPage = () => {
 
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
+                {loginError && (
+                  <Alert className="border-red-200 bg-red-50">
+                    <AlertDescription className="text-red-700">
+                      {loginError}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -338,7 +351,10 @@ const AuthPage = () => {
                     type="email"
                     placeholder="Tapez votre email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setLoginError(""); // Clear error when user starts typing
+                    }}
                     required
                   />
                 </div>
@@ -351,7 +367,10 @@ const AuthPage = () => {
                       type={showPassword ? "text" : "password"}
                       placeholder="********"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setLoginError(""); // Clear error when user starts typing
+                      }}
                       required
                       className="pr-10"
                     />
