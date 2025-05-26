@@ -33,6 +33,8 @@ const AuthPage = () => {
 
   // Login error state
   const [loginError, setLoginError] = useState("");
+  // Signup error state
+  const [signupError, setSignupError] = useState("");
 
   // Password visibility toggles
   const [showPassword, setShowPassword] = useState(false);
@@ -108,8 +110,14 @@ const AuthPage = () => {
       });
 
       if (error) {
-        // Display inline error instead of toast
-        setLoginError("Email ou mot de passe incorrect. Veuillez réessayer.");
+        // Handle specific error cases
+        if (error.message === "Invalid login credentials") {
+          setLoginError("Désolé nous n'avons pas de compte enregistré avec cet email");
+        } else if (error.message.includes("Email not confirmed")) {
+          setLoginError("Veuillez confirmer votre email avant de vous connecter");
+        } else {
+          setLoginError("Email ou mot de passe incorrect. Veuillez réessayer.");
+        }
         return;
       }
 
@@ -134,6 +142,7 @@ const AuthPage = () => {
     }
     
     setIsLoading(true);
+    setSignupError(""); // Clear any previous errors
 
     try {
       const redirectTo = `${window.location.origin}/auth`;
@@ -150,13 +159,21 @@ const AuthPage = () => {
       });
 
       if (error) {
-        throw error;
+        // Handle specific error cases
+        if (error.message.includes("User already registered")) {
+          setSignupError("Désolé mais nous avons déjà un compte créé avec cette adresse email");
+        } else if (error.message.includes("already been registered")) {
+          setSignupError("Désolé mais nous avons déjà un compte créé avec cette adresse email");
+        } else {
+          setSignupError(error.message || "Erreur lors de la création du compte");
+        }
+        return;
       }
 
       setVerificationSent(true);
       toast.success("Registration successful! Please check your email for verification.");
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign up");
+      setSignupError("Erreur lors de la création du compte");
     } finally {
       setIsLoading(false);
     }
@@ -452,6 +469,14 @@ const AuthPage = () => {
 
             <TabsContent value="signup">
               <form onSubmit={handleSignup} className="space-y-4">
+                {signupError && (
+                  <Alert className="border-red-200 bg-red-50">
+                    <AlertDescription className="text-red-700">
+                      {signupError}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Nom entier</Label>
                   <Input
@@ -471,7 +496,10 @@ const AuthPage = () => {
                     type="email"
                     placeholder="Entrez votre email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setSignupError(""); // Clear error when user starts typing
+                    }}
                     required
                   />
                 </div>
@@ -484,7 +512,10 @@ const AuthPage = () => {
                       type={showPasswordIcon ? "text" : "password"}
                       placeholder="Créer un mot de passe sécurisé"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setSignupError(""); // Clear error when user starts typing
+                      }}
                       onFocus={() => setShowPasswordErrors(true)}
                       required
                       className="pr-10"
