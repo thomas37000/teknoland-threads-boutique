@@ -79,13 +79,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // Handle URL fragment for email verification
+    // Handle URL fragment for email verification et password recovery
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const type = hashParams.get("type");
     const accessToken = hashParams.get("access_token");
     const refreshToken = hashParams.get("refresh_token");
     
+    // Pour la récupération de mot de passe, ne pas établir automatiquement la session
     if (type === "recovery" && accessToken) {
+      // Ne pas établir de session automatiquement pour les liens de récupération
+      console.log("Password recovery link detected, not auto-signing in");
+      setIsLoading(false);
+      return;
+    }
+    
+    if (type === "email" && accessToken) {
       supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken || "",

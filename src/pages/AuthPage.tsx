@@ -67,9 +67,11 @@ const AuthPage = () => {
       toast.error(errorDescription || "Verification failed");
     }
 
-    // Si c'est un lien de récupération de mot de passe, on affiche le formulaire
+    // Si c'est un lien de récupération de mot de passe, on affiche le formulaire SANS connecter l'utilisateur
     if (type === "recovery") {
       setShowResetPw(true);
+      // Ne pas établir de session automatiquement
+      return;
     }
   }, []);
 
@@ -101,16 +103,22 @@ const AuthPage = () => {
     }
   }, [resetPw]);
 
-  // Fonction pour vérifier si l'email existe dans la base de données
+  // Fonction pour vérifier si l'email existe dans la base de données auth
   const checkEmailExists = async (email: string): Promise<boolean> => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('email', email)
-        .single();
+      // Essayer de se connecter avec un mot de passe invalide pour tester l'existence de l'email
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password: 'test_invalid_password_123456789'
+      });
       
-      return !error && !!data;
+      // Si l'erreur contient "Invalid login credentials", l'email existe
+      // Si l'erreur contient autre chose ou pas d'erreur, traiter différemment
+      if (error) {
+        return error.message === "Invalid login credentials" || error.message.includes("Invalid");
+      }
+      
+      return false;
     } catch {
       return false;
     }
@@ -122,15 +130,15 @@ const AuthPage = () => {
     setLoginError(""); // Clear any previous errors
 
     try {
-      // Vérifier si l'email existe d'abord
-      const emailExists = await checkEmailExists(email);
-
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        // Vérifier si l'email existe d'abord
+        const emailExists = await checkEmailExists(email);
+
         if (!emailExists) {
           setLoginError("Désolé nous n'avons pas de compte enregistré avec cet email");
         } else if (error.message === "Invalid login credentials" || error.message.includes("Invalid")) {
