@@ -10,14 +10,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 
 export interface ClientTableProps {
   clients: Client[];
   onEdit: (client: Client) => void;
+  onDelete: (client: Client) => void;
 }
 
-const ClientTable: React.FC<ClientTableProps> = ({ clients, onEdit }) => {
+const ClientTable: React.FC<ClientTableProps> = ({ clients, onEdit, onDelete }) => {
   return (
     <Table className="border">
       <TableHeader>
@@ -66,14 +67,24 @@ const ClientTable: React.FC<ClientTableProps> = ({ clients, onEdit }) => {
                 </span>
               </TableCell>
               <TableCell>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onEdit(client)}
-                  className="h-8 w-8 p-0"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onEdit(client)}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDelete(client)}
+                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))

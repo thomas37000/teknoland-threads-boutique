@@ -9,7 +9,6 @@ const ClientManagement = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -21,7 +20,8 @@ const ClientManagement = () => {
       try {
         const { data, error } = await supabase
           .from('profiles')
-          .select('*');
+          .select('*')
+          .order('updated_at', { ascending: false });
         
         if (error) throw error;
         
@@ -29,7 +29,7 @@ const ClientManagement = () => {
         if (data) {
           const transformedClients: Client[] = data.map(profile => ({
             id: profile.id || "",
-            name: profile.full_name || profile.firstname || "No Name", // Use full_name or firstname instead of name
+            name: profile.full_name || profile.firstname || "No Name",
             email: profile.email || "",
             phone: profile.phone || "",
             address: profile.address || "",
@@ -38,7 +38,6 @@ const ClientManagement = () => {
             lastPurchase: profile.lastPurchase || "",
             accountStatus: (profile.accountStatus as "active" | "inactive") || "active",
             roles: (profile.roles as "client" | "admin") || "client",
-            // These fields might not be in the profiles table, so omit them or set defaults
             cookieConsent: false,
             cookieConsentDate: ""
           }));
@@ -61,7 +60,7 @@ const ClientManagement = () => {
       const { error } = await supabase
         .from('profiles')
         .update({
-          full_name: client.name, // Use full_name instead of name
+          full_name: client.name,
           phone: client.phone,
           address: client.address,
           accountStatus: client.accountStatus,
@@ -85,9 +84,37 @@ const ClientManagement = () => {
     setSelectedClient(null);
   };
 
+  const handleDelete = async (clientId: string) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', clientId);
+      
+      if (error) throw error;
+      
+      setClients(prevClients => 
+        prevClients.filter(c => c.id !== clientId)
+      );
+      
+      toast.success("Client supprimé avec succès");
+    } catch (error) {
+      console.error("Error deleting client:", error);
+      toast.error("Erreur lors de la suppression du client");
+    }
+    
+    setIsDeleteDialogOpen(false);
+    setSelectedClient(null);
+  };
+
   const handleOpenEditDialog = (client: Client) => {
     setSelectedClient(client);
     setIsEditDialogOpen(true);
+  };
+
+  const handleOpenDeleteDialog = (client: Client) => {
+    setSelectedClient(client);
+    setIsDeleteDialogOpen(true);
   };
 
   const filteredClients = clients.filter(client => {
@@ -96,6 +123,14 @@ const ClientManagement = () => {
       client.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-tekno-blue"></div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -114,9 +149,167 @@ const ClientManagement = () => {
       <ClientTable
         clients={filteredClients}
         onEdit={handleOpenEditDialog}
+        onDelete={handleOpenDeleteDialog}
       />
 
-      {/* The actual dialogs are imported from ClientDialogs.tsx */}
+      {/* Edit Dialog */}
+      {isEditDialogOpen && selectedClient && (
+        <ClientEditDialog
+          client={selectedClient}
+          isOpen={isEditDialogOpen}
+          onClose={() => {
+            setIsEditDialogOpen(false);
+            setSelectedClient(null);
+          }}
+          onSave={handleEdit}
+        />
+      )}
+
+      {/* Delete Dialog */}
+      {isDeleteDialogOpen && selectedClient && (
+        <ClientDeleteDialog
+          client={selectedClient}
+          isOpen={isDeleteDialogOpen}
+          onClose={() => {
+            setIsDeleteDialogOpen(false);
+            setSelectedClient(null);
+          }}
+          onConfirm={() => handleDelete(selectedClient.id)}
+        />
+      )}
+    </div>
+  );
+};
+
+// Edit Dialog Component
+const ClientEditDialog = ({ client, isOpen, onClose, onSave }: {
+  client: Client;
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (client: Client) => void;
+}) => {
+  const [editedClient, setEditedClient] = useState(client);
+
+  const handleSave = () => {
+    onSave(editedClient);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg w-96 max-w-full">
+        <h3 className="text-lg font-semibold mb-4">Modifier le client</h3>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Nom</label>
+            <input
+              type="text"
+              value={editedClient.name}
+              onChange={(e) => setEditedClient({...editedClient, name: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">Téléphone</label>
+            <input
+              type="text"
+              value={editedClient.phone}
+              onChange={(e) => setEditedClient({...editedClient, phone: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">Adresse</label>
+            <input
+              type="text"
+              value={editedClient.address}
+              onChange={(e) => setEditedClient({...editedClient, address: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">Statut</label>
+            <select
+              value={editedClient.accountStatus}
+              onChange={(e) => setEditedClient({...editedClient, accountStatus: e.target.value as "active" | "inactive"})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            >
+              <option value="active">Actif</option>
+              <option value="inactive">Inactif</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">Rôle</label>
+            <select
+              value={editedClient.roles}
+              onChange={(e) => setEditedClient({...editedClient, roles: e.target.value as "client" | "admin"})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            >
+              <option value="client">Client</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        
+        <div className="flex gap-2 mt-6">
+          <button
+            onClick={handleSave}
+            className="flex-1 bg-tekno-blue text-white py-2 rounded-md hover:bg-tekno-blue/90"
+          >
+            Sauvegarder
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-400"
+          >
+            Annuler
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Delete Dialog Component
+const ClientDeleteDialog = ({ client, isOpen, onClose, onConfirm }: {
+  client: Client;
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg w-96 max-w-full">
+        <h3 className="text-lg font-semibold mb-4">Supprimer le client</h3>
+        
+        <p className="text-gray-600 mb-6">
+          Êtes-vous sûr de vouloir supprimer le client <strong>{client.name}</strong> ? 
+          Cette action est irréversible.
+        </p>
+        
+        <div className="flex gap-2">
+          <button
+            onClick={onConfirm}
+            className="flex-1 bg-red-600 text-white py-2 rounded-md hover:bg-red-700"
+          >
+            Supprimer
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-400"
+          >
+            Annuler
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
