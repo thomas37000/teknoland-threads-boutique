@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -66,17 +67,19 @@ const AuthPage = () => {
       toast.error(errorDescription || "Verification failed");
     }
 
+    // Si c'est un lien de récupération de mot de passe, on affiche le formulaire
     if (type === "recovery") {
       setShowResetPw(true);
     }
   }, []);
 
   useEffect(() => {
-    if (user) {
+    // Ne rediriger que si l'utilisateur est connecté ET qu'il n'est pas en train de réinitialiser son mot de passe
+    if (user && !showResetPw) {
       const from = location.state?.from?.pathname || "/";
       navigate(from, { replace: true });
     }
-  }, [user, navigate, location]);
+  }, [user, navigate, location, showResetPw]);
 
   // Validate password as user types
   useEffect(() => {
@@ -98,30 +101,49 @@ const AuthPage = () => {
     }
   }, [resetPw]);
 
+  // Fonction pour vérifier si l'email existe dans la base de données
+  const checkEmailExists = async (email: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', email)
+        .single();
+      
+      return !error && !!data;
+    } catch {
+      return false;
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setLoginError(""); // Clear any previous errors
 
     try {
+      // Vérifier si l'email existe d'abord
+      const emailExists = await checkEmailExists(email);
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        // Handle specific error cases
-        if (error.message === "Invalid login credentials") {
+        if (!emailExists) {
           setLoginError("Désolé nous n'avons pas de compte enregistré avec cet email");
+        } else if (error.message === "Invalid login credentials" || error.message.includes("Invalid")) {
+          setLoginError("Mot de passe incorrect. Veuillez réessayer.");
         } else if (error.message.includes("Email not confirmed")) {
           setLoginError("Veuillez confirmer votre email avant de vous connecter");
         } else {
-          setLoginError("Email ou mot de passe incorrect. Veuillez réessayer.");
+          setLoginError("Une erreur est survenue lors de la connexion. Veuillez réessayer.");
         }
         return;
       }
 
-      toast.success("Successfully logged in!");
+      toast.success("Connexion réussie !");
       navigate("/");
     } catch (error: any) {
       setLoginError("Une erreur est survenue. Veuillez réessayer.");
@@ -230,6 +252,8 @@ const AuthPage = () => {
       toast.success("Votre mot de passe a été réinitialisé avec succès !");
       setShowResetPw(false);
       window.location.hash = "";
+      // Rediriger vers la page d'accueil après réinitialisation réussie
+      navigate("/");
     } catch (error: any) {
       toast.error(error.message || "Échec de la réinitialisation du mot de passe.");
     }
@@ -260,78 +284,78 @@ const AuthPage = () => {
         </div>
 
         {showResetPw ? (
-          <Dialog open={showResetPw} onOpenChange={setShowResetPw}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Réinitialiser le mot de passe</DialogTitle>
-                <DialogDescription>
-                  Choisissez un nouveau mot de passe pour votre compte.
-                </DialogDescription>
-              </DialogHeader>
-              <form className="space-y-4" onSubmit={handleResetPassword}>
-                <div className="space-y-2">
-                  <Label htmlFor="newPassword">Nouveau mot de passe</Label>
-                  <div className="relative">
-                    <Input
-                      id="newPassword"
-                      type={showResetPasswordIcon ? "text" : "password"}
-                      placeholder="Nouveau mot de passe"
-                      value={resetPw}
-                      onChange={(e) => setResetPw(e.target.value)}
-                      onFocus={() => setShowResetPasswordErrors(true)}
-                      required
-                      autoFocus
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      onClick={() => setShowResetPasswordIcon(!showResetPasswordIcon)}
-                    >
-                      {showResetPasswordIcon ? (
-                        <EyeOff className="h-5 w-5 text-gray-400" />
-                      ) : (
-                        <Eye className="h-5 w-5 text-gray-400" />
-                      )}
-                    </button>
-                  </div>
-                  {showResetPasswordErrors && renderPasswordRequirements(resetPasswordErrors)}
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-tekno-black mb-2">Réinitialiser le mot de passe</h2>
+              <p className="text-gray-500">Choisissez un nouveau mot de passe pour votre compte.</p>
+            </div>
+            <form className="space-y-4" onSubmit={handleResetPassword}>
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+                <div className="relative">
                   <Input
-                    id="confirmPassword"
-                    type="password"
-                    placeholder="Confirmez le nouveau mot de passe"
-                    value={resetPwConfirm}
-                    onChange={(e) => setResetPwConfirm(e.target.value)}
+                    id="newPassword"
+                    type={showResetPasswordIcon ? "text" : "password"}
+                    placeholder="Nouveau mot de passe"
+                    value={resetPw}
+                    onChange={(e) => setResetPw(e.target.value)}
+                    onFocus={() => setShowResetPasswordErrors(true)}
                     required
+                    autoFocus
+                    className="pr-10"
                   />
-                </div>
-                
-                <DialogFooter className="pt-2">
-                  <Button type="submit" className="w-full" disabled={resetPwLoading}>
-                    {resetPwLoading ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <Loader2 className="animate-spin" /> Réinitialisation...
-                      </span>
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    onClick={() => setShowResetPasswordIcon(!showResetPasswordIcon)}
+                  >
+                    {showResetPasswordIcon ? (
+                      <EyeOff className="h-5 w-5 text-gray-400" />
                     ) : (
-                      "Changer le mot de passe"
+                      <Eye className="h-5 w-5 text-gray-400" />
                     )}
-                  </Button>
-                  <DialogClose asChild>
-                    <Button variant="outline" className="w-full">
-                      Annuler
-                    </Button>
-                  </DialogClose>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-        ) : null}
-
-        {verificationSent ? (
+                  </button>
+                </div>
+                {showResetPasswordErrors && renderPasswordRequirements(resetPasswordErrors)}
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Confirmez le nouveau mot de passe"
+                  value={resetPwConfirm}
+                  onChange={(e) => setResetPwConfirm(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-3 pt-2">
+                <Button type="submit" className="w-full bg-tekno-blue hover:bg-tekno-blue/90" disabled={resetPwLoading}>
+                  {resetPwLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader2 className="animate-spin" /> Réinitialisation...
+                    </span>
+                  ) : (
+                    "Changer le mot de passe"
+                  )}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => {
+                    setShowResetPw(false);
+                    window.location.hash = "";
+                  }}
+                  type="button"
+                >
+                  Annuler
+                </Button>
+              </div>
+            </form>
+          </div>
+        ) : verificationSent ? (
           <Alert>
             <AlertDescription className="text-center py-4">
               Vérification email envoyé! Svp regardez dans vos emails et cliquez sur le lien reçu.
