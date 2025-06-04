@@ -14,19 +14,29 @@ import { supabase } from "@/integrations/supabase/client";
 import ProductCard from "@/components/ProductCard";
 import { useState, useEffect } from "react";
 
-interface OrderItem {
+interface Order {
   id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  date: string;
+  created_at: string;
   status: string;
+  total: number;
+  order_items: {
+    id: string;
+    quantity: number;
+    price: number;
+    size: string | null;
+    color: string | null;
+    products: {
+      id: string;
+      name: string;
+    };
+  }[];
 }
 
 const ProfilePage = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [orders, setOrders] = useState<OrderItem[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
   const { favorites } = useFavorites();
   const { cartItems, subtotal } = useCart();
   const [activeTab, setActiveTab] = useState("account");
@@ -38,33 +48,50 @@ const ProfilePage = () => {
       
       if (user) {
         setUser(user);
-        
-        // For demonstration purposes - in a real app, we would fetch actual orders from Supabase
-        // Simulating order history since we don't have actual orders yet
-        setOrders([
-          {
-            id: "ord-001",
-            name: "Digital Matrix Oxford",
-            price: 89.99,
-            quantity: 1,
-            date: "2025-04-01",
-            status: "delivered"
-          },
-          {
-            id: "ord-002",
-            name: "Tech Pioneer Denim Jacket",
-            price: 129.99,
-            quantity: 1,
-            date: "2025-03-15",
-            status: "processing"
-          }
-        ]);
+        await fetchUserOrders(user.id);
       }
       setLoading(false);
     };
 
     getUser();
   }, []);
+
+  const fetchUserOrders = async (userId: string) => {
+    setOrdersLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select(`
+          id,
+          created_at,
+          status,
+          total,
+          order_items (
+            id,
+            quantity,
+            price,
+            size,
+            color,
+            products (
+              id,
+              name
+            )
+          )
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching orders:', error);
+      } else {
+        setOrders(data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
 
   // Redirect to home if not logged in
   if (!loading && !user) {
@@ -266,12 +293,17 @@ const ProfilePage = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {orders.length > 0 ? (
+                  {ordersLoading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tekno-blue mx-auto"></div>
+                      <p className="mt-2 text-gray-500">Chargement des commandes...</p>
+                    </div>
+                  ) : orders.length > 0 ? (
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Achat ID</TableHead>
-                          <TableHead>Produit</TableHead>
+                          <TableHead>Commande ID</TableHead>
+                          <TableHead>Produits</TableHead>
                           <TableHead>Date</TableHead>
                           <TableHead>Total</TableHead>
                           <TableHead>Status</TableHead>
@@ -280,20 +312,38 @@ const ProfilePage = () => {
                       <TableBody>
                         {orders.map((order) => (
                           <TableRow key={order.id}>
-                            <TableCell className="font-medium">{order.id}</TableCell>
-                            <TableCell>{order.name}</TableCell>
-                            <TableCell>{order.date}</TableCell>
-                            <TableCell>{(order.price * order.quantity).toFixed(2)} €</TableCell>
+                            <TableCell className="font-medium">
+                              {order.id.substring(0, 8)}...
+                            </TableCell>
+                            <TableCell>
+                              {order.order_items.map((item, index) => (
+                                <div key={item.id} className="text-sm">
+                                  {item.products.name} 
+                                  {item.size && ` (${item.size})`}
+                                  {item.color && ` - ${item.color}`}
+                                  {` x${item.quantity}`}
+                                  {index < order.order_items.length - 1 && <br />}
+                                </div>
+                              ))}
+                            </TableCell>
+                            <TableCell>
+                              {new Date(order.created_at).toLocaleDateString('fr-FR')}
+                            </TableCell>
+                            <TableCell>{order.total.toFixed(2)} €</TableCell>
                             <TableCell>
                               <Badge 
                                 variant="outline" 
                                 className={
-                                  order.status === 'delivered' 
+                                  order.status === 'completed' 
                                     ? 'bg-green-50 text-green-700 border-green-200' 
+                                    : order.status === 'pending'
+                                    ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
                                     : 'bg-blue-50 text-blue-700 border-blue-200'
                                 }
                               >
-                                {order.status}
+                                {order.status === 'completed' ? 'Livré' : 
+                                 order.status === 'pending' ? 'En attente' : 
+                                 order.status === 'processing' ? 'En cours' : order.status}
                               </Badge>
                             </TableCell>
                           </TableRow>
@@ -303,7 +353,7 @@ const ProfilePage = () => {
                   ) : (
                     <div className="text-center py-8">
                       <Package className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                      <h3 className="text-lg font-medium">Pas d'achats</h3>
+                      <h3 className="text-lg font-medium">Aucun achat</h3>
                       <p className="text-gray-500">Votre historique d'achats sera affiché ici.</p>
                       <Button className="mt-4" variant="outline" asChild>
                         <a href="/shop">Voir les produits</a>
