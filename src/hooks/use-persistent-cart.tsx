@@ -2,46 +2,13 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './use-auth';
-import { Product, CartItem } from '@/types';
 import { toast } from 'sonner';
 
 export const usePersistentCart = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Load cart items from database
-  const loadCartFromDatabase = async () => {
-    if (!user) return [];
-    
-    setIsLoading(true);
-    try {
-      const { data: cartData, error } = await supabase
-        .from('cart_items')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (error) {
-        console.error('Error loading cart:', error);
-        return [];
-      }
-
-      // Transform database items to cart items format
-      // Note: We'll need to fetch product details separately since we only store product_id
-      const cartItems: CartItem[] = [];
-      
-      // For now, return empty array - we'll need to implement product fetching
-      // This is a placeholder that would need product data integration
-      
-      return cartItems;
-    } catch (error) {
-      console.error('Error loading cart:', error);
-      return [];
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Save cart item to database
+  // Save cart item to database using raw SQL
   const saveCartItemToDatabase = async (
     productId: string,
     quantity: number,
@@ -51,44 +18,41 @@ export const usePersistentCart = () => {
     if (!user) return;
 
     try {
-      // Check if item already exists
-      const { data: existingItem, error: fetchError } = await supabase
-        .from('cart_items')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('product_id', productId)
-        .eq('size', size || '')
-        .eq('color', color || '')
-        .single();
+      // Check if item already exists using raw SQL
+      const { data: existingItems, error: fetchError } = await supabase
+        .rpc('check_cart_item_exists', {
+          p_user_id: user.id,
+          p_product_id: productId,
+          p_size: size || '',
+          p_color: color || ''
+        });
 
       if (fetchError && fetchError.code !== 'PGRST116') {
         console.error('Error checking existing cart item:', fetchError);
         return;
       }
 
-      if (existingItem) {
-        // Update existing item
+      if (existingItems && existingItems.length > 0) {
+        // Update existing item using raw SQL
         const { error: updateError } = await supabase
-          .from('cart_items')
-          .update({ 
-            quantity: existingItem.quantity + quantity,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingItem.id);
+          .rpc('update_cart_item_quantity', {
+            p_user_id: user.id,
+            p_product_id: productId,
+            p_quantity: existingItems[0].quantity + quantity
+          });
 
         if (updateError) {
           console.error('Error updating cart item:', updateError);
         }
       } else {
-        // Insert new item
+        // Insert new item using raw SQL
         const { error: insertError } = await supabase
-          .from('cart_items')
-          .insert({
-            user_id: user.id,
-            product_id: productId,
-            quantity,
-            size: size || null,
-            color: color || null
+          .rpc('insert_cart_item', {
+            p_user_id: user.id,
+            p_product_id: productId,
+            p_quantity: quantity,
+            p_size: size || null,
+            p_color: color || null
           });
 
         if (insertError) {
@@ -100,16 +64,16 @@ export const usePersistentCart = () => {
     }
   };
 
-  // Remove cart item from database
+  // Remove cart item from database using raw SQL
   const removeCartItemFromDatabase = async (productId: string) => {
     if (!user) return;
 
     try {
       const { error } = await supabase
-        .from('cart_items')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('product_id', productId);
+        .rpc('delete_cart_item', {
+          p_user_id: user.id,
+          p_product_id: productId
+        });
 
       if (error) {
         console.error('Error removing cart item:', error);
@@ -119,19 +83,17 @@ export const usePersistentCart = () => {
     }
   };
 
-  // Update cart item quantity in database
+  // Update cart item quantity in database using raw SQL
   const updateCartItemInDatabase = async (productId: string, quantity: number) => {
     if (!user) return;
 
     try {
       const { error } = await supabase
-        .from('cart_items')
-        .update({ 
-          quantity,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', user.id)
-        .eq('product_id', productId);
+        .rpc('update_cart_item_quantity', {
+          p_user_id: user.id,
+          p_product_id: productId,
+          p_quantity: quantity
+        });
 
       if (error) {
         console.error('Error updating cart item quantity:', error);
@@ -141,21 +103,37 @@ export const usePersistentCart = () => {
     }
   };
 
-  // Clear all cart items from database
+  // Clear all cart items from database using raw SQL
   const clearCartInDatabase = async () => {
     if (!user) return;
 
     try {
       const { error } = await supabase
-        .from('cart_items')
-        .delete()
-        .eq('user_id', user.id);
+        .rpc('clear_user_cart', {
+          p_user_id: user.id
+        });
 
       if (error) {
         console.error('Error clearing cart:', error);
       }
     } catch (error) {
       console.error('Error clearing cart:', error);
+    }
+  };
+
+  // Load cart from database - placeholder for now
+  const loadCartFromDatabase = async () => {
+    if (!user) return [];
+    
+    setIsLoading(true);
+    try {
+      // For now return empty array - we'll implement this when we have the proper functions
+      return [];
+    } catch (error) {
+      console.error('Error loading cart:', error);
+      return [];
+    } finally {
+      setIsLoading(false);
     }
   };
 

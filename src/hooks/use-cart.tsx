@@ -3,7 +3,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Product, CartItem } from '@/types';
 import { useAuth } from './use-auth';
-import { usePersistentCart } from './use-persistent-cart';
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -20,12 +19,6 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const { user } = useAuth();
-  const { 
-    saveCartItemToDatabase, 
-    removeCartItemFromDatabase, 
-    updateCartItemInDatabase, 
-    clearCartInDatabase 
-  } = usePersistentCart();
 
   // Load cart from localStorage on initial load
   useEffect(() => {
@@ -63,22 +56,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         const updatedItems = [...prev];
         updatedItems[existingItemIndex].quantity += quantity;
         toast.success("Cart updated!");
-        
-        // Save to database if user is logged in
-        if (user) {
-          updateCartItemInDatabase(product.id, updatedItems[existingItemIndex].quantity);
-        }
-        
         return updatedItems;
       } else {
         // Add new item
         toast.success("Added to cart!");
-        
-        // Save to database if user is logged in
-        if (user) {
-          saveCartItemToDatabase(product.id, quantity, size, color);
-        }
-        
         return [...prev, {
           product,
           quantity,
@@ -92,11 +73,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const removeFromCart = (productId: string) => {
     setCartItems(prev => prev.filter(item => item.product.id !== productId));
     toast.success("Item removed from cart");
-    
-    // Remove from database if user is logged in
-    if (user) {
-      removeCartItemFromDatabase(productId);
-    }
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
@@ -107,21 +83,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
           : item
       )
     );
-    
-    // Update in database if user is logged in
-    if (user) {
-      updateCartItemInDatabase(productId, Math.max(1, quantity));
-    }
   };
 
   const clearCart = () => {
     setCartItems([]);
     toast.success("Cart cleared");
-    
-    // Clear from database if user is logged in
-    if (user) {
-      clearCartInDatabase();
-    }
   };
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
