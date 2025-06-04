@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -260,8 +259,8 @@ const AuthPage = () => {
       toast.success("Votre mot de passe a été réinitialisé avec succès !");
       setShowResetPw(false);
       window.location.hash = "";
-      // Rediriger vers la page d'accueil après réinitialisation réussie
-      navigate("/");
+      // Rediriger vers la page profile après réinitialisation réussie
+      navigate("/profile");
     } catch (error: any) {
       toast.error(error.message || "Échec de la réinitialisation du mot de passe.");
     }

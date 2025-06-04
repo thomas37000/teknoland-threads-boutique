@@ -125,13 +125,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log('User signed in', currentSession);
           // Fetch user role after sign in
           if (currentSession?.user) {
-            setTimeout(() => {
-              fetchUserRole(currentSession.user.id);
-            }, 0);
+            fetchUserRole(currentSession.user.id);
           }
           toast.success("Successfully signed in!");
         } else if (event === 'USER_UPDATED') {
           console.log('User updated');
+          // Force re-fetch user role after password update
+          if (currentSession?.user) {
+            fetchUserRole(currentSession.user.id);
+          }
         } else if (event === 'PASSWORD_RECOVERY') {
           console.log('Password recovery event');
         }
