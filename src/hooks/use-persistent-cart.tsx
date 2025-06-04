@@ -8,7 +8,7 @@ export const usePersistentCart = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Save cart item to database using raw SQL
+  // Save cart item to database
   const saveCartItemToDatabase = async (
     productId: string,
     quantity: number,
@@ -18,41 +18,43 @@ export const usePersistentCart = () => {
     if (!user) return;
 
     try {
-      // Check if item already exists using raw SQL
+      // Check if item already exists
       const { data: existingItems, error: fetchError } = await supabase
-        .rpc('check_cart_item_exists', {
-          p_user_id: user.id,
-          p_product_id: productId,
-          p_size: size || '',
-          p_color: color || ''
-        });
+        .from('cart_items')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('product_id', productId)
+        .eq('size', size || '')
+        .eq('color', color || '');
 
-      if (fetchError && fetchError.code !== 'PGRST116') {
+      if (fetchError) {
         console.error('Error checking existing cart item:', fetchError);
         return;
       }
 
       if (existingItems && existingItems.length > 0) {
-        // Update existing item using raw SQL
+        // Update existing item
         const { error: updateError } = await supabase
-          .rpc('update_cart_item_quantity', {
-            p_user_id: user.id,
-            p_product_id: productId,
-            p_quantity: existingItems[0].quantity + quantity
-          });
+          .from('cart_items')
+          .update({ 
+            quantity: existingItems[0].quantity + quantity,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingItems[0].id);
 
         if (updateError) {
           console.error('Error updating cart item:', updateError);
         }
       } else {
-        // Insert new item using raw SQL
+        // Insert new item
         const { error: insertError } = await supabase
-          .rpc('insert_cart_item', {
-            p_user_id: user.id,
-            p_product_id: productId,
-            p_quantity: quantity,
-            p_size: size || null,
-            p_color: color || null
+          .from('cart_items')
+          .insert({
+            user_id: user.id,
+            product_id: productId,
+            quantity: quantity,
+            size: size || null,
+            color: color || null
           });
 
         if (insertError) {
@@ -64,16 +66,16 @@ export const usePersistentCart = () => {
     }
   };
 
-  // Remove cart item from database using raw SQL
+  // Remove cart item from database
   const removeCartItemFromDatabase = async (productId: string) => {
     if (!user) return;
 
     try {
       const { error } = await supabase
-        .rpc('delete_cart_item', {
-          p_user_id: user.id,
-          p_product_id: productId
-        });
+        .from('cart_items')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('product_id', productId);
 
       if (error) {
         console.error('Error removing cart item:', error);
@@ -83,17 +85,19 @@ export const usePersistentCart = () => {
     }
   };
 
-  // Update cart item quantity in database using raw SQL
+  // Update cart item quantity in database
   const updateCartItemInDatabase = async (productId: string, quantity: number) => {
     if (!user) return;
 
     try {
       const { error } = await supabase
-        .rpc('update_cart_item_quantity', {
-          p_user_id: user.id,
-          p_product_id: productId,
-          p_quantity: quantity
-        });
+        .from('cart_items')
+        .update({ 
+          quantity: quantity,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id)
+        .eq('product_id', productId);
 
       if (error) {
         console.error('Error updating cart item quantity:', error);
@@ -103,15 +107,15 @@ export const usePersistentCart = () => {
     }
   };
 
-  // Clear all cart items from database using raw SQL
+  // Clear all cart items from database
   const clearCartInDatabase = async () => {
     if (!user) return;
 
     try {
       const { error } = await supabase
-        .rpc('clear_user_cart', {
-          p_user_id: user.id
-        });
+        .from('cart_items')
+        .delete()
+        .eq('user_id', user.id);
 
       if (error) {
         console.error('Error clearing cart:', error);
@@ -121,14 +125,23 @@ export const usePersistentCart = () => {
     }
   };
 
-  // Load cart from database - placeholder for now
+  // Load cart from database
   const loadCartFromDatabase = async () => {
     if (!user) return [];
     
     setIsLoading(true);
     try {
-      // For now return empty array - we'll implement this when we have the proper functions
-      return [];
+      const { data: cartItems, error } = await supabase
+        .from('cart_items')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error loading cart:', error);
+        return [];
+      }
+
+      return cartItems || [];
     } catch (error) {
       console.error('Error loading cart:', error);
       return [];
