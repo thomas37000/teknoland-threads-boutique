@@ -42,7 +42,7 @@ serve(async (req) => {
         currency: "eur",
         product_data: {
           name: item.product.name,
-          description: item.product.description || "",
+          description: item.product.description || `Produit ${item.product.name}`,
           images: item.product.image ? [item.product.image] : [],
         },
         unit_amount: Math.round(item.product.price * 100), // Stripe uses cents
