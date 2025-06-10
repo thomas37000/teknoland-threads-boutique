@@ -68,6 +68,16 @@ serve(async (req) => {
       });
     }
 
+    // Create simplified metadata with only essential information
+    const simplifiedCartItems = cartItems.map((item: any) => ({
+      id: item.product.id,
+      name: item.product.name,
+      price: item.product.price,
+      quantity: item.quantity,
+      size: item.size,
+      color: item.color
+    }));
+
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -76,7 +86,7 @@ serve(async (req) => {
       success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/cart`,
       metadata: {
-        cart_items: JSON.stringify(cartItems),
+        cart_summary: JSON.stringify(simplifiedCartItems),
       },
     });
 
