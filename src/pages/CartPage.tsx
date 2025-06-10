@@ -1,8 +1,10 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { Trash2 } from 'lucide-react';
+import { createCartCheckoutSession } from "@/utils/cart-checkout";
+import { toast } from "sonner";
+import { useState } from "react";
 
 const CartPage = () => {
   const {
@@ -11,6 +13,7 @@ const CartPage = () => {
     updateQuantity,
     subtotal
   } = useCart();
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   // When user delete product and cart is === 0
   if (cartItems.length === 0) {
@@ -26,6 +29,20 @@ const CartPage = () => {
       </div>
     );
   }
+
+  const handleCheckout = async () => {
+    setIsProcessingPayment(true);
+    try {
+      const { url } = await createCartCheckoutSession(cartItems);
+      // Open Stripe checkout in a new tab
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error("Erreur lors du traitement du paiement. Veuillez réessayer.");
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
 
   return (
     <div className="tekno-container py-12">
@@ -169,25 +186,13 @@ const CartPage = () => {
               </div>
             </div>
 
-            <Button className="w-full bg-tekno-blue text-white hover:bg-tekno-blue/90">
-              Passer la commande
+            <Button 
+              className="w-full bg-tekno-blue text-white hover:bg-tekno-blue/90"
+              onClick={handleCheckout}
+              disabled={isProcessingPayment}
+            >
+              {isProcessingPayment ? "Traitement..." : "Passer la commande"}
             </Button>
-
-            {/* Promo Code */}
-
-            {/* <div className="mt-6">
-              <h3 className="font-medium mb-2">Have a promo code?</h3>
-              <div className="flex">
-                <input 
-                  type="text" 
-                  placeholder="Enter code" 
-                  className="px-3 py-2 border rounded-l-md flex-grow"
-                />
-                <Button className="rounded-l-none" variant="outline">
-                  Apply
-                </Button>
-              </div>
-            </div> */}
           </div>
         </div>
       </div>
