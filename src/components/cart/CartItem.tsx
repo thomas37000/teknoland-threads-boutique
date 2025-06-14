@@ -1,100 +1,73 @@
 
-import { Link } from "react-router-dom";
-import { Trash2 } from 'lucide-react';
-import { CartItem as CartItemType } from "@/types";
+import React from 'react';
+import { Button } from "@/components/ui/button";
+import { Minus, Plus, Trash2 } from "lucide-react";
+import { CartItem as CartItemType } from '@/types/cart';
+import { useCart } from '@/hooks/use-cart';
 
 interface CartItemProps {
   item: CartItemType;
-  onRemove: (productId: string) => void;
-  onUpdateQuantity: (productId: string, quantity: number) => void;
 }
 
-const CartItem = ({ item, onRemove, onUpdateQuantity }: CartItemProps) => {
+const CartItem = ({ item }: CartItemProps) => {
+  const { updateQuantity, removeFromCart } = useCart();
+
+  const handleUpdateQuantity = (newQuantity: number) => {
+    if (newQuantity <= 0) {
+      removeFromCart(item.product.id);
+    } else {
+      updateQuantity(item.product.id, newQuantity);
+    }
+  };
+
   return (
-    <div key={`${item.product.id}-${item.size}-${item.color}`} className="grid sm:grid-cols-12 gap-4 p-4 border-b last:border-b-0">
-      {/* Mobile Product View */}
-      <div className="sm:hidden flex items-center justify-between mb-4">
-        <div className="w-20 h-20 bg-gray-100 rounded-md overflow-hidden">
-          <img
-            src={item.product.image}
-            alt={item.product.name}
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        <button
-          onClick={() => onRemove(item.product.id)}
-          className="text-tekno-gray hover:text-tekno-black transition-colors"
-          aria-label="Remove item"
+    <div className="flex items-center space-x-4 py-4 border-b border-gray-200">
+      <img
+        src={item.product.image}
+        alt={item.product.name}
+        className="w-16 h-16 object-cover rounded-lg"
+      />
+      <div className="flex-1">
+        <h3 className="font-medium text-gray-900">{item.product.name}</h3>
+        <p className="text-sm text-gray-500">{item.product.price.toFixed(2)} €</p>
+        {item.size && (
+          <p className="text-sm text-gray-500">Taille: {item.size}</p>
+        )}
+        {item.color && (
+          <p className="text-sm text-gray-500">Couleur: {item.color}</p>
+        )}
+      </div>
+      <div className="flex items-center space-x-2">
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => handleUpdateQuantity(item.quantity - 1)}
         >
-          &times;
-        </button>
+          <Minus className="h-4 w-4" />
+        </Button>
+        <span className="w-8 text-center">{item.quantity}</span>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => handleUpdateQuantity(item.quantity + 1)}
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
       </div>
-
-      {/* Product */}
-      <div className="sm:col-span-6 flex items-center gap-4">
-        <div className="hidden sm:block w-20 h-20 bg-gray-100 rounded-md overflow-hidden">
-          <img
-            src={item.product.image}
-            alt={item.product.name}
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        <div>
-          <Link to={`/product/${item.product.id}`} className="block overflow-hidden rounded-md">
-            <h4 className="font-medium hover:underline">{item.product.name}</h4>
-          </Link>
-          <div className="text-tekno-gray text-sm mt-1">
-            {item.size && <span className="mr-2">Taille: {item.size}</span>}
-            {item.color && <span>Couleur: {item.color}</span>}
-          </div>
-
-          <button
-            onClick={() => onRemove(item.product.id)}
-            className="text-tekno-blue hover:underline text-sm mt-2 hidden sm:inline-block"
-            aria-label="Remove item"
-          >
-            <Trash2 size={18} />
-          </button>
-        </div>
-      </div>
-
-      {/* Price */}
-      <div className="sm:col-span-2 flex items-center sm:justify-center">
-        <div className="sm:hidden font-medium mr-2">Price:</div>
-        <div>{item.product.price.toFixed(2)} €</div>
-      </div>
-
-      {/* Quantity */}
-      <div className="sm:col-span-2 flex items-center sm:justify-center">
-        <div className="sm:hidden font-medium mr-2">Quantity:</div>
-        <div className="flex items-center border rounded-md">
-          <button
-            className="px-2 py-1"
-            onClick={() => onUpdateQuantity(item.product.id, item.quantity - 1)}
-            disabled={item.quantity <= 1}
-            aria-label="Decrease quantity"
-          >
-            -
-          </button>
-          <div className="px-2 py-1">{item.quantity}</div>
-          <button
-            className="px-2 py-1"
-            onClick={() => onUpdateQuantity(item.product.id, item.quantity + 1)}
-            aria-label="Increase quantity"
-          >
-            +
-          </button>
-        </div>
-      </div>
-
-      {/* Total */}
-      <div className="sm:col-span-2 flex items-center sm:justify-end">
-        <div className="sm:hidden font-medium mr-2">Total:</div>
-        <div className="font-medium">
+      <div className="text-right">
+        <p className="font-medium text-gray-900">
           {(item.product.price * item.quantity).toFixed(2)} €
-        </div>
+        </p>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-red-500 hover:text-red-700 mt-1"
+          onClick={() => removeFromCart(item.product.id)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
