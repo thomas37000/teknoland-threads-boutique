@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
@@ -14,6 +15,7 @@ import VerificationAlert from "@/components/auth/VerificationAlert";
 const AuthPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const [verificationSent, setVerificationSent] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
   const { user } = useAuth();
@@ -61,8 +63,8 @@ const AuthPage = () => {
         <>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="login">Connexion</TabsTrigger>
-              <TabsTrigger value="signup">Créer un compte</TabsTrigger>
+              <TabsTrigger value="login">{t('auth.login')}</TabsTrigger>
+              <TabsTrigger value="signup">{t('auth.signup')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="login">

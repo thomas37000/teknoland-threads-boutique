@@ -1,5 +1,6 @@
 
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -8,16 +9,18 @@ interface VerificationAlertProps {
 }
 
 const VerificationAlert = ({ onBackToLogin }: VerificationAlertProps) => {
+  const { t } = useTranslation();
+
   return (
     <Alert>
       <AlertDescription className="text-center py-4">
-        Vérification email envoyé! Svp regardez dans vos emails et cliquez sur le lien reçu.
+        {t('auth.verificationSent')}
         <Button
           className="mt-4 w-full"
           variant="outline"
           onClick={onBackToLogin}
         >
-          Retour à la connexion
+          {t('auth.backToLogin')}
         </Button>
       </AlertDescription>
     </Alert>

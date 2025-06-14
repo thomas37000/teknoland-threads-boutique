@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ interface SignupFormProps {
 }
 
 const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -63,19 +65,19 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
 
       if (error) {
         if (error.message.includes("User already registered")) {
-          setSignupError("Désolé mais nous avons déjà un compte créé avec cette adresse email");
+          setSignupError(t('auth.emailExistsError'));
         } else if (error.message.includes("already been registered")) {
-          setSignupError("Désolé mais nous avons déjà un compte créé avec cette adresse email");
+          setSignupError(t('auth.emailExistsError'));
         } else {
-          setSignupError(error.message || "Erreur lors de la création du compte");
+          setSignupError(error.message || t('auth.signupError'));
         }
         return;
       }
 
       onVerificationSent();
-      toast.success("Registration successful! Please check your email for verification.");
+      toast.success(t('auth.registrationSuccess'));
     } catch (error: any) {
-      setSignupError("Erreur lors de la création du compte");
+      setSignupError(t('auth.signupError'));
     } finally {
       setIsLoading(false);
     }
@@ -86,7 +88,7 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
     
     return (
       <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-md">
-        <p className="text-sm font-medium text-yellow-800 mb-1">Votre mot de passe doit contenir :</p>
+        <p className="text-sm font-medium text-yellow-800 mb-1">{t('auth.passwordRequirements')}</p>
         <ul className="text-xs text-yellow-700 list-disc pl-5">
           {errors.map((error, index) => (
             <li key={index}>{error}</li>
@@ -107,11 +109,11 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="fullName">Nom entier</Label>
+        <Label htmlFor="fullName">{t('auth.fullName')}</Label>
         <Input
           id="fullName"
           type="text"
-          placeholder="prénom nom"
+          placeholder={t('auth.fullNamePlaceholder')}
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           required
@@ -119,11 +121,11 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="signupEmail">Email</Label>
+        <Label htmlFor="signupEmail">{t('auth.email')}</Label>
         <Input
           id="signupEmail"
           type="email"
-          placeholder="Entrez votre email"
+          placeholder={t('auth.emailPlaceholder')}
           value={email}
           onChange={(e) => {
             setEmail(e.target.value);
@@ -134,12 +136,12 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="signupPassword">Password</Label>
+        <Label htmlFor="signupPassword">{t('auth.password')}</Label>
         <div className="relative">
           <Input
             id="signupPassword"
             type={showPasswordIcon ? "text" : "password"}
-            placeholder="Créer un mot de passe sécurisé"
+            placeholder={t('auth.passwordCreatePlaceholder')}
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
@@ -171,10 +173,10 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
       >
         {isLoading ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Veuillez patienter
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('auth.pleaseWait')}
           </>
         ) : (
-          "Créer un compte"
+          t('auth.signupButton')
         )}
       </Button>
     </form>

@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ interface LoginFormProps {
 }
 
 const LoginForm = ({ onShowForgotPassword }: LoginFormProps) => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -52,20 +54,20 @@ const LoginForm = ({ onShowForgotPassword }: LoginFormProps) => {
         const emailExists = await checkEmailExists(email);
 
         if (!emailExists) {
-          setLoginError("Désolé nous n'avons pas de compte enregistré avec cet email");
+          setLoginError(t('auth.noAccountError'));
         } else if (error.message === "Invalid login credentials" || error.message.includes("Invalid")) {
-          setLoginError("Mot de passe incorrect. Veuillez réessayer.");
+          setLoginError(t('auth.wrongPasswordError'));
         } else if (error.message.includes("Email not confirmed")) {
-          setLoginError("Veuillez confirmer votre email avant de vous connecter");
+          setLoginError(t('auth.confirmEmailError'));
         } else {
-          setLoginError("Une erreur est survenue lors de la connexion. Veuillez réessayer.");
+          setLoginError(t('auth.loginError'));
         }
         return;
       }
 
       toast.success("Connexion réussie !");
     } catch (error: any) {
-      setLoginError("Une erreur est survenue. Veuillez réessayer.");
+      setLoginError(t('auth.loginError'));
     } finally {
       setIsLoading(false);
     }
@@ -82,11 +84,11 @@ const LoginForm = ({ onShowForgotPassword }: LoginFormProps) => {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t('auth.email')}</Label>
         <Input
           id="email"
           type="email"
-          placeholder="Tapez votre email"
+          placeholder={t('auth.emailPlaceholder')}
           value={email}
           onChange={(e) => {
             setEmail(e.target.value);
@@ -97,12 +99,12 @@ const LoginForm = ({ onShowForgotPassword }: LoginFormProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{t('auth.password')}</Label>
         <div className="relative">
           <Input
             id="password"
             type={showPassword ? "text" : "password"}
-            placeholder="********"
+            placeholder={t('auth.passwordPlaceholder')}
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
@@ -132,10 +134,10 @@ const LoginForm = ({ onShowForgotPassword }: LoginFormProps) => {
       >
         {isLoading ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Veuillez patienter
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('auth.pleaseWait')}
           </>
         ) : (
-          "Connexion"
+          t('auth.loginButton')
         )}
       </Button>
 
@@ -146,7 +148,7 @@ const LoginForm = ({ onShowForgotPassword }: LoginFormProps) => {
           onClick={onShowForgotPassword}
           tabIndex={0}
         >
-          Mot de passe oublié&nbsp;?
+          {t('auth.forgotPassword')}
         </button>
       </div>
     </form>
