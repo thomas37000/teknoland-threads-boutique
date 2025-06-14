@@ -1,6 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { useFavorites } from "@/hooks/use-favorites";
@@ -11,6 +12,7 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
+  const { t } = useTranslation();
   const { addToCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
   
@@ -25,7 +27,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           />
           {product.isNew && (
             <div className="absolute top-2 right-2 bg-tekno-blue text-white text-xs font-bold uppercase tracking-wider px-2 py-1 rounded">
-              New
+              {t('common.new')}
             </div>
           )}
         </div>
@@ -52,13 +54,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </div>
         <div className="mt-1 flex items-center justify-between">
           <p className="font-bold">{product.price.toFixed(2)} €</p>
-          {/* <p className="text-sm text-tekno-gray">{product.category}</p> */}
         </div>
         <Button 
           className="w-full mt-3 bg-tekno-black text-white hover:bg-tekno-blue transition-colors"
           onClick={() => addToCart(product)}
         >
-          Ajoutez au panier
+          {t('common.addToCart')}
         </Button>
       </div>
     </div>

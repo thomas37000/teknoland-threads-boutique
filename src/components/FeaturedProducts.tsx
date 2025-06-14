@@ -1,11 +1,13 @@
 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import ProductCard from "@/components/ProductCard";
 import { Product } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 
 const FeaturedProducts = () => {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -41,14 +43,14 @@ const FeaturedProducts = () => {
       <div className="tekno-container">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
-            <h2 className="text-3xl font-bold mb-2">Featured Products</h2>
+            <h2 className="text-3xl font-bold mb-2">{t('featured.title')}</h2>
             <p className="text-tekno-gray max-w-2xl">
-              Discover our most popular designs and new arrivals.
+              {t('featured.description')}
             </p>
           </div>
           <Link to="/shop" className="mt-4 md:mt-0">
             <span className="text-tekno-blue hover:underline font-medium">
-              View All Products →
+              {t('featured.viewAll')} →
             </span>
           </Link>
         </div>

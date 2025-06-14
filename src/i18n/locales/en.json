@@ -11,6 +11,17 @@
     "logout": "Logout",
     "viewCart": "View Cart"
   },
+  "hero": {
+    "title": "Underground clothes",
+    "subtitle": "Tshirts / Sweats from Free party culture",
+    "shopButton": "Shop",
+    "aboutButton": "About"
+  },
+  "featured": {
+    "title": "Featured Products",
+    "description": "Discover our most popular designs and new arrivals.",
+    "viewAll": "View All Products"
+  },
   "shop": {
     "title": "Shop | Teknoland Clothes",
     "description": "All clothing and vinyl records from Teknoland Production label",
@@ -59,6 +70,7 @@
     "selectColor": "Select a color",
     "quantity": "Quantity",
     "price": "Price",
-    "total": "Total"
+    "total": "Total",
+    "new": "New"
   }
 }
