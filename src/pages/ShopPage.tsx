@@ -126,7 +126,7 @@ async function getProducts() {
       {/* Filters and Sorting */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
-          <h3 className="text-sm font-medium mb-2">Filter by Category</h3>
+          <h3 className="text-sm font-medium mb-2">Filtrer par catégorie</h3>
           <div className="flex flex-wrap gap-2">
             <button
               className={`px-4 py-2 text-sm rounded-full border ${
@@ -136,7 +136,7 @@ async function getProducts() {
               }`}
               onClick={() => setSelectedCategory("all")}
             >
-              All Products
+              Tous les produits
             </button>
             <button
               className={`px-4 py-2 text-sm rounded-full border ${
@@ -186,7 +186,7 @@ async function getProducts() {
               }`}
               onClick={() => setSelectedCategory("accessories")}
             >
-              Accessories
+              Accessoires
             </button>
             <button
               className={`px-4 py-2 text-sm rounded-full border ${
@@ -202,19 +202,19 @@ async function getProducts() {
         </div>
         
         <div className="w-full sm:w-auto">
-          <h3 className="text-sm font-medium mb-2">Sort by</h3>
+          <h3 className="text-sm font-medium mb-2">Trier par</h3>
           <Select
             value={sortOption}
             onValueChange={(value) => setSortOption(value)}
           >
             <SelectTrigger className="w-full sm:w-[180px]">
-              <SelectValue placeholder="Sort by" />
+              <SelectValue placeholder="Trier par" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="default">Featured</SelectItem>
-              <SelectItem value="newest">Newest</SelectItem>
-              <SelectItem value="price-low">Price: Low to High</SelectItem>
-              <SelectItem value="price-high">Price: High to Low</SelectItem>
+              <SelectItem value="default">En vedette</SelectItem>
+              <SelectItem value="newest">Plus récent</SelectItem>
+              <SelectItem value="price-low">Prix : croissant</SelectItem>
+              <SelectItem value="price-high">Prix : décroissant</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -236,16 +236,16 @@ async function getProducts() {
                 onClick={handleLoadMore} 
                 className="bg-tekno-black hover:bg-tekno-blue text-white"
               >
-                Load More Products
+                Charger plus de produits
               </Button>
             </div>
           )}
         </>
       ) : (
         <div className="text-center py-12">
-          <h3 className="text-xl font-medium mb-2">No products found</h3>
+          <h3 className="text-xl font-medium mb-2">Aucun produit trouvé</h3>
           <p className="text-tekno-gray">
-            Try changing your filters or check back later for new items.
+            Essayez de modifier vos filtres ou revenez plus tard pour de nouveaux articles.
           </p>
         </div>
       )}
@@ -256,7 +256,7 @@ async function getProducts() {
           onClick={scrollToTop}
           className="fixed bottom-6 right-6 rounded-full p-3 bg-tekno-blue hover:bg-tekno-black text-white shadow-lg z-50"
           size="icon"
-          aria-label="Back to top"
+          aria-label="Retour en haut"
         >
           <ArrowUp className="h-5 w-5" />
         </Button>
