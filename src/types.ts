@@ -15,13 +15,7 @@ export interface Product {
   size_stocks?: {[size: string]: number} | null;
 }
 
-export interface CartItem {
-  product: Product;
-  quantity: number;
-  size?: string;
-  color?: string;
-}
-
+// CartItem is now in src/types/cart.ts
 export interface Client {
   id: string;
   name: string;
