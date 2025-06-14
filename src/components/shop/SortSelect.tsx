@@ -15,7 +15,6 @@ const SortSelect = ({ sortOption, onSortChange }: SortSelectProps) => {
           <SelectValue placeholder="Trier par" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="default">En vedette</SelectItem>
           <SelectItem value="newest">Plus récent</SelectItem>
           <SelectItem value="price-low">Prix : croissant</SelectItem>
           <SelectItem value="price-high">Prix : décroissant</SelectItem>

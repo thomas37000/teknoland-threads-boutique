@@ -15,7 +15,7 @@ const ShopPage = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [sortOption, setSortOption] = useState<string>("default");
+  const [sortOption, setSortOption] = useState<string>("newest");
   const [pageSize, setPageSize] = useState(8);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [error, setError] = useState(null);
