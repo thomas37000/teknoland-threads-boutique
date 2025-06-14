@@ -1,42 +1,59 @@
 
+import React from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface CartSummaryProps {
-  subtotal: number;
+  totalPrice: number;
   onCheckout: () => void;
-  isProcessingPayment: boolean;
+  onClearCart: () => void;
 }
 
-const CartSummary = ({ subtotal, onCheckout, isProcessingPayment }: CartSummaryProps) => {
+const CartSummary = ({ totalPrice, onCheckout, onClearCart }: CartSummaryProps) => {
   return (
-    <div className="lg:w-1/3">
-      <div className="bg-gray-50 rounded-lg p-6 border">
-        <h2 className="text-xl font-bold mb-4">Récapitulatif de la commande</h2>
-
-        <div className="space-y-3 mb-6">
-          <div className="flex justify-between">
-            <span>Sous total</span>
-            <span>{subtotal.toFixed(2)} €</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Frais de livraison</span>
-            <span>{subtotal > 50 ? "Offert" : "4.99 €"} </span>
-          </div>
-          <div className="border-t pt-3 font-bold flex justify-between">
-            <span>Total</span>
-            <span>{(subtotal > 50 ? subtotal : subtotal + 4.99).toFixed(2)} €</span>
-          </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Résumé de la commande</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex justify-between items-center">
+          <span className="text-gray-600">Sous-total</span>
+          <span className="font-medium">{totalPrice.toFixed(2)}€</span>
         </div>
-
-        <Button 
-          className="w-full bg-tekno-blue text-white hover:bg-tekno-blue/90"
-          onClick={onCheckout}
-          disabled={isProcessingPayment}
-        >
-          {isProcessingPayment ? "Traitement..." : "Passer la commande"}
-        </Button>
-      </div>
-    </div>
+        
+        <div className="flex justify-between items-center">
+          <span className="text-gray-600">Livraison</span>
+          <span className="font-medium">Gratuite</span>
+        </div>
+        
+        <Separator />
+        
+        <div className="flex justify-between items-center text-lg font-bold">
+          <span>Total</span>
+          <span>{totalPrice.toFixed(2)}€</span>
+        </div>
+        
+        <div className="space-y-2">
+          <Button 
+            onClick={onCheckout}
+            className="w-full bg-tekno-blue hover:bg-tekno-blue/90"
+            disabled={totalPrice === 0}
+          >
+            Procéder au paiement
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            onClick={onClearCart}
+            className="w-full"
+            disabled={totalPrice === 0}
+          >
+            Vider le panier
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

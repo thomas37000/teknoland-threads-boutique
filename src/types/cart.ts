@@ -1,19 +1,21 @@
 
-import { Product } from '@/types';
-
 export interface CartItem {
-  product: Product;
+  id: string;
+  name: string;
+  price: number;
   quantity: number;
+  image: string;
   size?: string;
   color?: string;
 }
 
 export interface CartContextType {
+  items: CartItem[];
   cartItems: CartItem[];
-  addToCart: (product: Product, quantity?: number, size?: string, color?: string) => void;
+  addToCart: (product: any, quantity?: number, size?: string, color?: string) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
-  totalItems: number;
-  subtotal: number;
+  getTotalPrice: () => number;
+  getItemCount: () => number;
 }
