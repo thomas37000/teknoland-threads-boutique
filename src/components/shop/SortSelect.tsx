@@ -1,4 +1,5 @@
 
+import { useTranslation } from "react-i18next";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface SortSelectProps {
@@ -7,17 +8,19 @@ interface SortSelectProps {
 }
 
 const SortSelect = ({ sortOption, onSortChange }: SortSelectProps) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="w-full sm:w-auto">
-      <h3 className="text-sm font-medium mb-2">Trier par</h3>
+      <h3 className="text-sm font-medium mb-2">{t('shop.sortBy')}</h3>
       <Select value={sortOption} onValueChange={onSortChange}>
         <SelectTrigger className="w-full sm:w-[180px]">
-          <SelectValue placeholder="Trier par" />
+          <SelectValue placeholder={t('shop.sortBy')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="newest">Plus récent</SelectItem>
-          <SelectItem value="price-low">Prix : croissant</SelectItem>
-          <SelectItem value="price-high">Prix : décroissant</SelectItem>
+          <SelectItem value="newest">{t('shop.newest')}</SelectItem>
+          <SelectItem value="price-low">{t('shop.priceLow')}</SelectItem>
+          <SelectItem value="price-high">{t('shop.priceHigh')}</SelectItem>
         </SelectContent>
       </Select>
     </div>

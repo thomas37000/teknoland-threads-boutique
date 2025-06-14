@@ -1,23 +1,27 @@
 
+import { useTranslation } from "react-i18next";
+
 interface CategoryFilterProps {
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
 }
 
 const CategoryFilter = ({ selectedCategory, onCategoryChange }: CategoryFilterProps) => {
+  const { t } = useTranslation();
+  
   const categories = [
-    { key: "all", label: "Tous les produits" },
-    { key: "t-shirts", label: "T-Shirts" },
-    { key: "man", label: "T-shirts Homme" },
-    { key: "women", label: "T-shirts Femme" },
-    { key: "sweats", label: "Sweats" },
-    { key: "accessories", label: "Accessoires" },
-    { key: "vinyls", label: "Vinyles" },
+    { key: "all", label: t('shop.allProducts') },
+    { key: "t-shirts", label: t('shop.tShirts') },
+    { key: "man", label: t('shop.menTShirts') },
+    { key: "women", label: t('shop.womenTShirts') },
+    { key: "sweats", label: t('shop.sweats') },
+    { key: "accessories", label: t('shop.accessories') },
+    { key: "vinyls", label: t('shop.vinyls') },
   ];
 
   return (
     <div>
-      <h3 className="text-sm font-medium mb-2">Filtrer par catégorie</h3>
+      <h3 className="text-sm font-medium mb-2">{t('shop.filterByCategory')}</h3>
       <div className="flex flex-wrap gap-2">
         {categories.map((category) => (
           <button

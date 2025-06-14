@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,6 +27,8 @@ import FavoritesSlider from "./components/FavoritesSlider";
 import CookieConsent from "./components/CookieConsent";
 // Import the Tabs component
 import "@/components/ui/tabs";
+// Initialize i18n
+import "./i18n/config";
 
 const queryClient = new QueryClient();
 

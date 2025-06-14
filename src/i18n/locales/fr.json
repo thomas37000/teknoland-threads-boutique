@@ -1,0 +1,64 @@
+
+{
+  "nav": {
+    "home": "Accueil",
+    "shop": "Shop",
+    "contact": "Contact",
+    "admin": "Admin",
+    "profile": "Profil",
+    "cart": "Panier",
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "viewCart": "Voir le panier"
+  },
+  "shop": {
+    "title": "Shop | Teknoland Clothes",
+    "description": "Tous les vêtements et vinyles du label Teknoland Production",
+    "filterByCategory": "Filtrer par catégorie",
+    "sortBy": "Trier par",
+    "newest": "Plus récent",
+    "priceLow": "Prix : croissant",
+    "priceHigh": "Prix : décroissant",
+    "allProducts": "Tous les produits",
+    "tShirts": "T-Shirts",
+    "menTShirts": "T-shirts Homme",
+    "womenTShirts": "T-shirts Femme",
+    "sweats": "Sweats",
+    "accessories": "Accessoires",
+    "vinyls": "Vinyles",
+    "noProducts": "Aucun produit trouvé",
+    "noProductsDesc": "Essayez de modifier vos filtres ou revenez plus tard pour de nouveaux articles.",
+    "loadMore": "Charger plus de produits",
+    "backToTop": "Retour en haut"
+  },
+  "home": {
+    "newsletterTitle": "Rejoignez Notre Communauté",
+    "newsletterDesc": "Abonnez-vous à notre newsletter pour des offres exclusives, les lancements de nouveaux produits et des conseils de mode inspirés de la tech.",
+    "emailPlaceholder": "Votre adresse email",
+    "subscribe": "S'abonner",
+    "premiumQuality": "Qualité Premium",
+    "premiumQualityDesc": "Fabriqué à partir des meilleurs matériaux pour la durabilité et le confort.",
+    "securePayment": "Paiement Sécurisé",
+    "securePaymentDesc": "Plusieurs options de paiement avec sécurité de transaction cryptée.",
+    "returns": "Retours 30 Jours",
+    "returnsDesc": "Pas complètement satisfait ? Retournez dans les 30 jours pour un remboursement complet."
+  },
+  "cart": {
+    "title": "Votre Panier",
+    "backToShop": "Retour au shop",
+    "empty": "Votre panier est vide",
+    "emptyDesc": "Vous n'avez pas encore ajouté d'articles à votre panier.",
+    "startShopping": "Commencer les achats"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "addToCart": "Ajouter au panier",
+    "selectSize": "Sélectionner une taille",
+    "selectColor": "Sélectionner une couleur",
+    "quantity": "Quantité",
+    "price": "Prix",
+    "total": "Total"
+  }
+}

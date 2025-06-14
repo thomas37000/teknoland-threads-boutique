@@ -1,0 +1,64 @@
+
+{
+  "nav": {
+    "home": "Home",
+    "shop": "Shop",
+    "contact": "Contact",
+    "admin": "Admin",
+    "profile": "Profile",
+    "cart": "Cart",
+    "login": "Login",
+    "logout": "Logout",
+    "viewCart": "View Cart"
+  },
+  "shop": {
+    "title": "Shop | Teknoland Clothes",
+    "description": "All clothing and vinyl records from Teknoland Production label",
+    "filterByCategory": "Filter by category",
+    "sortBy": "Sort by",
+    "newest": "Newest",
+    "priceLow": "Price: Low to High",
+    "priceHigh": "Price: High to Low",
+    "allProducts": "All Products",
+    "tShirts": "T-Shirts",
+    "menTShirts": "Men's T-Shirts",
+    "womenTShirts": "Women's T-Shirts",
+    "sweats": "Sweatshirts",
+    "accessories": "Accessories",
+    "vinyls": "Vinyl Records",
+    "noProducts": "No products found",
+    "noProductsDesc": "Try modifying your filters or come back later for new items.",
+    "loadMore": "Load more products",
+    "backToTop": "Back to top"
+  },
+  "home": {
+    "newsletterTitle": "Join Our Community",
+    "newsletterDesc": "Subscribe to our newsletter for exclusive deals, new product launches, and tech-inspired fashion tips.",
+    "emailPlaceholder": "Your email address",
+    "subscribe": "Subscribe",
+    "premiumQuality": "Premium Quality",
+    "premiumQualityDesc": "Crafted from the finest materials for durability and comfort.",
+    "securePayment": "Secure Payment",
+    "securePaymentDesc": "Multiple payment options with encrypted transaction security.",
+    "returns": "30-Day Returns",
+    "returnsDesc": "Not completely satisfied? Return within 30 days for a full refund."
+  },
+  "cart": {
+    "title": "Your Cart",
+    "backToShop": "Back to shop",
+    "empty": "Your cart is empty",
+    "emptyDesc": "You haven't added any items to your cart yet.",
+    "startShopping": "Start Shopping"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "addToCart": "Add to Cart",
+    "selectSize": "Select a size",
+    "selectColor": "Select a color",
+    "quantity": "Quantity",
+    "price": "Price",
+    "total": "Total"
+  }
+}

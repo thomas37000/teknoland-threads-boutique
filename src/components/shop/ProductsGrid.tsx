@@ -1,4 +1,5 @@
 
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/ProductCard";
 import { Product } from "@/types";
@@ -10,12 +11,14 @@ interface ProductsGridProps {
 }
 
 const ProductsGrid = ({ displayedProducts, hasMoreProducts, onLoadMore }: ProductsGridProps) => {
+  const { t } = useTranslation();
+  
   if (displayedProducts.length === 0) {
     return (
       <div className="text-center py-12">
-        <h3 className="text-xl font-medium mb-2">Aucun produit trouvé</h3>
+        <h3 className="text-xl font-medium mb-2">{t('shop.noProducts')}</h3>
         <p className="text-tekno-gray">
-          Essayez de modifier vos filtres ou revenez plus tard pour de nouveaux articles.
+          {t('shop.noProductsDesc')}
         </p>
       </div>
     );
@@ -35,7 +38,7 @@ const ProductsGrid = ({ displayedProducts, hasMoreProducts, onLoadMore }: Produc
             onClick={onLoadMore} 
             className="bg-tekno-black hover:bg-tekno-blue text-white"
           >
-            Charger plus de produits
+            {t('shop.loadMore')}
           </Button>
         </div>
       )}

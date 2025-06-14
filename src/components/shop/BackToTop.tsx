@@ -1,4 +1,5 @@
 
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ArrowUp } from "lucide-react";
 
@@ -8,6 +9,8 @@ interface BackToTopProps {
 }
 
 const BackToTop = ({ show, onClick }: BackToTopProps) => {
+  const { t } = useTranslation();
+  
   if (!show) return null;
 
   return (
@@ -15,7 +18,7 @@ const BackToTop = ({ show, onClick }: BackToTopProps) => {
       onClick={onClick}
       className="fixed bottom-6 right-6 rounded-full p-3 bg-tekno-blue hover:bg-tekno-black text-white shadow-lg z-50"
       size="icon"
-      aria-label="Retour en haut"
+      aria-label={t('shop.backToTop')}
     >
       <ArrowUp className="h-5 w-5" />
     </Button>

@@ -1,16 +1,19 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Menu, X, ShoppingBag, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
+import LanguageSelector from "./LanguageSelector";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { cartItems } = useCart();
   const { user, signOut, isAdmin } = useAuth();
+  const { t } = useTranslation();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -41,22 +44,24 @@ const Navbar = () => {
         <nav className="hidden md:flex items-center gap-6">
           {isAdmin && (
             <Link to="/admin" className="font-medium hover:text-tekno-blue transition-colors">
-              Admin
+              {t('nav.admin')}
             </Link>
           )}
           <Link to="/" className="font-medium hover:text-tekno-blue transition-colors">
-            Accueil
+            {t('nav.home')}
           </Link>
           <Link to="/shop" className="font-medium hover:text-tekno-blue transition-colors">
-            Shop
+            {t('nav.shop')}
           </Link>
           <Link to="/contact" className="font-medium hover:text-tekno-blue transition-colors">
-            Contact
+            {t('nav.contact')}
           </Link>
         </nav>
 
-        {/* Cart and Profile Buttons */}
+        {/* Language Selector, Cart and Profile Buttons */}
         <div className="hidden md:flex items-center gap-2">
+          <LanguageSelector />
+          
           {user ? (
             <>
               <Link to="/profile">
@@ -71,7 +76,7 @@ const Navbar = () => {
           ) : (
             <Link to="/auth">
               <Button variant="ghost" size="icon">
-                Connexion
+                {t('nav.login')}
               </Button>
             </Link>
           )}
@@ -98,14 +103,14 @@ const Navbar = () => {
               className="py-3 border-b font-medium"
               onClick={toggleMenu}
             >
-              Home
+              {t('nav.home')}
             </Link>
             <Link
               to="/shop"
               className="py-3 border-b font-medium"
               onClick={toggleMenu}
             >
-              Shop
+              {t('nav.shop')}
             </Link>
             <Link
               to="/about"
@@ -119,7 +124,7 @@ const Navbar = () => {
               className="py-3 border-b font-medium"
               onClick={toggleMenu}
             >
-              Contact
+              {t('nav.contact')}
             </Link>
             {isAdmin && (
               <Link
@@ -127,7 +132,7 @@ const Navbar = () => {
                 className="py-3 border-b font-medium text-tekno-blue"
                 onClick={toggleMenu}
               >
-                Admin
+                {t('nav.admin')}
               </Link>
             )}
             {user ? (
@@ -137,7 +142,7 @@ const Navbar = () => {
                   className="py-3 border-b font-medium"
                   onClick={toggleMenu}
                 >
-                  Profile
+                  {t('nav.profile')}
                 </Link>
                 <button
                   className="py-3 border-b font-medium text-left"
@@ -146,7 +151,7 @@ const Navbar = () => {
                     toggleMenu();
                   }}
                 >
-                  Sign Out
+                  {t('nav.logout')}
                 </button>
               </>
             ) : (
@@ -155,14 +160,15 @@ const Navbar = () => {
                 className="py-3 border-b font-medium"
                 onClick={toggleMenu}
               >
-                Sign In
+                {t('nav.login')}
               </Link>
             )}
-            <div className="mt-4">
+            <div className="mt-4 flex items-center justify-between">
+              <LanguageSelector />
               <Link to="/cart" onClick={toggleMenu}>
-                <Button className="w-full bg-tekno-blue text-white hover:bg-tekno-blue/90">
+                <Button className="bg-tekno-blue text-white hover:bg-tekno-blue/90">
                   <ShoppingBag size={18} className="mr-2" />
-                  View Cart ({cartItems.length})
+                  {t('nav.viewCart')} ({cartItems.length})
                 </Button>
               </Link>
             </div>

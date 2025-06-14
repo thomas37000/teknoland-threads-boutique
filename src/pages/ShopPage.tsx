@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Product } from "@/types";
@@ -8,6 +7,7 @@ import CategoryFilter from "@/components/shop/CategoryFilter";
 import SortSelect from "@/components/shop/SortSelect";
 import ProductsGrid from "@/components/shop/ProductsGrid";
 import BackToTop from "@/components/shop/BackToTop";
+import { useTranslation } from "react-i18next";
 
 const ShopPage = () => {
   const [searchParams] = useSearchParams();
@@ -113,12 +113,11 @@ const ShopPage = () => {
   
   const hasMoreProducts = displayedProducts.length < filteredProducts.length;
   
+  const { t } = useTranslation();
+  
   return (
     <div className="tekno-container py-12" ref={topRef}>
-      <ShopHeader 
-        title="Shop | Teknoland Clothes"
-        description="Tous les vêtements et vinyles du label Teknoland Production"
-      />
+      <ShopHeader />
       
       {/* Filters and Sorting */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
