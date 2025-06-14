@@ -12,18 +12,20 @@ export const createCheckoutSession = async (items: CartItem[]) => {
 
     // Transform cart items to the format expected by the edge function
     const cartItems = items.map(item => ({
-      id: item.id,
-      name: item.name,
-      price: item.price,
+      product: {
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+      },
       quantity: item.quantity,
-      image: item.image,
       size: item.size,
       color: item.color,
     }));
 
     const { data, error } = await supabase.functions.invoke('create-cart-checkout', {
       body: {
-        items: cartItems,
+        cartItems,
         metadata: {
           user_id: session.user.id,
         }
