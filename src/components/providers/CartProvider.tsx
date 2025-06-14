@@ -1,87 +1,85 @@
 
-import React, { useState, useEffect } from 'react';
-import { toast } from 'sonner';
-import { Product } from '@/types';
-import { CartItem } from '@/types/cart';
-import { CartContext } from '@/contexts/CartContext';
-import { useAuth } from '@/hooks/use-auth';
-import { 
-  loadCartFromStorage, 
-  saveCartToStorage 
-} from '@/utils/cart-storage';
-import {
-  addItemToCart,
-  removeItemFromCart,
-  updateItemQuantity,
-  calculateCartTotals
-} from '@/utils/cart-operations';
+import React, { useState, useEffect } from "react";
+import { CartContext } from "@/contexts/CartContext";
+import { CartItem } from "@/types/cart";
+import { loadCartFromStorage, saveCartToStorage } from "@/utils/cart-storage";
 
-export const CartProvider = ({ children }: { children: React.ReactNode }) => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const { user } = useAuth();
+export function CartProvider({ children }: { children: React.ReactNode }) {
+  const [items, setItems] = useState<CartItem[]>([]);
 
-  // Load cart from localStorage on initial load
   useEffect(() => {
     const savedCart = loadCartFromStorage();
-    setCartItems(savedCart);
+    setItems(savedCart);
   }, []);
 
-  // Save cart to localStorage on changes
   useEffect(() => {
-    saveCartToStorage(cartItems);
-  }, [cartItems]);
+    saveCartToStorage(items);
+  }, [items]);
 
-  const addToCart = (
-    product: Product, 
-    quantity: number = 1, 
-    size?: string, 
-    color?: string
-  ) => {
-    setCartItems(prev => {
-      const updatedCart = addItemToCart(prev, product, quantity, size, color);
-      const existingItemIndex = prev.findIndex(item => 
-        item.product.id === product.id && 
-        item.size === size && 
-        item.color === color
-      );
-      
-      if (existingItemIndex > -1) {
-        toast.success("Cart updated!");
-      } else {
-        toast.success("Added to cart!");
-      }
-      
-      return updatedCart;
-    });
+  const addToCart = (product: any, quantity = 1, size?: string, color?: string) => {
+    const existingItem = items.find(item => 
+      item.id === product.id && 
+      item.size === size && 
+      item.color === color
+    );
+
+    if (existingItem) {
+      updateQuantity(product.id, existingItem.quantity + quantity);
+    } else {
+      const newItem: CartItem = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity,
+        size,
+        color,
+      };
+      setItems(prev => [...prev, newItem]);
+    }
   };
 
   const removeFromCart = (productId: string) => {
-    setCartItems(prev => removeItemFromCart(prev, productId));
-    toast.success("Item removed from cart");
+    setItems(prev => prev.filter(item => item.id !== productId));
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
-    setCartItems(prev => updateItemQuantity(prev, productId, quantity));
+    if (quantity <= 0) {
+      removeFromCart(productId);
+      return;
+    }
+    
+    setItems(prev => 
+      prev.map(item => 
+        item.id === productId ? { ...item, quantity } : item
+      )
+    );
   };
 
   const clearCart = () => {
-    setCartItems([]);
-    toast.success("Cart cleared");
+    setItems([]);
   };
 
-  const { totalItems, subtotal } = calculateCartTotals(cartItems);
+  const getTotalPrice = () => {
+    return items.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
 
-  return (
-    <CartContext.Provider value={{
-      cartItems,
-      addToCart,
-      removeFromCart,
-      updateQuantity,
-      clearCart,
-      totalItems,
-      subtotal
-    }}>
-      {children}
-    </CartContext.Provider>
-  );
-};
+  const getItemCount = () => {
+    return items.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  const value = {
+    items,
+    cartItems: items,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    getTotalPrice,
+    getItemCount,
+    totalItems: getItemCount(),
+    subtotal: getTotalPrice(),
+  };
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+}

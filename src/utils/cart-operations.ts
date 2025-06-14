@@ -1,68 +1,59 @@
 
-import { Product } from '@/types';
-import { CartItem } from '@/types/cart';
-
-export const findExistingCartItem = (
-  cartItems: CartItem[],
-  productId: string,
-  size?: string,
-  color?: string
-): number => {
-  return cartItems.findIndex(item => 
-    item.product.id === productId && 
-    item.size === size && 
-    item.color === color
-  );
-};
+import { CartItem } from "@/types/cart";
+import { Product } from "@/types";
 
 export const addItemToCart = (
-  cartItems: CartItem[],
+  items: CartItem[],
   product: Product,
-  quantity: number = 1,
+  quantity = 1,
   size?: string,
   color?: string
 ): CartItem[] => {
-  const existingItemIndex = findExistingCartItem(cartItems, product.id, size, color);
+  const existingItemIndex = items.findIndex(item => 
+    item.id === product.id && item.size === size && item.color === color
+  );
 
   if (existingItemIndex > -1) {
-    const updatedItems = [...cartItems];
+    const updatedItems = [...items];
     updatedItems[existingItemIndex].quantity += quantity;
     return updatedItems;
-  } else {
-    return [...cartItems, {
-      product,
-      quantity,
-      size,
-      color
-    }];
   }
+
+  const newItem: CartItem = {
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    image: product.image,
+    quantity,
+    size,
+    color,
+  };
+
+  return [...items, newItem];
 };
 
-export const removeItemFromCart = (
-  cartItems: CartItem[],
-  productId: string
-): CartItem[] => {
-  return cartItems.filter(item => item.product.id !== productId);
+export const removeItemFromCart = (items: CartItem[], productId: string): CartItem[] => {
+  return items.filter(item => item.id !== productId);
 };
 
 export const updateItemQuantity = (
-  cartItems: CartItem[],
+  items: CartItem[],
   productId: string,
   quantity: number
 ): CartItem[] => {
-  return cartItems.map(item => 
-    item.product.id === productId 
-      ? { ...item, quantity: Math.max(1, quantity) } 
-      : item
+  if (quantity <= 0) {
+    return removeItemFromCart(items, productId);
+  }
+
+  return items.map(item =>
+    item.id === productId ? { ...item, quantity } : item
   );
 };
 
-export const calculateCartTotals = (cartItems: CartItem[]) => {
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.product.price * item.quantity, 
-    0
-  );
-  
-  return { totalItems, subtotal };
+export const calculateCartTotal = (items: CartItem[]): number => {
+  return items.reduce((total, item) => total + (item.price * item.quantity), 0);
+};
+
+export const getCartItemCount = (items: CartItem[]): number => {
+  return items.reduce((total, item) => total + item.quantity, 0);
 };

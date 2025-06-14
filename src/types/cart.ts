@@ -18,4 +18,6 @@ export interface CartContextType {
   clearCart: () => void;
   getTotalPrice: () => number;
   getItemCount: () => number;
+  totalItems: number;
+  subtotal: number;
 }
