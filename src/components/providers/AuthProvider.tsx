@@ -19,6 +19,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const updateUserRole = async (userId: string) => {
     const { role, isAdmin: adminStatus } = await fetchUserRole(userId);
@@ -48,13 +49,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUserRole(null);
             setIsAdmin(false);
             toast.info("You have been signed out");
-          } else if (event === 'SIGNED_IN') {
+          } else if (event === 'SIGNED_IN' && !isInitialLoad) {
+            // Only show toast for actual sign-in events, not session restoration
             console.log('User signed in', currentSession);
             if (currentSession?.user) {
               updateLastActivity();
               updateUserRole(currentSession.user.id);
             }
             toast.success("Successfully signed in!");
+          } else if (event === 'SIGNED_IN' && isInitialLoad) {
+            // This is session restoration, don't show toast
+            console.log('Session restored', currentSession);
+            if (currentSession?.user) {
+              updateLastActivity();
+              updateUserRole(currentSession.user.id);
+            }
           } else if (event === 'USER_UPDATED') {
             console.log('User updated');
             if (currentSession?.user) {
@@ -84,9 +93,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         
         setIsLoading(false);
+        setIsInitialLoad(false);
       } catch (error) {
         console.error("Error in session initialization:", error);
         setIsLoading(false);
+        setIsInitialLoad(false);
       }
 
       return () => {
