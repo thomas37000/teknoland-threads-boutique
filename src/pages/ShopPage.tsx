@@ -1,13 +1,13 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import ProductCard from "@/components/ProductCard";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { ArrowUp } from "lucide-react";
 import { Product } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
-import { Database } from "@/integrations/supabase/types";
+import ShopHeader from "@/components/shop/ShopHeader";
+import CategoryFilter from "@/components/shop/CategoryFilter";
+import SortSelect from "@/components/shop/SortSelect";
+import ProductsGrid from "@/components/shop/ProductsGrid";
+import BackToTop from "@/components/shop/BackToTop";
 
 const ShopPage = () => {
   const [searchParams] = useSearchParams();
@@ -16,7 +16,7 @@ const ShopPage = () => {
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [sortOption, setSortOption] = useState<string>("default");
-  const [pageSize, setPageSize] = useState(8); // Number of products to show initially
+  const [pageSize, setPageSize] = useState(8);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,27 +35,26 @@ const ShopPage = () => {
     getProducts();
   }, []);
 
-async function getProducts() {
-  try {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false });
+  async function getProducts() {
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-    if (error) {
+      if (error) {
+        console.error(error);
+        setError(error);
+      } else {
+        setProducts(data as Product[]);
+      }
+    } catch (error) {
       console.error(error);
       setError(error);
-    } else {
-      setProducts(data as Product[]);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error(error);
-    setError(error);
-  } finally {
-    setLoading(false);
   }
-}
-
   
   // Apply filters and sorting
   useEffect(() => {
@@ -116,151 +115,36 @@ async function getProducts() {
   
   return (
     <div className="tekno-container py-12" ref={topRef}>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Shop | Teknoland Clothes</h1>
-        <p className="text-tekno-gray">
-          Tous les vêtements et vinyles du label Teknoland Production
-        </p>
-      </div>
+      <ShopHeader 
+        title="Shop | Teknoland Clothes"
+        description="Tous les vêtements et vinyles du label Teknoland Production"
+      />
       
       {/* Filters and Sorting */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-        <div>
-          <h3 className="text-sm font-medium mb-2">Filtrer par catégorie</h3>
-          <div className="flex flex-wrap gap-2">
-            <button
-              className={`px-4 py-2 text-sm rounded-full border ${
-                selectedCategory === "all"
-                  ? "bg-tekno-black text-white border-tekno-black"
-                  : "border-gray-300 hover:border-tekno-black"
-              }`}
-              onClick={() => setSelectedCategory("all")}
-            >
-              Tous les produits
-            </button>
-            <button
-              className={`px-4 py-2 text-sm rounded-full border ${
-                selectedCategory === "t-shirts"
-                  ? "bg-tekno-black text-white border-tekno-black"
-                  : "border-gray-300 hover:border-tekno-black"
-              }`}
-              onClick={() => setSelectedCategory("t-shirts")}
-            >
-              T-Shirts
-            </button>
-            <button
-              className={`px-4 py-2 text-sm rounded-full border ${
-                selectedCategory === "man"
-                  ? "bg-tekno-black text-white border-tekno-black"
-                  : "border-gray-300 hover:border-tekno-black"
-              }`}
-              onClick={() => setSelectedCategory("man")}
-            >
-              T-shirts Homme
-            </button>
-            <button
-              className={`px-4 py-2 text-sm rounded-full border ${
-                selectedCategory === "women"
-                  ? "bg-tekno-black text-white border-tekno-black"
-                  : "border-gray-300 hover:border-tekno-black"
-              }`}
-              onClick={() => setSelectedCategory("women")}
-            >
-              T-shirts Femme
-            </button>
-            <button
-              className={`px-4 py-2 text-sm rounded-full border ${
-                selectedCategory === "sweats"
-                  ? "bg-tekno-black text-white border-tekno-black"
-                  : "border-gray-300 hover:border-tekno-black"
-              }`}
-              onClick={() => setSelectedCategory("sweats")}
-            >
-              Sweats
-            </button>
-            <button
-              className={`px-4 py-2 text-sm rounded-full border ${
-                selectedCategory === "accessories"
-                  ? "bg-tekno-black text-white border-tekno-black"
-                  : "border-gray-300 hover:border-tekno-black"
-              }`}
-              onClick={() => setSelectedCategory("accessories")}
-            >
-              Accessoires
-            </button>
-            <button
-              className={`px-4 py-2 text-sm rounded-full border ${
-                selectedCategory === "vinyls"
-                  ? "bg-tekno-black text-white border-tekno-black"
-                  : "border-gray-300 hover:border-tekno-black"
-              }`}
-              onClick={() => setSelectedCategory("vinyls")}
-            >
-              Vinyles
-            </button>
-          </div>
-        </div>
+        <CategoryFilter 
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+        />
         
-        <div className="w-full sm:w-auto">
-          <h3 className="text-sm font-medium mb-2">Trier par</h3>
-          <Select
-            value={sortOption}
-            onValueChange={(value) => setSortOption(value)}
-          >
-            <SelectTrigger className="w-full sm:w-[180px]">
-              <SelectValue placeholder="Trier par" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="default">En vedette</SelectItem>
-              <SelectItem value="newest">Plus récent</SelectItem>
-              <SelectItem value="price-low">Prix : croissant</SelectItem>
-              <SelectItem value="price-high">Prix : décroissant</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <SortSelect 
+          sortOption={sortOption}
+          onSortChange={setSortOption}
+        />
       </div>
       
       {/* Products Grid */}
-      {displayedProducts.length > 0 ? (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {displayedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-          
-          {/* Load More Button */}
-          {hasMoreProducts && (
-            <div className="mt-10 text-center">
-              <Button 
-                onClick={handleLoadMore} 
-                className="bg-tekno-black hover:bg-tekno-blue text-white"
-              >
-                Charger plus de produits
-              </Button>
-            </div>
-          )}
-        </>
-      ) : (
-        <div className="text-center py-12">
-          <h3 className="text-xl font-medium mb-2">Aucun produit trouvé</h3>
-          <p className="text-tekno-gray">
-            Essayez de modifier vos filtres ou revenez plus tard pour de nouveaux articles.
-          </p>
-        </div>
-      )}
+      <ProductsGrid 
+        displayedProducts={displayedProducts}
+        hasMoreProducts={hasMoreProducts}
+        onLoadMore={handleLoadMore}
+      />
       
       {/* Back to Top Button */}
-      {showBackToTop && (
-        <Button
-          onClick={scrollToTop}
-          className="fixed bottom-6 right-6 rounded-full p-3 bg-tekno-blue hover:bg-tekno-black text-white shadow-lg z-50"
-          size="icon"
-          aria-label="Retour en haut"
-        >
-          <ArrowUp className="h-5 w-5" />
-        </Button>
-      )}
+      <BackToTop 
+        show={showBackToTop}
+        onClick={scrollToTop}
+      />
     </div>
   );
 };
