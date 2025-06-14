@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Globe } from "lucide-react";
 
 const LanguageSelector = () => {
   const { i18n } = useTranslation();
@@ -25,10 +24,10 @@ const LanguageSelector = () => {
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          <Globe size={20} />
+          <span className="text-lg">{currentLanguage.flag}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="bg-white border shadow-md">
+      <DropdownMenuContent align="end" className="bg-white border shadow-md z-50">
         {languages.map((language) => (
           <DropdownMenuItem
             key={language.code}

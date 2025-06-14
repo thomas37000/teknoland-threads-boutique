@@ -1,9 +1,11 @@
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 const ContactPage = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -26,7 +28,7 @@ const ContactPage = () => {
     console.log("Form submitted:", formData);
 
     // Show success message
-    toast.success("Message sent successfully! We'll get back to you soon.");
+    toast.success(t('contact.successMessage'));
 
     // Reset form
     setFormData({
@@ -42,9 +44,9 @@ const ContactPage = () => {
       {/* Hero Section */}
       <section className="bg-tekno-black text-white py-16">
         <div className="tekno-container text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">{t('contact.title')}</h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Pour touter question vous pouvez nous contacter via le formulaire ci-dessous ou par email à teknolandproduction@gmail.com
+            {t('contact.subtitle')}
           </p>
         </div>
       </section>
@@ -55,7 +57,7 @@ const ContactPage = () => {
           <div className="flex flex-col lg:flex-row gap-12">
             {/* Contact Form */}
             <div className="lg:w-2/3">
-              <h2 className="text-3xl font-bold mb-6">Envoyez nous un message</h2>
+              <h2 className="text-3xl font-bold mb-6">{t('contact.sendMessage')}</h2>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -64,7 +66,7 @@ const ContactPage = () => {
                       htmlFor="name"
                       className="block text-sm font-medium mb-2"
                     >
-                      Nom
+                      {t('contact.name')}
                     </label>
                     <input
                       type="text"
@@ -74,7 +76,7 @@ const ContactPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-tekno-blue"
-                      placeholder="Prénom Nom"
+                      placeholder={t('contact.namePlaceholder')}
                     />
                   </div>
 
@@ -83,7 +85,7 @@ const ContactPage = () => {
                       htmlFor="email"
                       className="block text-sm font-medium mb-2"
                     >
-                      Email
+                      {t('contact.email')}
                     </label>
                     <input
                       type="email"
@@ -93,7 +95,7 @@ const ContactPage = () => {
                       onChange={handleChange}
                       required
                       className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-tekno-blue"
-                      placeholder="prénom.nom@example.com"
+                      placeholder={t('contact.emailPlaceholder')}
                     />
                   </div>
                 </div>
@@ -103,7 +105,7 @@ const ContactPage = () => {
                     htmlFor="subject"
                     className="block text-sm font-medium mb-2"
                   >
-                    Sujet
+                    {t('contact.subject')}
                   </label>
                   <select
                     id="subject"
@@ -113,12 +115,12 @@ const ContactPage = () => {
                     required
                     className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-tekno-blue"
                   >
-                    <option value="">Choissez un sujet</option>
-                    <option value="order">Question sur une commande</option>
-                    <option value="product">Question sur un produit</option>
-                    <option value="return">Retournez un produit</option>
-                    <option value="feedback">Amélioration du site</option>
-                    <option value="other">Autre</option>
+                    <option value="">{t('contact.subjectPlaceholder')}</option>
+                    <option value="order">{t('contact.subjectOrder')}</option>
+                    <option value="product">{t('contact.subjectProduct')}</option>
+                    <option value="return">{t('contact.subjectReturn')}</option>
+                    <option value="feedback">{t('contact.subjectFeedback')}</option>
+                    <option value="other">{t('contact.subjectOther')}</option>
                   </select>
                 </div>
 
@@ -127,7 +129,7 @@ const ContactPage = () => {
                     htmlFor="message"
                     className="block text-sm font-medium mb-2"
                   >
-                    Message
+                    {t('contact.message')}
                   </label>
                   <textarea
                     id="message"
@@ -137,7 +139,7 @@ const ContactPage = () => {
                     required
                     rows={6}
                     className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-tekno-blue"
-                    placeholder="Rédigez votre message selon le sujet séléctionné, nous répondrons dans les plus bref délais."
+                    placeholder={t('contact.messagePlaceholder')}
                   />
                 </div>
 
@@ -146,7 +148,7 @@ const ContactPage = () => {
                     type="submit"
                     className="bg-tekno-blue text-white hover:bg-tekno-blue/90 px-8 py-3"
                   >
-                    Envoyez
+                    {t('contact.send')}
                   </Button>
                 </div>
               </form>
@@ -154,19 +156,19 @@ const ContactPage = () => {
 
             {/* Contact Info */}
             <div className="lg:w-1/3">
-              <h2 className="text-3xl font-bold mb-6">Contact Info</h2>
+              <h2 className="text-3xl font-bold mb-6">{t('contact.contactInfo')}</h2>
 
               <div className="space-y-8">
 
                 <div>
-                  <h3 className="font-bold text-xl mb-2">Email :</h3>
+                  <h3 className="font-bold text-xl mb-2">{t('contact.email')} :</h3>
                   <p className="text-tekno-gray mb-1">
                     teknolandproduction@gmail.com
                   </p>
                 </div>
 
                 <div className="pt-4">
-                  <h3 className="font-bold text-xl mb-2">Follow Us</h3>
+                  <h3 className="font-bold text-xl mb-2">{t('contact.followUs')}</h3>
                   <div className="flex space-x-4">
                     <a href="https://www.facebook.com/teknolandProd/" target="_blank" rel="noreferrer noopener" className="w-10 h-10 rounded-full bg-tekno-black text-white flex items-center justify-center hover:bg-tekno-blue transition-colors">
                       <span className="sr-only">Facebook</span>

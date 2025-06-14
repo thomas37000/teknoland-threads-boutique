@@ -61,6 +61,28 @@
     "emptyDesc": "You haven't added any items to your cart yet.",
     "startShopping": "Start Shopping"
   },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "For any questions you can contact us via the form below or by email at teknolandproduction@gmail.com",
+    "sendMessage": "Send us a message",
+    "name": "Name",
+    "namePlaceholder": "First Name Last Name",
+    "email": "Email",
+    "emailPlaceholder": "firstname.lastname@example.com",
+    "subject": "Subject",
+    "subjectPlaceholder": "Choose a subject",
+    "subjectOrder": "Order question",
+    "subjectProduct": "Product question",
+    "subjectReturn": "Return a product",
+    "subjectFeedback": "Website improvement",
+    "subjectOther": "Other",
+    "message": "Message",
+    "messagePlaceholder": "Write your message according to the selected subject, we will respond as soon as possible.",
+    "send": "Send",
+    "contactInfo": "Contact Info",
+    "followUs": "Follow Us",
+    "successMessage": "Message sent successfully! We'll get back to you soon."
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",
