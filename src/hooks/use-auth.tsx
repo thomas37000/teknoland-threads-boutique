@@ -3,6 +3,12 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
 import { toast } from "sonner";
+import { 
+  updateLastActivity, 
+  hasExceededInactivityTimeout, 
+  clearActivity, 
+  setupActivityTracking 
+} from "@/utils/auth-activity";
 
 interface UserWithRole extends User {
   role?: string;
@@ -78,6 +84,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Auto-logout function
+  const autoLogout = async () => {
+    console.log("Auto-logout: User inactive for 72 hours");
+    toast.info("Vous avez été déconnecté automatiquement après 72h d'inactivité");
+    await signOut();
+  };
+
+  // Check for inactivity timeout
+  const checkInactivityTimeout = () => {
+    if (session && hasExceededInactivityTimeout()) {
+      setTimeout(() => {
+        autoLogout();
+      }, 0);
+    }
+  };
+
   useEffect(() => {
     // Handle URL fragment for email verification et password recovery
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -120,11 +142,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log('User signed out');
           setUserRole(null);
           setIsAdmin(false);
+          clearActivity();
           toast.info("You have been signed out");
         } else if (event === 'SIGNED_IN') {
           console.log('User signed in', currentSession);
-          // Fetch user role after sign in
+          // Update activity and fetch user role after sign in
           if (currentSession?.user) {
+            updateLastActivity();
             fetchUserRole(currentSession.user.id);
           }
           toast.success("Successfully signed in!");
@@ -150,8 +174,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
-      // Fetch user role if session exists
-      if (currentSession?.user) {
+      // Check for inactivity timeout on app load
+      if (currentSession) {
+        checkInactivityTimeout();
+        // Fetch user role if session exists
         fetchUserRole(currentSession.user.id);
       }
       
@@ -163,12 +189,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  // Setup activity tracking and periodic inactivity checks
+  useEffect(() => {
+    if (!session) return;
+
+    // Setup activity tracking
+    const cleanupActivityTracking = setupActivityTracking();
+
+    // Check for inactivity every 5 minutes
+    const inactivityCheckInterval = setInterval(() => {
+      checkInactivityTimeout();
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => {
+      cleanupActivityTracking();
+      clearInterval(inactivityCheckInterval);
+    };
+  }, [session]);
+
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error("Error signing out:", error);
         toast.error("Failed to sign out. Please try again.");
+      } else {
+        clearActivity();
       }
     } catch (error) {
       console.error("Exception during signout:", error);
