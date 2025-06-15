@@ -44,6 +44,8 @@
   },
   "auth": {
     "connectOrCreate": "Sign in or create an account",
+    "firstname": "First name",
+    "lastname": "Last name",
     "login": "Login",
     "signup": "Sign Up",
     "email": "Email",

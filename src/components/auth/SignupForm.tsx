@@ -123,11 +123,11 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
 
         {/* Prénom */}
         <div className="space-y-2">
-          <Label htmlFor="signupFirstname">Prénom</Label>
+          <Label htmlFor="signupFirstname">{t('auth.firstname')}</Label>
           <Input
             id="signupFirstname"
             type="text"
-            placeholder="John"
+            placeholder={t('auth.firstname') + " (John)"}
             value={firstname}
             onChange={(e) => setFirstname(e.target.value)}
             required
@@ -136,11 +136,11 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
 
         {/* Nom */}
         <div className="space-y-2">
-          <Label htmlFor="signupLastname">Nom</Label>
+          <Label htmlFor="signupLastname">{t('auth.lastname')}</Label>
           <Input
             id="signupLastname"
             type="text"
-            placeholder="Doe"
+            placeholder={t('auth.lastname') + " (Doe)"}
             value={lastname}
             onChange={(e) => setLastname(e.target.value)}
             required

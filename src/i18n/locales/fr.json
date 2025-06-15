@@ -42,6 +42,8 @@
   },
   "auth": {
     "connectOrCreate": "Connectez-vous ou créez un compte",
+    "firstname": "Prénom",
+    "lastname": "Nom",
     "login": "Connexion",
     "signup": "Inscription",
     "email": "Email",
