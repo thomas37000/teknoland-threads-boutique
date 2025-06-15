@@ -1,4 +1,3 @@
-
 {
   "nav": {
     "home": "Home",
@@ -19,7 +18,9 @@
   },
   "featured": {
     "title": "Featured Products",
-    "subtitle": "Discover our most popular items"
+    "subtitle": "Discover our most popular items",
+    "description": "Handpicked by our customers, these are our top sellers this season.",
+    "viewAll": "View All"
   },
   "product": {
     "addToCart": "Add to Cart",
@@ -74,5 +75,32 @@
     "signInWithGoogle": "Sign in with Google",
     "googleSignInError": "Error signing in with Google",
     "or": "or"
+  },
+  "shop": {
+    "title": "Shop",
+    "description": "Browse our full range of trendy clothing and accessories.",
+    "filterByCategory": "Filter by category",
+    "allProducts": "All products",
+    "tShirts": "T-Shirts",
+    "menTShirts": "Men's T-Shirts",
+    "womenTShirts": "Women's T-Shirts",
+    "sweats": "Sweats",
+    "accessories": "Accessories",
+    "vinyls": "Vinyls",
+    "noProducts": "No products found",
+    "noProductsDesc": "Sorry, no products match your search.",
+    "loadMore": "Load more"
+  },
+  "home": {
+    "newsletterTitle": "Stay Updated!",
+    "newsletterDesc": "Get our latest news, offers, and inspiration straight to your inbox.",
+    "emailPlaceholder": "Your email",
+    "subscribe": "Subscribe",
+    "premiumQuality": "Premium Quality",
+    "premiumQualityDesc": "Top-quality materials and care for maximum comfort.",
+    "securePayment": "Secure Payment",
+    "securePaymentDesc": "Protected transactions and encrypted data for safe shopping.",
+    "returns": "Easy Returns",
+    "returnsDesc": "Return or exchange items within 30 days hassle-free."
   }
 }

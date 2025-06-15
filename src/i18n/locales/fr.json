@@ -1,4 +1,3 @@
-
 {
   "nav": {
     "home": "Accueil",
@@ -74,5 +73,38 @@
     "signInWithGoogle": "Se connecter avec Google",
     "googleSignInError": "Erreur lors de la connexion avec Google",
     "or": "ou"
+  },
+  "shop": {
+    "title": "Boutique",
+    "description": "Explorez notre gamme complète de vêtements et accessoires tendance.",
+    "filterByCategory": "Filtrer par catégorie",
+    "allProducts": "Tous les produits",
+    "tShirts": "T-Shirts",
+    "menTShirts": "T-Shirts Homme",
+    "womenTShirts": "T-Shirts Femme",
+    "sweats": "Sweats",
+    "accessories": "Accessoires",
+    "vinyls": "Vinyles",
+    "noProducts": "Aucun produit trouvé",
+    "noProductsDesc": "Désolé, aucun produit ne correspond à votre recherche.",
+    "loadMore": "Voir plus"
+  },
+  "featured": {
+    "title": "Produits Vedettes",
+    "subtitle": "Découvrez nos articles les plus populaires",
+    "description": "Sélectionnés par nos clients, ces produits sont nos meilleures ventes de la saison.",
+    "viewAll": "Voir tout"
+  },
+  "home": {
+    "newsletterTitle": "Restez informé !",
+    "newsletterDesc": "Recevez nos nouveautés, offres et inspirations directement dans votre boîte mail.",
+    "emailPlaceholder": "Votre email",
+    "subscribe": "S'abonner",
+    "premiumQuality": "Qualité Premium",
+    "premiumQualityDesc": "Des matériaux haut de gamme et une fabrication soignée pour un confort optimal.",
+    "securePayment": "Paiement Sécurisé",
+    "securePaymentDesc": "Transactions protégées et données cryptées pour un achat en toute confiance.",
+    "returns": "Retours Faciles",
+    "returnsDesc": "Retournez ou échangez vos articles sous 30 jours, sans complication."
   }
 }
