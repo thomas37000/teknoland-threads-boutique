@@ -21,16 +21,33 @@ const GoogleSignInButton = () => {
             access_type: 'offline',
             prompt: 'consent',
           },
-          skipBrowserRedirect: false,
+          skipBrowserRedirect: true,
         },
       });
 
       if (error) {
         toast.error(error.message || t('auth.googleSignInError'));
+        return;
+      }
+
+      // Ouvrir la popup manuellement
+      if (data?.url) {
+        const popup = window.open(
+          data.url,
+          'google-signin',
+          'width=500,height=600,scrollbars=yes,resizable=yes'
+        );
+
+        // Vérifier si la popup s'est fermée
+        const checkClosed = setInterval(() => {
+          if (popup?.closed) {
+            clearInterval(checkClosed);
+            setIsLoading(false);
+          }
+        }, 1000);
       }
     } catch (error: any) {
       toast.error(error.message || t('auth.googleSignInError'));
-    } finally {
       setIsLoading(false);
     }
   };
