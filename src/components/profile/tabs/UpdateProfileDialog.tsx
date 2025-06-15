@@ -11,6 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import CiviliteInput from "./fields/CiviliteInput";
+import PrenomInput from "./fields/PrenomInput";
+import NomInput from "./fields/NomInput";
+import AdresseInput from "./fields/AdresseInput";
+import FullNameInput from "./fields/FullNameInput";
+import EmailInput from "./fields/EmailInput";
 
 interface UpdateProfileDialogProps {
   user: any;
@@ -187,97 +193,26 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
         </DialogHeader>
         <form className="space-y-4 py-2" onSubmit={handleSubmit}>
           {/* Utilisateur (lecture seule, email) */}
-          <div>
-            <label htmlFor="user" className="block text-sm mb-1 font-medium">
-              Utilisateur
-            </label>
-            <Input
-              id="user"
-              value={email}
-              readOnly
-              className="bg-muted"
-              autoComplete="email"
-            />
-          </div>
-          {/* Sexe */}
-          <div>
-            <label htmlFor="civilite" className="block text-sm mb-1 font-medium">
-              Sexe
-            </label>
-            <select
-              id="civilite"
-              value={civilite}
-              onChange={e => setCivilite(e.target.value)}
-              className="w-full border px-3 py-2 rounded-md bg-background"
-            >
-              {sexeOptions.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-          </div>
+          <EmailInput value={email} onChange={e => setEmail(e.target.value)} readOnly />
+
+          {/* Civilité (Sexe) */}
+          <CiviliteInput value={civilite} onChange={setCivilite} />
+
           {/* Prénom */}
-          <div>
-            <label htmlFor="prenom" className="block text-sm mb-1 font-medium">Prénom</label>
-            <Input
-              id="prenom"
-              value={prenom}
-              onChange={handlePrenomChange}
-              required
-              placeholder="Prénom"
-              autoComplete="given-name"
-            />
-            {prenomError && (
-              <span className="text-sm text-destructive">{prenomError}</span>
-            )}
-          </div>
+          <PrenomInput value={prenom} onChange={handlePrenomChange} error={prenomError} />
+
           {/* Nom */}
-          <div>
-            <label htmlFor="nom" className="block text-sm mb-1 font-medium">Nom</label>
-            <Input
-              id="nom"
-              value={nom}
-              onChange={e => setNom(e.target.value)}
-              required
-              placeholder="Nom"
-              autoComplete="family-name"
-            />
-          </div>
+          <NomInput value={nom} onChange={e => setNom(e.target.value)} />
+
           {/* Adresse (non obligatoire) */}
-          <div>
-            <label htmlFor="adresse" className="block text-sm mb-1 font-medium">Adresse (optionnelle)</label>
-            <Input
-              id="adresse"
-              value={adresse}
-              onChange={e => setAdresse(e.target.value)}
-              placeholder="Adresse (facultatif)"
-              autoComplete="street-address"
-            />
-          </div>
+          <AdresseInput value={adresse} onChange={e => setAdresse(e.target.value)} />
+
           {/* Nom complet */}
-          <div>
-            <label htmlFor="fullName" className="block text-sm mb-1 font-medium">Nom complet</label>
-            <Input
-              id="fullName"
-              value={fullName}
-              onChange={e => setFullName(e.target.value)}
-              required
-              placeholder="Votre nom complet"
-              autoComplete="name"
-            />
-          </div>
-          {/* Email (permet le changement par sécurité, lecture seule sinon) */}
-          <div>
-            <label htmlFor="email" className="block text-sm mb-1 font-medium">E-mail</label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              placeholder="votre@email.com"
-              autoComplete="email"
-            />
-          </div>
+          <FullNameInput value={fullName} onChange={e => setFullName(e.target.value)} />
+
+          {/* Email (modifiable cf sécurité) */}
+          <EmailInput value={email} onChange={e => setEmail(e.target.value)} />
+
           {/* Mot de passe actuel */}
           <div>
             <label htmlFor="motdepasse" className="block text-sm mb-1 font-medium">Mot de passe (actuel)</label>
@@ -290,6 +225,7 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
               placeholder="Votre mot de passe"
               autoComplete="current-password"
             />
+            {/* Règles du mot de passe à l'inscription */}
             <ul className="text-xs text-muted-foreground list-disc list-inside pl-2 mt-1">
               {passwordCreationRules.map(rule => (
                 <li key={rule}>{rule}</li>
