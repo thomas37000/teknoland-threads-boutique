@@ -8,9 +8,11 @@ import CartItem from "@/components/cart/CartItem";
 import CartSummary from "@/components/cart/CartSummary";
 import CartEmptyState from "@/components/cart/CartEmptyState";
 import CartHeader from "@/components/cart/CartHeader";
+import { useTranslation } from "react-i18next";
 
 const CartPage = () => {
   const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCart();
+  const { t } = useTranslation();
 
   const handleCheckout = async () => {
     try {
@@ -28,7 +30,7 @@ const CartPage = () => {
             <Button variant="outline" asChild>
               <a href="/shop" className="flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
-                Retour au shop
+                {t("nav.shop")}
               </a>
             </Button>
           </div>
@@ -45,7 +47,7 @@ const CartPage = () => {
           <Button variant="outline" asChild>
             <a href="/shop" className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
-              Retour au shop
+              {t("nav.shop")}
             </a>
           </Button>
         </div>
