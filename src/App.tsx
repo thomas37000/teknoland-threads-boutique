@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -30,59 +29,64 @@ import "@/components/ui/tabs";
 // Initialize i18n
 import "./i18n/config";
 
+import { HelmetProvider } from "react-helmet-async";
+
 const queryClient = new QueryClient();
 
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <AuthProvider>
-          <CartProvider>
-            <FavoritesProvider>
-              <BrowserRouter>
-                <div className="min-h-screen flex flex-col">
-                  <Navbar />
-                  <main className="flex-grow">
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/shop" element={<ShopPage />} />
-                      <Route path="/product/:id" element={<ProductPage />} />
-                      <Route path="/cart" element={<CartPage />} />
-                      <Route path="/about" element={<AboutPage />} />
-                      <Route path="/contact" element={<ContactPage />} />
-                      <Route path="/payment-success" element={<PaymentSuccessPage />} />
-                      <Route 
-                        path="/admin" 
-                        element={
-                          <AdminRoute>
-                            <AdminPage />
-                          </AdminRoute>
-                        } 
-                      />
-                      <Route 
-                        path="/profile" 
-                        element={
-                          <ProtectedRoute>
-                            <ProfilePage />
-                          </ProtectedRoute>
-                        } 
-                      />
-                      <Route path="/auth" element={<AuthPage />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </main>
-                  <FavoritesSlider />
-                  <Footer />
-                  <CookieConsent />
-                </div>
-              </BrowserRouter>
-            </FavoritesProvider>
-          </CartProvider>
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <HelmetProvider>
+      {/* SEO context provider */}
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <AuthProvider>
+            <CartProvider>
+              <FavoritesProvider>
+                <BrowserRouter>
+                  <div className="min-h-screen flex flex-col">
+                    <Navbar />
+                    <main className="flex-grow">
+                      <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/shop" element={<ShopPage />} />
+                        <Route path="/product/:id" element={<ProductPage />} />
+                        <Route path="/cart" element={<CartPage />} />
+                        <Route path="/about" element={<AboutPage />} />
+                        <Route path="/contact" element={<ContactPage />} />
+                        <Route path="/payment-success" element={<PaymentSuccessPage />} />
+                        <Route 
+                          path="/admin" 
+                          element={
+                            <AdminRoute>
+                              <AdminPage />
+                            </AdminRoute>
+                          } 
+                        />
+                        <Route 
+                          path="/profile" 
+                          element={
+                            <ProtectedRoute>
+                              <ProfilePage />
+                            </ProtectedRoute>
+                          } 
+                        />
+                        <Route path="/auth" element={<AuthPage />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </main>
+                    <FavoritesSlider />
+                    <Footer />
+                    <CookieConsent />
+                  </div>
+                </BrowserRouter>
+              </FavoritesProvider>
+            </CartProvider>
+          </AuthProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 };
 
