@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Dialog,
@@ -22,6 +21,20 @@ interface UpdateProfileDialogProps {
 const civiliteOptions = [
   { value: "M", label: "M" },
   { value: "Mme", label: "Mme" },
+];
+
+const sexeOptions = [
+  { value: "M", label: "M" },
+  { value: "Mme", label: "Mme" },
+  { value: "Autre", label: "Autre" },
+];
+
+const passwordCreationRules = [
+  "Au moins 8 caractères",
+  "Au moins une lettre majuscule",
+  "Au moins une lettre minuscule",
+  "Au moins un chiffre",
+  "Au moins un caractère spécial",
 ];
 
 function validePrenom(value: string) {
@@ -50,6 +63,7 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
   const [email, setEmail] = useState(user?.email || "");
   const [motDePasse, setMotDePasse] = useState("");
   const [nvMotDePasse, setNvMotDePasse] = useState("");
+  const [adresse, setAdresse] = useState(user?.user_metadata?.adresse || "");
   const [loading, setLoading] = useState(false);
   const [prenomError, setPrenomError] = useState<string | null>(null);
 
@@ -66,33 +80,34 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
   }, [user, open]);
 
   const handlePrenomChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setPrenom(value);
-    if (!validePrenom(value)) {
-      setPrenomError(
-        "Seules les lettres et le point (.), suivi d'un espace, sont autorisés."
-      );
-    } else {
-      setPrenomError(null);
-    }
+    setPrenom(e.target.value);
+    setPrenomError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Validation Prénom
-    if (!validePrenom(prenom)) {
-      setPrenomError(
-        "Seules les lettres et le point (.), suivi d'un espace, sont autorisés."
-      );
+    // Plus de validation caractères, juste required
+    if (!prenom) {
+      setPrenomError("Champ obligatoire.");
       return;
     }
-    // Validation mot de passe (au moins 5 caractères)
-    if (nvMotDePasse && nvMotDePasse.length < 5) {
+    if (!nom) {
       toast({
         title: "Erreur",
-        description: "Le nouveau mot de passe doit contenir au moins 5 caractères.",
+        description: "Merci de renseigner votre nom.",
       });
       return;
+    }
+    // Validation mot de passe création stricte seulement si nouveau mot de passe rempli
+    if (nvMotDePasse) {
+      const { isValid, errors } = (await import("@/utils/passwordValidation")).validatePassword(nvMotDePasse);
+      if (!isValid) {
+        toast({
+          title: "Erreur",
+          description: errors.join(" / "),
+        });
+        return;
+      }
     }
     if (!motDePasse || motDePasse.length < 5) {
       toast({
@@ -132,6 +147,7 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
     if (prenom !== user?.user_metadata?.prenom) userMetadataUpdate.prenom = prenom;
     if (civilite !== user?.user_metadata?.civilite) userMetadataUpdate.civilite = civilite;
     if (nom !== user?.user_metadata?.nom) userMetadataUpdate.nom = nom;
+    if (adresse !== user?.user_metadata?.adresse) userMetadataUpdate.adresse = adresse;
     if (Object.keys(userMetadataUpdate).length > 0) {
       const { error } = await supabase.auth.updateUser({ data: userMetadataUpdate });
       if (error) errorMeta = error;
@@ -167,13 +183,26 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Mettre à jour mes informations</DialogTitle>
+          <DialogTitle>Modifier mes informations</DialogTitle>
         </DialogHeader>
         <form className="space-y-4 py-2" onSubmit={handleSubmit}>
-          {/* Civilité */}
+          {/* Utilisateur (lecture seule, email) */}
+          <div>
+            <label htmlFor="user" className="block text-sm mb-1 font-medium">
+              Utilisateur
+            </label>
+            <Input
+              id="user"
+              value={email}
+              readOnly
+              className="bg-muted"
+              autoComplete="email"
+            />
+          </div>
+          {/* Sexe */}
           <div>
             <label htmlFor="civilite" className="block text-sm mb-1 font-medium">
-              Civilité
+              Sexe
             </label>
             <select
               id="civilite"
@@ -181,7 +210,7 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
               onChange={e => setCivilite(e.target.value)}
               className="w-full border px-3 py-2 rounded-md bg-background"
             >
-              {civiliteOptions.map(opt => (
+              {sexeOptions.map(opt => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
@@ -194,15 +223,35 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
               value={prenom}
               onChange={handlePrenomChange}
               required
-              placeholder="Thomas"
+              placeholder="Prénom"
               autoComplete="given-name"
             />
             {prenomError && (
               <span className="text-sm text-destructive">{prenomError}</span>
             )}
-            <p className="text-xs text-muted-foreground">
-              Seules les lettres et le point (.), suivi d&apos;un espace, sont autorisés.
-            </p>
+          </div>
+          {/* Nom */}
+          <div>
+            <label htmlFor="nom" className="block text-sm mb-1 font-medium">Nom</label>
+            <Input
+              id="nom"
+              value={nom}
+              onChange={e => setNom(e.target.value)}
+              required
+              placeholder="Nom"
+              autoComplete="family-name"
+            />
+          </div>
+          {/* Adresse (non obligatoire) */}
+          <div>
+            <label htmlFor="adresse" className="block text-sm mb-1 font-medium">Adresse (optionnelle)</label>
+            <Input
+              id="adresse"
+              value={adresse}
+              onChange={e => setAdresse(e.target.value)}
+              placeholder="Adresse (facultatif)"
+              autoComplete="street-address"
+            />
           </div>
           {/* Nom complet */}
           <div>
@@ -216,19 +265,7 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
               autoComplete="name"
             />
           </div>
-          {/* Nom */}
-          <div>
-            <label htmlFor="nom" className="block text-sm mb-1 font-medium">Nom</label>
-            <Input
-              id="nom"
-              value={nom}
-              onChange={e => setNom(e.target.value)}
-              required
-              placeholder="Votre nom"
-              autoComplete="family-name"
-            />
-          </div>
-          {/* Email */}
+          {/* Email (permet le changement par sécurité, lecture seule sinon) */}
           <div>
             <label htmlFor="email" className="block text-sm mb-1 font-medium">E-mail</label>
             <Input
@@ -253,7 +290,11 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
               placeholder="Votre mot de passe"
               autoComplete="current-password"
             />
-            <p className="text-xs text-muted-foreground">Au moins 5 caractères</p>
+            <ul className="text-xs text-muted-foreground list-disc list-inside pl-2 mt-1">
+              {passwordCreationRules.map(rule => (
+                <li key={rule}>{rule}</li>
+              ))}
+            </ul>
           </div>
           {/* Nouveau mot de passe */}
           <div>
