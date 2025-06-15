@@ -38,20 +38,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Set up auth state listener first
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         (event, currentSession) => {
-          console.log("Auth state changed:", event);
+          // SUPPRESSION DES LOGS DE TEST
+          // console.log("Auth state changed:", event);
           setSession(currentSession);
           setUser(currentSession?.user ?? null);
           setIsLoading(false);
           
           // Handle auth events
           if (event === 'SIGNED_OUT') {
-            console.log('User signed out');
+            // console.log('User signed out');
             setUserRole(null);
             setIsAdmin(false);
             toast.info("You have been signed out");
           } else if (event === 'SIGNED_IN' && !isInitialLoad) {
             // Only show toast for actual sign-in events, not session restoration
-            console.log('User signed in', currentSession);
+            // console.log('User signed in', currentSession);
             if (currentSession?.user) {
               updateLastActivity();
               updateUserRole(currentSession.user.id);
@@ -59,18 +60,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             toast.success("Successfully signed in!");
           } else if (event === 'SIGNED_IN' && isInitialLoad) {
             // This is session restoration, don't show toast
-            console.log('Session restored', currentSession);
+            // console.log('Session restored', currentSession);
             if (currentSession?.user) {
               updateLastActivity();
               updateUserRole(currentSession.user.id);
             }
           } else if (event === 'USER_UPDATED') {
-            console.log('User updated');
+            // console.log('User updated');
             if (currentSession?.user) {
               updateUserRole(currentSession.user.id);
             }
           } else if (event === 'PASSWORD_RECOVERY') {
-            console.log('Password recovery event');
+            // console.log('Password recovery event');
           }
         }
       );
@@ -80,10 +81,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data: { session: currentSession }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error("Error getting session:", error);
+          // console.error("Error getting session:", error);
         }
         
-        console.log("Current session:", currentSession);
+        // console.log("Current session:", currentSession);
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
@@ -95,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(false);
         setIsInitialLoad(false);
       } catch (error) {
-        console.error("Error in session initialization:", error);
+        // console.error("Error in session initialization:", error);
         setIsLoading(false);
         setIsInitialLoad(false);
       }
