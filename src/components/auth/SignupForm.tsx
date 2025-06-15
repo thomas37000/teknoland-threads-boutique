@@ -19,10 +19,9 @@ interface SignupFormProps {
 const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
   const [password, setPassword] = useState("");
-  // Nouveau : états séparés prénom/nom
-  const [prenom, setPrenom] = useState("");
-  const [nom, setNom] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [signupError, setSignupError] = useState("");
   const [showPasswordIcon, setShowPasswordIcon] = useState(false);
@@ -59,17 +58,15 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
         password,
         options: {
           data: {
-            prenom,
-            nom,
+            firstname,
+            lastname,
           },
           emailRedirectTo: redirectTo,
         },
       });
 
       if (error) {
-        if (error.message.includes("User already registered")) {
-          setSignupError(t('auth.emailExistsError'));
-        } else if (error.message.includes("already been registered")) {
+        if (error.message.includes("User already registered") || error.message.includes("already been registered")) {
           setSignupError(t('auth.emailExistsError'));
         } else {
           setSignupError(error.message || t('auth.signupError'));
@@ -127,26 +124,26 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
 
         {/* Prénom */}
         <div className="space-y-2">
-          <Label htmlFor="signupPrenom">{t('auth.firstname') || "Prénom"}</Label>
+          <Label htmlFor="signupFirstname">{t('auth.firstname') || "Prénom"}</Label>
           <Input
-            id="signupPrenom"
+            id="signupFirstname"
             type="text"
-            placeholder={"Prénom"}
-            value={prenom}
-            onChange={(e) => setPrenom(e.target.value)}
+            placeholder={t('auth.firstname') || "Prénom"}
+            value={firstname}
+            onChange={(e) => setFirstname(e.target.value)}
             required
           />
         </div>
 
         {/* Nom */}
         <div className="space-y-2">
-          <Label htmlFor="signupNom">{t('auth.lastname') || "Nom"}</Label>
+          <Label htmlFor="signupLastname">{t('auth.lastname') || "Nom"}</Label>
           <Input
-            id="signupNom"
+            id="signupLastname"
             type="text"
-            placeholder={"Nom"}
-            value={nom}
-            onChange={(e) => setNom(e.target.value)}
+            placeholder={t('auth.lastname') || "Nom"}
+            value={lastname}
+            onChange={(e) => setLastname(e.target.value)}
             required
           />
         </div>
@@ -216,3 +213,4 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
 };
 
 export default SignupForm;
+
