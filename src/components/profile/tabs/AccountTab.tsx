@@ -26,8 +26,18 @@ const AccountTab = ({ user }: AccountTabProps) => {
             <p>{user?.email}</p>
           </div>
           <div>
+            <h3 className="text-sm font-medium text-gray-500">Prénom</h3>
+            <p>
+              {/* Priorité : profiles.firstname, sinon user_metadata.prenom */}
+              {user?.user_metadata?.prenom || user?.user_metadata?.firstname || user?.firstname || "Non renseigné"}
+            </p>
+          </div>
+          <div>
             <h3 className="text-sm font-medium text-gray-500">Nom</h3>
-            <p>{user?.user_metadata?.full_name || "Non renseigné"}</p>
+            <p>
+              {/* Priorité : profiles.lastname, sinon user_metadata.nom */}
+              {user?.user_metadata?.nom || user?.user_metadata?.lastname || user?.lastname || "Non renseigné"}
+            </p>
           </div>
           <div>
             <h3 className="text-sm font-medium text-gray-500">Compte créé le :</h3>

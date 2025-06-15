@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Dialog,
@@ -133,7 +132,7 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
       return;
     }
 
-    let errorAuth, errorMeta, errorNewPass;
+    let errorAuth, errorMeta, errorNewPass, errorProfile;
 
     if (email && email !== user.email) {
       const { error } = await supabase.auth.updateUser({ email });
@@ -149,6 +148,19 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
       const { error } = await supabase.auth.updateUser({ data: userMetadataUpdate });
       if (error) errorMeta = error;
     }
+    // Update dans profiles (table)
+    const updates: any = {};
+    if (prenom) updates.firstname = prenom;
+    if (nom) updates.lastname = nom;
+    if (adresse) updates.address = adresse;
+    // On n'update plus full_name
+    if (Object.keys(updates).length > 0) {
+      const { error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', user.id);
+      if (error) errorProfile = error;
+    }
     if (nvMotDePasse && nvMotDePasse.length >= 5) {
       const { error } = await supabase.auth.updateUser({ password: nvMotDePasse });
       if (error) errorNewPass = error;
@@ -156,7 +168,7 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
 
     setLoading(false);
 
-    if (!errorAuth && !errorMeta && !errorNewPass) {
+    if (!errorAuth && !errorMeta && !errorNewPass && !errorProfile) {
       toast({
         title: "Succès",
         description: "Profil mis à jour avec succès.",
@@ -167,6 +179,7 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
         errorAuth?.message ||
         errorMeta?.message ||
         errorNewPass?.message ||
+        errorProfile?.message ||
         "Erreur lors de la mise à jour";
       toast({
         title: "Erreur",
