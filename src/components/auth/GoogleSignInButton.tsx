@@ -13,7 +13,7 @@ const GoogleSignInButton = () => {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth`,
@@ -21,33 +21,17 @@ const GoogleSignInButton = () => {
             access_type: 'offline',
             prompt: 'consent',
           },
-          skipBrowserRedirect: true,
+          // On utilise la redirection standard : pas de popup
+          // Ne rien mettre OU skipBrowserRedirect: false
         },
       });
 
       if (error) {
         toast.error(error.message || t('auth.googleSignInError'));
-        return;
-      }
-
-      // Ouvrir la popup manuellement
-      if (data?.url) {
-        const popup = window.open(
-          data.url,
-          'google-signin',
-          'width=500,height=600,scrollbars=yes,resizable=yes'
-        );
-
-        // Vérifier si la popup s'est fermée
-        const checkClosed = setInterval(() => {
-          if (popup?.closed) {
-            clearInterval(checkClosed);
-            setIsLoading(false);
-          }
-        }, 1000);
       }
     } catch (error: any) {
       toast.error(error.message || t('auth.googleSignInError'));
+    } finally {
       setIsLoading(false);
     }
   };
@@ -93,3 +77,4 @@ const GoogleSignInButton = () => {
 };
 
 export default GoogleSignInButton;
+
