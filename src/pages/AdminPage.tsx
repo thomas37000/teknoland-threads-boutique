@@ -1,16 +1,16 @@
-
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Package, Users } from "lucide-react";
 import { products } from "@/data/products";
 import ProductManagement from "@/components/admin/ProductManagement";
 import ClientManagement from "@/components/admin/ClientManagement";
+import AdminNotifications from "@/components/admin/AdminNotifications";
 
 const AdminPage = () => {
   return (
     <div className="tekno-container py-12">
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-      
+      <AdminNotifications />
       <Tabs defaultValue="products" className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="products" className="flex items-center gap-2">
