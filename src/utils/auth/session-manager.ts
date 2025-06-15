@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 
@@ -10,13 +9,11 @@ export const signOut = async () => {
   try {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      console.error("Error signing out:", error);
       toast.error("Failed to sign out. Please try again.");
     } else {
       clearActivity();
     }
   } catch (error) {
-    console.error("Exception during signout:", error);
     toast.error("An unexpected error occurred.");
   }
 };
@@ -41,7 +38,6 @@ export const verifyOtp = async (email: string, token: string) => {
 };
 
 export const autoLogout = async () => {
-  console.log("Auto-logout: User inactive for 72 hours");
   toast.info("Vous avez été déconnecté automatiquement après 72h d'inactivité");
   await signOut();
 };
