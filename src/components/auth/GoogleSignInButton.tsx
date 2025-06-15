@@ -21,6 +21,7 @@ const GoogleSignInButton = () => {
             access_type: 'offline',
             prompt: 'consent',
           },
+          skipBrowserRedirect: false,
         },
       });
 
