@@ -8,7 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
 import { validatePassword } from "@/utils/passwordValidation";
+import GoogleSignInButton from "./GoogleSignInButton";
 
 interface SignupFormProps {
   onVerificationSent: () => void;
@@ -99,87 +101,102 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
   };
 
   return (
-    <form onSubmit={handleSignup} className="space-y-4">
-      {signupError && (
-        <Alert className="border-red-200 bg-red-50">
-          <AlertDescription className="text-red-700">
-            {signupError}
-          </AlertDescription>
-        </Alert>
-      )}
+    <div className="space-y-4">
+      <GoogleSignInButton />
 
-      <div className="space-y-2">
-        <Label htmlFor="fullName">{t('auth.fullName')}</Label>
-        <Input
-          id="fullName"
-          type="text"
-          placeholder={t('auth.fullNamePlaceholder')}
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          required
-        />
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <Separator className="w-full" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-white px-2 text-muted-foreground">
+            {t('auth.or')}
+          </span>
+        </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="signupEmail">{t('auth.email')}</Label>
-        <Input
-          id="signupEmail"
-          type="email"
-          placeholder={t('auth.emailPlaceholder')}
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            setSignupError("");
-          }}
-          required
-        />
-      </div>
+      <form onSubmit={handleSignup} className="space-y-4">
+        {signupError && (
+          <Alert className="border-red-200 bg-red-50">
+            <AlertDescription className="text-red-700">
+              {signupError}
+            </AlertDescription>
+          </Alert>
+        )}
 
-      <div className="space-y-2">
-        <Label htmlFor="signupPassword">{t('auth.password')}</Label>
-        <div className="relative">
+        <div className="space-y-2">
+          <Label htmlFor="fullName">{t('auth.fullName')}</Label>
           <Input
-            id="signupPassword"
-            type={showPasswordIcon ? "text" : "password"}
-            placeholder={t('auth.passwordCreatePlaceholder')}
-            value={password}
+            id="fullName"
+            type="text"
+            placeholder={t('auth.fullNamePlaceholder')}
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="signupEmail">{t('auth.email')}</Label>
+          <Input
+            id="signupEmail"
+            type="email"
+            placeholder={t('auth.emailPlaceholder')}
+            value={email}
             onChange={(e) => {
-              setPassword(e.target.value);
+              setEmail(e.target.value);
               setSignupError("");
             }}
-            onFocus={() => setShowPasswordErrors(true)}
             required
-            className="pr-10"
           />
-          <button
-            type="button"
-            className="absolute inset-y-0 right-0 pr-3 flex items-center"
-            onClick={() => setShowPasswordIcon(!showPasswordIcon)}
-          >
-            {showPasswordIcon ? (
-              <EyeOff className="h-5 w-5 text-gray-400" />
-            ) : (
-              <Eye className="h-5 w-5 text-gray-400" />
-            )}
-          </button>
         </div>
-        {showPasswordErrors && renderPasswordRequirements(passwordErrors)}
-      </div>
 
-      <Button
-        type="submit"
-        className="w-full bg-tekno-blue hover:bg-tekno-blue/90"
-        disabled={isLoading || passwordErrors.length > 0}
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('auth.pleaseWait')}
-          </>
-        ) : (
-          t('auth.signupButton')
-        )}
-      </Button>
-    </form>
+        <div className="space-y-2">
+          <Label htmlFor="signupPassword">{t('auth.password')}</Label>
+          <div className="relative">
+            <Input
+              id="signupPassword"
+              type={showPasswordIcon ? "text" : "password"}
+              placeholder={t('auth.passwordCreatePlaceholder')}
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setSignupError("");
+              }}
+              onFocus={() => setShowPasswordErrors(true)}
+              required
+              className="pr-10"
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              onClick={() => setShowPasswordIcon(!showPasswordIcon)}
+            >
+              {showPasswordIcon ? (
+                <EyeOff className="h-5 w-5 text-gray-400" />
+              ) : (
+                <Eye className="h-5 w-5 text-gray-400" />
+              )}
+            </button>
+          </div>
+          {showPasswordErrors && renderPasswordRequirements(passwordErrors)}
+        </div>
+
+        <Button
+          type="submit"
+          className="w-full bg-tekno-blue hover:bg-tekno-blue/90"
+          disabled={isLoading || passwordErrors.length > 0}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('auth.pleaseWait')}
+            </>
+          ) : (
+            t('auth.signupButton')
+          )}
+        </Button>
+      </form>
+    </div>
   );
 };
 
