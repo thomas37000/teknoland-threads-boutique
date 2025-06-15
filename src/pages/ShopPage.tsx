@@ -8,6 +8,7 @@ import SortSelect from "@/components/shop/SortSelect";
 import ProductsGrid from "@/components/shop/ProductsGrid";
 import BackToTop from "@/components/shop/BackToTop";
 import { useTranslation } from "react-i18next";
+import { Helmet } from "react-helmet-async";
 
 const ShopPage = () => {
   const [searchParams] = useSearchParams();
@@ -114,18 +115,43 @@ const ShopPage = () => {
   const hasMoreProducts = displayedProducts.length < filteredProducts.length;
   
   const { t } = useTranslation();
-  
+
+  // SEO pour la boutique
+  const shopTitle = t('shop.seoTitle', { defaultValue: "Boutique Teknoland – Découvrez nos vêtements tech et tendances" });
+  const shopDescription = t('shop.seoDescription', { defaultValue: "Découvrez tous nos t-shirts, sweats, accessoires et vinyles. Qualité premium, mode et innovation. Expédition rapide et offerte dès 50€." });
+  const shopCanonical = "https://teknoland.lovable.app/shop";
+  const shopOgImage = "https://lovable.dev/opengraph-image-p98pqg.png";
+
   return (
     <div className="tekno-container py-12" ref={topRef}>
-      <ShopHeader />
-      
+      <Helmet>
+        <title>{shopTitle}</title>
+        <meta name="description" content={shopDescription} />
+        <link rel="canonical" href={shopCanonical} />
+        <meta property="og:title" content={shopTitle}/>
+        <meta property="og:description" content={shopDescription}/>
+        <meta property="og:url" content={shopCanonical}/>
+        <meta property="og:type" content="website"/>
+        <meta property="og:image" content={shopOgImage}/>
+        <meta name="twitter:card" content="summary_large_image"/>
+        <meta name="twitter:title" content={shopTitle}/>
+        <meta name="twitter:description" content={shopDescription}/>
+        <meta name="twitter:image" content={shopOgImage}/>
+      </Helmet>
+      {/* H1 principal de la page */}
+      <h1 className="text-3xl font-bold mb-2">{shopTitle}</h1>
+      {/* ShopHeader n'affiche pas de H1, donc c'est bon d'en garder un ici */}
+      <ShopHeader 
+        title={t('shop.title')}
+        description={t('shop.description')}
+      />
+
       {/* Filters and Sorting */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <CategoryFilter 
           selectedCategory={selectedCategory}
           onCategoryChange={setSelectedCategory}
         />
-        
         <SortSelect 
           sortOption={sortOption}
           onSortChange={setSortOption}
