@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -124,11 +123,11 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
 
         {/* Prénom */}
         <div className="space-y-2">
-          <Label htmlFor="signupFirstname">{t('auth.firstname') || "Prénom"}</Label>
+          <Label htmlFor="signupFirstname">Prénom</Label>
           <Input
             id="signupFirstname"
             type="text"
-            placeholder={t('auth.firstname') || "Prénom"}
+            placeholder="John"
             value={firstname}
             onChange={(e) => setFirstname(e.target.value)}
             required
@@ -137,11 +136,11 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
 
         {/* Nom */}
         <div className="space-y-2">
-          <Label htmlFor="signupLastname">{t('auth.lastname') || "Nom"}</Label>
+          <Label htmlFor="signupLastname">Nom</Label>
           <Input
             id="signupLastname"
             type="text"
-            placeholder={t('auth.lastname') || "Nom"}
+            placeholder="Doe"
             value={lastname}
             onChange={(e) => setLastname(e.target.value)}
             required
@@ -213,4 +212,3 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
 };
 
 export default SignupForm;
-
