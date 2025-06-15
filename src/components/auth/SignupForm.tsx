@@ -20,14 +20,15 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
+  // Nouveau : états séparés prénom/nom
+  const [prenom, setPrenom] = useState("");
+  const [nom, setNom] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [signupError, setSignupError] = useState("");
   const [showPasswordIcon, setShowPasswordIcon] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const [showPasswordErrors, setShowPasswordErrors] = useState(false);
 
-  // Validate password as user types
   useEffect(() => {
     if (password) {
       const { errors } = validatePassword(password);
@@ -39,15 +40,14 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate password before signup
+
     const { isValid, errors } = validatePassword(password);
-    
+
     if (!isValid) {
       setShowPasswordErrors(true);
       return;
     }
-    
+
     setIsLoading(true);
     setSignupError("");
 
@@ -59,7 +59,8 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
         password,
         options: {
           data: {
-            full_name: fullName,
+            prenom,
+            nom,
           },
           emailRedirectTo: redirectTo,
         },
@@ -87,7 +88,7 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
 
   const renderPasswordRequirements = (errors: string[]) => {
     if (errors.length === 0) return null;
-    
+
     return (
       <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-md">
         <p className="text-sm font-medium text-yellow-800 mb-1">{t('auth.passwordRequirements')}</p>
@@ -124,14 +125,28 @@ const SignupForm = ({ onVerificationSent }: SignupFormProps) => {
           </Alert>
         )}
 
+        {/* Prénom */}
         <div className="space-y-2">
-          <Label htmlFor="fullName">{t('auth.fullName')}</Label>
+          <Label htmlFor="signupPrenom">{t('auth.firstname') || "Prénom"}</Label>
           <Input
-            id="fullName"
+            id="signupPrenom"
             type="text"
-            placeholder={t('auth.fullNamePlaceholder')}
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            placeholder={"Prénom"}
+            value={prenom}
+            onChange={(e) => setPrenom(e.target.value)}
+            required
+          />
+        </div>
+
+        {/* Nom */}
+        <div className="space-y-2">
+          <Label htmlFor="signupNom">{t('auth.lastname') || "Nom"}</Label>
+          <Input
+            id="signupNom"
+            type="text"
+            placeholder={"Nom"}
+            value={nom}
+            onChange={(e) => setNom(e.target.value)}
             required
           />
         </div>
