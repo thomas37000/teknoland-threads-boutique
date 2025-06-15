@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Trash2, Plus, Minus } from "lucide-react";
 import { CartItem as CartItemType } from "@/types/cart";
+import { useTranslation } from "react-i18next";
 
 interface CartItemProps {
   item: CartItemType;
@@ -12,6 +13,8 @@ interface CartItemProps {
 }
 
 const CartItem = ({ item, onUpdateQuantity, onRemoveFromCart }: CartItemProps) => {
+  const { t } = useTranslation();
+
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity > 0) {
       onUpdateQuantity(item.id, newQuantity);
@@ -34,10 +37,10 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveFromCart }: CartItemProps) =
         <h3 className="text-lg font-medium text-gray-900">{item.name}</h3>
         <p className="text-gray-600">{item.price}€</p>
         {item.size && (
-          <p className="text-sm text-gray-500">Taille: {item.size}</p>
+          <p className="text-sm text-gray-500">{t("cart.size")}: {item.size}</p>
         )}
         {item.color && (
-          <p className="text-sm text-gray-500">Couleur: {item.color}</p>
+          <p className="text-sm text-gray-500">{t("cart.color")}: {item.color}</p>
         )}
       </div>
 
@@ -77,6 +80,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveFromCart }: CartItemProps) =
         size="icon"
         onClick={handleRemove}
         className="text-red-500 hover:text-red-700"
+        aria-label={t("cart.remove")}
       >
         <Trash2 className="h-4 w-4" />
       </Button>

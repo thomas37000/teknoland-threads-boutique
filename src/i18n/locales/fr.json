@@ -117,5 +117,23 @@
     "securePaymentDesc": "Transactions protégées et données cryptées pour un achat en toute confiance.",
     "returns": "Retours Faciles",
     "returnsDesc": "Retournez ou échangez vos articles sous 30 jours, sans complication."
+  },
+  "cart": {
+    "title": "Votre panier",
+    "empty": "Votre panier est pour l'instant vide.",
+    "keepShopping": "Continuez le Shopping",
+    "itemName": "Nom de l'article",
+    "priceTTC": "Prix TTC",
+    "quantity": "Quantité",
+    "total": "Total",
+    "summary": "Résumé de la commande",
+    "subtotal": "Sous-total",
+    "shipping": "Livraison",
+    "shippingFree": "Gratuite",
+    "checkout": "Procéder au paiement",
+    "clear": "Vider le panier",
+    "size": "Taille",
+    "color": "Couleur",
+    "remove": "Supprimer"
   }
 }

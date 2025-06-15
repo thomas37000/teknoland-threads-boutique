@@ -3,6 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useTranslation } from "react-i18next";
 
 interface CartSummaryProps {
   totalPrice: number;
@@ -11,26 +12,27 @@ interface CartSummaryProps {
 }
 
 const CartSummary = ({ totalPrice, onCheckout, onClearCart }: CartSummaryProps) => {
+  const { t } = useTranslation();
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Résumé de la commande</CardTitle>
+        <CardTitle>{t("cart.summary")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex justify-between items-center">
-          <span className="text-gray-600">Sous-total</span>
+          <span className="text-gray-600">{t("cart.subtotal")}</span>
           <span className="font-medium">{totalPrice.toFixed(2)}€</span>
         </div>
         
         <div className="flex justify-between items-center">
-          <span className="text-gray-600">Livraison</span>
-          <span className="font-medium">Gratuite</span>
+          <span className="text-gray-600">{t("cart.shipping")}</span>
+          <span className="font-medium">{t("cart.shippingFree")}</span>
         </div>
         
         <Separator />
         
         <div className="flex justify-between items-center text-lg font-bold">
-          <span>Total</span>
+          <span>{t("cart.total")}</span>
           <span>{totalPrice.toFixed(2)}€</span>
         </div>
         
@@ -40,7 +42,7 @@ const CartSummary = ({ totalPrice, onCheckout, onClearCart }: CartSummaryProps) 
             className="w-full bg-tekno-blue hover:bg-tekno-blue/90"
             disabled={totalPrice === 0}
           >
-            Procéder au paiement
+            {t("cart.checkout")}
           </Button>
           
           <Button 
@@ -49,7 +51,7 @@ const CartSummary = ({ totalPrice, onCheckout, onClearCart }: CartSummaryProps) 
             className="w-full"
             disabled={totalPrice === 0}
           >
-            Vider le panier
+            {t("cart.clear")}
           </Button>
         </div>
       </CardContent>
