@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Client } from "@/types";
 import {
@@ -28,13 +27,12 @@ const ClientTable: React.FC<ClientTableProps> = ({ clients, onEdit, onDelete }) 
           <TableHead>Téléphone</TableHead>
           <TableHead>Statut</TableHead>
           <TableHead>Rôle</TableHead>
-          <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {clients.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={6} className="text-center py-4">
+            <TableCell colSpan={5} className="text-center py-4">
               Aucun client trouvé
             </TableCell>
           </TableRow>
@@ -65,26 +63,6 @@ const ClientTable: React.FC<ClientTableProps> = ({ clients, onEdit, onDelete }) 
                 >
                   {client.roles === "admin" ? "Admin" : "Client"}
                 </span>
-              </TableCell>
-              <TableCell>
-                <div className="flex gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onEdit(client)}
-                    className="h-8 w-8 p-0"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDelete(client)}
-                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
               </TableCell>
             </TableRow>
           ))
