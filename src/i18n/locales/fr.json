@@ -14,7 +14,9 @@
   "hero": {
     "title": "Style Moderne & Confort",
     "subtitle": "Découvrez notre nouvelle collection de vêtements tendance",
-    "shopNow": "Acheter maintenant"
+    "shopNow": "Acheter maintenant",
+    "shopButton": "Acheter maintenant",
+    "aboutButton": "À propos"
   },
   "featured": {
     "title": "Produits Vedettes",
@@ -74,6 +76,9 @@
     "googleSignInError": "Erreur lors de la connexion avec Google",
     "or": "ou"
   },
+  "common": {
+    "addToCart": "Ajouter au panier"
+  },
   "shop": {
     "title": "Boutique",
     "description": "Explorez notre gamme complète de vêtements et accessoires tendance.",
@@ -87,7 +92,11 @@
     "vinyls": "Vinyles",
     "noProducts": "Aucun produit trouvé",
     "noProductsDesc": "Désolé, aucun produit ne correspond à votre recherche.",
-    "loadMore": "Voir plus"
+    "loadMore": "Voir plus",
+    "sortBy": "Trier par",
+    "newest": "Nouveautés",
+    "priceLow": "Prix croissant",
+    "priceHigh": "Prix décroissant"
   },
   "featured": {
     "title": "Produits Vedettes",

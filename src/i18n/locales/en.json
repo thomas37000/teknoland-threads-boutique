@@ -14,7 +14,9 @@
   "hero": {
     "title": "Modern Style & Comfort",
     "subtitle": "Discover our new collection of trendy clothing",
-    "shopNow": "Shop Now"
+    "shopNow": "Shop Now",
+    "shopButton": "Shop Now",
+    "aboutButton": "About"
   },
   "featured": {
     "title": "Featured Products",
@@ -76,6 +78,9 @@
     "googleSignInError": "Error signing in with Google",
     "or": "or"
   },
+  "common": {
+    "addToCart": "Add to Cart"
+  },
   "shop": {
     "title": "Shop",
     "description": "Browse our full range of trendy clothing and accessories.",
@@ -89,7 +94,11 @@
     "vinyls": "Vinyls",
     "noProducts": "No products found",
     "noProductsDesc": "Sorry, no products match your search.",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "sortBy": "Sort by",
+    "newest": "Newest",
+    "priceLow": "Low price",
+    "priceHigh": "High price"
   },
   "home": {
     "newsletterTitle": "Stay Updated!",
