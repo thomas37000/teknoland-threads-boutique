@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Category {
   id: string;
@@ -18,6 +19,7 @@ interface Category {
   is_active: boolean;
   display_order: number;
   created_at: string;
+  updated_at: string;
 }
 
 const CategoryManagement = () => {
@@ -25,6 +27,7 @@ const CategoryManagement = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
+  const [loading, setLoading] = useState(true);
   const [newCategory, setNewCategory] = useState({
     name: "",
     slug: "",
@@ -33,51 +36,37 @@ const CategoryManagement = () => {
     display_order: 0
   });
 
-  // Simulation des catégories existantes (en attendant la base de données)
-  useEffect(() => {
-    // Pour l'instant, on utilise les catégories codées en dur
-    const defaultCategories: Category[] = [
-      {
-        id: "1",
-        name: "T-Shirts Hommes",
-        slug: "man",
-        description: "T-shirts pour hommes",
-        is_active: true,
-        display_order: 1,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: "2", 
-        name: "T-Shirts Femmes",
-        slug: "women",
-        description: "T-shirts pour femmes",
-        is_active: true,
-        display_order: 2,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: "3",
-        name: "Sweats",
-        slug: "sweats",
-        description: "Sweats et hoodies",
-        is_active: true,
-        display_order: 3,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: "4",
-        name: "Vinyles",
-        slug: "vinyls",
-        description: "Collection de vinyles",
-        is_active: true,
-        display_order: 4,
-        created_at: new Date().toISOString()
+  // Fetch categories from Supabase
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching categories:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les catégories",
+          variant: "destructive"
+        });
+        return;
       }
-    ];
-    setCategories(defaultCategories);
+
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
   }, []);
 
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (!newCategory.name) {
       toast({
         title: "Erreur",
@@ -87,71 +76,168 @@ const CategoryManagement = () => {
       return;
     }
 
-    const category: Category = {
-      id: Date.now().toString(),
-      name: newCategory.name,
-      slug: newCategory.slug || newCategory.name.toLowerCase().replace(/\s+/g, '-'),
-      description: newCategory.description,
-      is_active: newCategory.is_active,
-      display_order: newCategory.display_order || categories.length + 1,
-      created_at: new Date().toISOString()
-    };
+    try {
+      const categoryData = {
+        name: newCategory.name,
+        slug: newCategory.slug || newCategory.name.toLowerCase().replace(/\s+/g, '-'),
+        description: newCategory.description || null,
+        is_active: newCategory.is_active,
+        display_order: newCategory.display_order || categories.length + 1,
+      };
 
-    setCategories([...categories, category]);
-    setNewCategory({
-      name: "",
-      slug: "",
-      description: "",
-      is_active: true,
-      display_order: 0
-    });
-    setIsAddDialogOpen(false);
+      const { data, error } = await supabase
+        .from('categories')
+        .insert([categoryData])
+        .select()
+        .single();
 
-    toast({
-      title: "Catégorie ajoutée",
-      description: `${category.name} a été ajoutée avec succès`
-    });
+      if (error) {
+        console.error('Error adding category:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible d'ajouter la catégorie",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setCategories([...categories, data]);
+      setNewCategory({
+        name: "",
+        slug: "",
+        description: "",
+        is_active: true,
+        display_order: 0
+      });
+      setIsAddDialogOpen(false);
+
+      toast({
+        title: "Catégorie ajoutée",
+        description: `${data.name} a été ajoutée avec succès`
+      });
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
-  const handleEditCategory = () => {
+  const handleEditCategory = async () => {
     if (!currentCategory) return;
 
-    const updatedCategories = categories.map(cat => 
-      cat.id === currentCategory.id ? currentCategory : cat
-    );
-    setCategories(updatedCategories);
-    setIsEditDialogOpen(false);
-    setCurrentCategory(null);
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .update({
+          name: currentCategory.name,
+          slug: currentCategory.slug,
+          description: currentCategory.description || null,
+          is_active: currentCategory.is_active,
+          display_order: currentCategory.display_order
+        })
+        .eq('id', currentCategory.id)
+        .select()
+        .single();
 
-    toast({
-      title: "Catégorie modifiée",
-      description: "Les modifications ont été sauvegardées"
-    });
+      if (error) {
+        console.error('Error updating category:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de modifier la catégorie",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const updatedCategories = categories.map(cat => 
+        cat.id === currentCategory.id ? data : cat
+      );
+      setCategories(updatedCategories);
+      setIsEditDialogOpen(false);
+      setCurrentCategory(null);
+
+      toast({
+        title: "Catégorie modifiée",
+        description: "Les modifications ont été sauvegardées"
+      });
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
-  const toggleCategoryStatus = (categoryId: string) => {
-    const updatedCategories = categories.map(cat => 
-      cat.id === categoryId ? { ...cat, is_active: !cat.is_active } : cat
-    );
-    setCategories(updatedCategories);
-
+  const toggleCategoryStatus = async (categoryId: string) => {
     const category = categories.find(c => c.id === categoryId);
-    toast({
-      title: category?.is_active ? "Catégorie désactivée" : "Catégorie activée",
-      description: `${category?.name} est maintenant ${category?.is_active ? 'cachée' : 'visible'} sur la boutique`
-    });
+    if (!category) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .update({ is_active: !category.is_active })
+        .eq('id', categoryId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error toggling category status:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de modifier le statut de la catégorie",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const updatedCategories = categories.map(cat => 
+        cat.id === categoryId ? data : cat
+      );
+      setCategories(updatedCategories);
+
+      toast({
+        title: data.is_active ? "Catégorie activée" : "Catégorie désactivée",
+        description: `${data.name} est maintenant ${data.is_active ? 'visible' : 'cachée'} sur la boutique`
+      });
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
-  const deleteCategory = (categoryId: string) => {
+  const deleteCategory = async (categoryId: string) => {
     const category = categories.find(c => c.id === categoryId);
-    const updatedCategories = categories.filter(cat => cat.id !== categoryId);
-    setCategories(updatedCategories);
+    if (!category) return;
 
-    toast({
-      title: "Catégorie supprimée",
-      description: `${category?.name} a été supprimée`
-    });
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', categoryId);
+
+      if (error) {
+        console.error('Error deleting category:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de supprimer la catégorie",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const updatedCategories = categories.filter(cat => cat.id !== categoryId);
+      setCategories(updatedCategories);
+
+      toast({
+        title: "Catégorie supprimée",
+        description: `${category.name} a été supprimée`
+      });
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-tekno-blue"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

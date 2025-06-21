@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Edit, Trash2, Filter } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ShopFilter {
   id: string;
@@ -17,8 +18,9 @@ interface ShopFilter {
   type: "category" | "price" | "size" | "color" | "stock" | "brand";
   is_active: boolean;
   display_order: number;
-  options?: string[];
+  options?: string[] | null;
   created_at: string;
+  updated_at: string;
 }
 
 const FilterManagement = () => {
@@ -26,6 +28,7 @@ const FilterManagement = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentFilter, setCurrentFilter] = useState<ShopFilter | null>(null);
+  const [loading, setLoading] = useState(true);
   const [newFilter, setNewFilter] = useState({
     name: "",
     type: "category" as const,
@@ -34,56 +37,37 @@ const FilterManagement = () => {
     options: ""
   });
 
-  useEffect(() => {
-    // Filtres par défaut basés sur l'interface actuelle
-    const defaultFilters: ShopFilter[] = [
-      {
-        id: "1",
-        name: "Catégorie",
-        type: "category",
-        is_active: true,
-        display_order: 1,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: "2",
-        name: "Prix",
-        type: "price",
-        is_active: true,
-        display_order: 2,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: "3",
-        name: "Taille",
-        type: "size",
-        is_active: true,
-        display_order: 3,
-        options: ["XS", "S", "M", "L", "XL", "XXL"],
-        created_at: new Date().toISOString()
-      },
-      {
-        id: "4",
-        name: "Couleur",
-        type: "color",
-        is_active: true,
-        display_order: 4,
-        options: ["Noir", "Blanc", "Rouge", "Bleu", "Vert"],
-        created_at: new Date().toISOString()
-      },
-      {
-        id: "5",
-        name: "Stock",
-        type: "stock",
-        is_active: true,
-        display_order: 5,
-        created_at: new Date().toISOString()
+  // Fetch filters from Supabase
+  const fetchFilters = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('shop_filters')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching filters:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les filtres",
+          variant: "destructive"
+        });
+        return;
       }
-    ];
-    setFilters(defaultFilters);
+
+      setFilters(data || []);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFilters();
   }, []);
 
-  const handleAddFilter = () => {
+  const handleAddFilter = async () => {
     if (!newFilter.name) {
       toast({
         title: "Erreur",
@@ -93,70 +77,159 @@ const FilterManagement = () => {
       return;
     }
 
-    const filter: ShopFilter = {
-      id: Date.now().toString(),
-      name: newFilter.name,
-      type: newFilter.type,
-      is_active: newFilter.is_active,
-      display_order: newFilter.display_order || filters.length + 1,
-      options: newFilter.options ? newFilter.options.split(",").map(o => o.trim()) : undefined,
-      created_at: new Date().toISOString()
-    };
+    try {
+      const filterData = {
+        name: newFilter.name,
+        type: newFilter.type,
+        is_active: newFilter.is_active,
+        display_order: newFilter.display_order || filters.length + 1,
+        options: newFilter.options ? newFilter.options.split(",").map(o => o.trim()) : null,
+      };
 
-    setFilters([...filters, filter]);
-    setNewFilter({
-      name: "",
-      type: "category",
-      is_active: true,
-      display_order: 0,
-      options: ""
-    });
-    setIsAddDialogOpen(false);
+      const { data, error } = await supabase
+        .from('shop_filters')
+        .insert([filterData])
+        .select()
+        .single();
 
-    toast({
-      title: "Filtre ajouté",
-      description: `${filter.name} a été ajouté avec succès`
-    });
+      if (error) {
+        console.error('Error adding filter:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible d'ajouter le filtre",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setFilters([...filters, data]);
+      setNewFilter({
+        name: "",
+        type: "category",
+        is_active: true,
+        display_order: 0,
+        options: ""
+      });
+      setIsAddDialogOpen(false);
+
+      toast({
+        title: "Filtre ajouté",
+        description: `${data.name} a été ajouté avec succès`
+      });
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
-  const handleEditFilter = () => {
+  const handleEditFilter = async () => {
     if (!currentFilter) return;
 
-    const updatedFilters = filters.map(filter => 
-      filter.id === currentFilter.id ? currentFilter : filter
-    );
-    setFilters(updatedFilters);
-    setIsEditDialogOpen(false);
-    setCurrentFilter(null);
+    try {
+      const { data, error } = await supabase
+        .from('shop_filters')
+        .update({
+          name: currentFilter.name,
+          type: currentFilter.type,
+          is_active: currentFilter.is_active,
+          display_order: currentFilter.display_order,
+          options: currentFilter.options
+        })
+        .eq('id', currentFilter.id)
+        .select()
+        .single();
 
-    toast({
-      title: "Filtre modifié",
-      description: "Les modifications ont été sauvegardées"
-    });
+      if (error) {
+        console.error('Error updating filter:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de modifier le filtre",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const updatedFilters = filters.map(filter => 
+        filter.id === currentFilter.id ? data : filter
+      );
+      setFilters(updatedFilters);
+      setIsEditDialogOpen(false);
+      setCurrentFilter(null);
+
+      toast({
+        title: "Filtre modifié",
+        description: "Les modifications ont été sauvegardées"
+      });
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
-  const toggleFilterStatus = (filterId: string) => {
-    const updatedFilters = filters.map(filter => 
-      filter.id === filterId ? { ...filter, is_active: !filter.is_active } : filter
-    );
-    setFilters(updatedFilters);
-
+  const toggleFilterStatus = async (filterId: string) => {
     const filter = filters.find(f => f.id === filterId);
-    toast({
-      title: filter?.is_active ? "Filtre désactivé" : "Filtre activé",
-      description: `${filter?.name} est maintenant ${filter?.is_active ? 'caché' : 'visible'} sur la boutique`
-    });
+    if (!filter) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('shop_filters')
+        .update({ is_active: !filter.is_active })
+        .eq('id', filterId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error toggling filter status:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de modifier le statut du filtre",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const updatedFilters = filters.map(f => 
+        f.id === filterId ? data : f
+      );
+      setFilters(updatedFilters);
+
+      toast({
+        title: data.is_active ? "Filtre activé" : "Filtre désactivé",
+        description: `${data.name} est maintenant ${data.is_active ? 'visible' : 'caché'} sur la boutique`
+      });
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
-  const deleteFilter = (filterId: string) => {
+  const deleteFilter = async (filterId: string) => {
     const filter = filters.find(f => f.id === filterId);
-    const updatedFilters = filters.filter(f => f.id !== filterId);
-    setFilters(updatedFilters);
+    if (!filter) return;
 
-    toast({
-      title: "Filtre supprimé",
-      description: `${filter?.name} a été supprimé`
-    });
+    try {
+      const { error } = await supabase
+        .from('shop_filters')
+        .delete()
+        .eq('id', filterId);
+
+      if (error) {
+        console.error('Error deleting filter:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de supprimer le filtre",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const updatedFilters = filters.filter(f => f.id !== filterId);
+      setFilters(updatedFilters);
+
+      toast({
+        title: "Filtre supprimé",
+        description: `${filter.name} a été supprimé`
+      });
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   const getFilterTypeLabel = (type: string) => {
@@ -170,6 +243,14 @@ const FilterManagement = () => {
     };
     return labels[type as keyof typeof labels] || type;
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-tekno-blue"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -263,7 +344,10 @@ const FilterManagement = () => {
                   <TableCell className="font-medium">{filter.name}</TableCell>
                   <TableCell>{getFilterTypeLabel(filter.type)}</TableCell>
                   <TableCell>
-                    {filter.options ? filter.options.slice(0, 3).join(", ") + (filter.options.length > 3 ? "..." : "") : "Auto"}
+                    {filter.options && filter.options.length > 0 
+                      ? filter.options.slice(0, 3).join(", ") + (filter.options.length > 3 ? "..." : "") 
+                      : "Auto"
+                    }
                   </TableCell>
                   <TableCell>
                     <span className={filter.is_active ? "text-green-600" : "text-gray-400"}>
@@ -311,7 +395,7 @@ const FilterManagement = () => {
                                   value={currentFilter.options?.join(", ") || ""}
                                   onChange={(e) => setCurrentFilter({
                                     ...currentFilter, 
-                                    options: e.target.value ? e.target.value.split(",").map(o => o.trim()) : undefined
+                                    options: e.target.value ? e.target.value.split(",").map(o => o.trim()) : null
                                   })}
                                 />
                               </div>
