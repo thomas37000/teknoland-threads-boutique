@@ -11,17 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Edit, Trash2, Filter } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Tables } from "@/integrations/supabase/types";
 
-interface ShopFilter {
-  id: string;
-  name: string;
-  type: "category" | "price" | "size" | "color" | "stock" | "brand";
-  is_active: boolean;
-  display_order: number;
-  options?: string[] | null;
-  created_at: string;
-  updated_at: string;
-}
+type ShopFilter = Tables<"shop_filters">;
 
 const FilterManagement = () => {
   const [filters, setFilters] = useState<ShopFilter[]>([]);
@@ -279,7 +271,7 @@ const FilterManagement = () => {
               </div>
               <div>
                 <Label htmlFor="filter-type">Type de filtre</Label>
-                <Select value={newFilter.type} onValueChange={(value) => setNewFilter({...newFilter, type: value as any})}>
+                <Select value={newFilter.type} onValueChange={(value: any) => setNewFilter({...newFilter, type: value})}>
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner un type" />
                   </SelectTrigger>

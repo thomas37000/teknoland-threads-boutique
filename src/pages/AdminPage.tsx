@@ -1,13 +1,14 @@
 
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, Users, Tag, Filter } from "lucide-react";
+import { Package, Users, Tag, Filter, Mail } from "lucide-react";
 import { products } from "@/data/products";
 import ProductManagement from "@/components/admin/ProductManagement";
 import ClientManagement from "@/components/admin/ClientManagement";
 import AdminNotifications from "@/components/admin/AdminNotifications";
 import CategoryManagement from "@/components/admin/CategoryManagement";
 import FilterManagement from "@/components/admin/FilterManagement";
+import ContactManagement from "@/components/admin/ContactManagement";
 
 const AdminPage = () => {
   return (
@@ -28,6 +29,10 @@ const AdminPage = () => {
             <Filter className="h-4 w-4" />
             Filtres
           </TabsTrigger>
+          <TabsTrigger value="contacts" className="flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            Messages
+          </TabsTrigger>
           <TabsTrigger value="clients" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Users
@@ -44,6 +49,10 @@ const AdminPage = () => {
         
         <TabsContent value="filters">
           <FilterManagement />
+        </TabsContent>
+        
+        <TabsContent value="contacts">
+          <ContactManagement />
         </TabsContent>
         
         <TabsContent value="clients">

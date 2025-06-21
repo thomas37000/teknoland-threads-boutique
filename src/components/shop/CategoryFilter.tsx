@@ -1,29 +1,60 @@
 
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { supabase } from "@/integrations/supabase/client";
+import { Tables } from "@/integrations/supabase/types";
 
 interface CategoryFilterProps {
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
 }
 
+type Category = Tables<"categories">;
+
 const CategoryFilter = ({ selectedCategory, onCategoryChange }: CategoryFilterProps) => {
   const { t } = useTranslation();
-  
-  const categories = [
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching categories:', error);
+        return;
+      }
+
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="animate-pulse h-20 bg-gray-200 rounded"></div>;
+  }
+
+  const allCategories = [
     { key: "all", label: t('shop.allProducts') },
-    { key: "t-shirts", label: t('shop.tShirts') },
-    { key: "man", label: t('shop.menTShirts') },
-    { key: "women", label: t('shop.womenTShirts') },
-    { key: "sweats", label: t('shop.sweats') },
-    { key: "accessories", label: t('shop.accessories') },
-    { key: "vinyls", label: t('shop.vinyls') },
+    ...categories.map(cat => ({ key: cat.slug, label: cat.name }))
   ];
 
   return (
     <div>
       <h3 className="text-sm font-medium mb-2">{t('shop.filterByCategory')}</h3>
       <div className="flex flex-wrap gap-2">
-        {categories.map((category) => (
+        {allCategories.map((category) => (
           <button
             key={category.key}
             className={`px-4 py-2 text-sm rounded-full border ${

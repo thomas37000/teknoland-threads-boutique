@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const ContactPage = () => {
   const { t } = useTranslation();
@@ -12,6 +13,7 @@ const ContactPage = () => {
     subject: "",
     message: ""
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -21,22 +23,41 @@ const ContactPage = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
-    // In a real app, you would send this data to your backend
-    console.log("Form submitted:", formData);
+    try {
+      const { error } = await supabase
+        .from('contacts')
+        .insert([{
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message
+        }]);
 
-    // Show success message
-    toast.success(t('contact.successMessage'));
+      if (error) {
+        console.error('Error submitting contact form:', error);
+        toast.error("Erreur lors de l'envoi du message");
+        return;
+      }
 
-    // Reset form
-    setFormData({
-      name: "",
-      email: "",
-      subject: "",
-      message: ""
-    });
+      toast.success(t('contact.successMessage'));
+
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: ""
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error("Erreur lors de l'envoi du message");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -146,9 +167,10 @@ const ContactPage = () => {
                 <div>
                   <Button
                     type="submit"
+                    disabled={isSubmitting}
                     className="bg-tekno-blue text-white hover:bg-tekno-blue/90 px-8 py-3"
                   >
-                    {t('contact.send')}
+                    {isSubmitting ? "Envoi..." : t('contact.send')}
                   </Button>
                 </div>
               </form>
