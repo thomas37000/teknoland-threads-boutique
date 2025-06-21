@@ -8,9 +8,17 @@ import { Badge } from "@/components/ui/badge";
 import { Eye, Mail, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Tables } from "@/integrations/supabase/types";
 
-type Contact = Tables<"contacts">;
+interface Contact {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
 
 const ContactManagement = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -62,7 +70,7 @@ const ContactManagement = () => {
       }
 
       const updatedContacts = contacts.map(contact => 
-        contact.id === contactId ? data : contact
+        contact.id === contactId ? data as Contact : contact
       );
       setContacts(updatedContacts);
     } catch (error) {
