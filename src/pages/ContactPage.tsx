@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -28,7 +27,8 @@ const ContactPage = () => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
+      // Enregistrer le message dans la base de données
+      const { error: dbError } = await supabase
         .from('contacts')
         .insert([{
           name: formData.name,
@@ -37,10 +37,30 @@ const ContactPage = () => {
           message: formData.message
         }]);
 
-      if (error) {
-        console.error('Error submitting contact form:', error);
+      if (dbError) {
+        console.error('Error submitting contact form:', dbError);
         toast.error("Erreur lors de l'envoi du message");
         return;
+      }
+
+      // Envoyer la notification par email
+      try {
+        const { error: emailError } = await supabase.functions.invoke('send-contact-notification', {
+          body: {
+            name: formData.name,
+            email: formData.email,
+            subject: formData.subject,
+            message: formData.message
+          }
+        });
+
+        if (emailError) {
+          console.error('Error sending email notification:', emailError);
+          // Ne pas bloquer le processus si l'email échoue
+        }
+      } catch (emailError) {
+        console.error('Email notification failed:', emailError);
+        // Ne pas bloquer le processus si l'email échoue
       }
 
       toast.success(t('contact.successMessage'));
