@@ -9,14 +9,23 @@
     "login": "Connexion",
     "profile": "Profil",
     "admin": "Admin",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "viewCart": "Voir le panier"
   },
   "hero": {
     "title": "TEKNOLAND",
     "subtitle": "Mode & Innovation",
     "description": "Découvrez notre collection exclusive de vêtements tech et d'accessoires innovants",
     "shopNow": "Découvrir la boutique",
-    "learnMore": "En savoir plus"
+    "learnMore": "En savoir plus",
+    "shopButton": "Découvrir la boutique",
+    "aboutButton": "À propos"
+  },
+  "featured": {
+    "title": "Produits Vedettes",
+    "subtitle": "Découvrez nos articles les plus populaires",
+    "description": "Sélectionnés par nos clients, voici nos meilleures ventes de la saison.",
+    "viewAll": "Voir tout"
   },
   "shop": {
     "title": "",
@@ -34,8 +43,12 @@
     "newest": "Plus récents",
     "priceLowToHigh": "Prix croissant",
     "priceHighToLow": "Prix décroissant",
+    "priceLow": "Prix croissant",
+    "priceHigh": "Prix décroissant",
     "seoTitle": "Shop",
-    "seoDescription": "Découvrez tous nos t-shirts, sweats, accessoires et vinyles."
+    "seoDescription": "Découvrez tous nos t-shirts, sweats, accessoires et vinyles.",
+    "noProducts": "Aucun produit trouvé",
+    "noProductsDesc": "Désolé, aucun produit ne correspond à votre recherche."
   },
   "product": {
     "newBadge": "Nouveau",
@@ -47,7 +60,8 @@
     "outOfStock": "Rupture de stock",
     "inStock": "En stock",
     "price": "Prix",
-    "back": "Retour à la boutique"
+    "back": "Retour à la boutique",
+    "newProduct": "Nouveau"
   },
   "cart": {
     "title": "Votre Panier",
@@ -62,7 +76,15 @@
     "freeShipping": "Gratuite",
     "checkout": "Finaliser la commande",
     "remove": "Supprimer",
-    "update": "Mettre à jour"
+    "update": "Mettre à jour",
+    "keepShopping": "Continuer vos achats",
+    "itemName": "Nom de l'article",
+    "priceTTC": "Prix (TTC)",
+    "summary": "Résumé de la commande",
+    "shippingFree": "Gratuite",
+    "clear": "Vider le panier",
+    "size": "Taille",
+    "color": "Couleur"
   },
   "auth": {
     "login": "Connexion",
@@ -82,7 +104,35 @@
     "verificationSent": "Un email de vérification a été envoyé",
     "loginSuccess": "Connexion réussie",
     "signupSuccess": "Inscription réussie",
-    "logoutSuccess": "Déconnexion réussie"
+    "logoutSuccess": "Déconnexion réussie",
+    "connectOrCreate": "Se connecter ou créer un compte",
+    "firstname": "Prénom",
+    "lastname": "Nom",
+    "emailPlaceholder": "votre@email.com",
+    "passwordPlaceholder": "Votre mot de passe",
+    "passwordCreatePlaceholder": "Créer un mot de passe",
+    "fullNamePlaceholder": "Votre nom complet",
+    "loginButton": "Se connecter",
+    "signupButton": "S'inscrire",
+    "pleaseWait": "Veuillez patienter...",
+    "resetPasswordTitle": "Réinitialiser le mot de passe",
+    "resetPasswordDesc": "Entrez votre email pour recevoir un lien de réinitialisation",
+    "sendResetLink": "Envoyer le lien de réinitialisation",
+    "resetEmailSent": "Email de réinitialisation envoyé",
+    "sending": "Envoi en cours...",
+    "enterEmail": "Veuillez saisir votre email",
+    "cannotSendEmail": "Impossible d'envoyer l'email",
+    "loginError": "Erreur de connexion",
+    "signupError": "Erreur d'inscription",
+    "registrationSuccess": "Inscription réussie ! Vérifiez votre email.",
+    "emailExistsError": "Un compte existe déjà avec cet email",
+    "noAccountError": "Aucun compte trouvé avec cet email. Veuillez vous inscrire d'abord.",
+    "wrongPasswordError": "Mot de passe incorrect. Veuillez réessayer.",
+    "confirmEmailError": "Veuillez confirmer votre email avant de vous connecter.",
+    "passwordRequirements": "Le mot de passe doit contenir :",
+    "signInWithGoogle": "Se connecter avec Google",
+    "googleSignInError": "Erreur de connexion avec Google",
+    "or": "ou"
   },
   "profile": {
     "title": "Mon Profil",
@@ -115,7 +165,10 @@
     "send": "Envoyer",
     "contactInfo": "Informations de contact",
     "followUs": "Suivez-nous",
-    "successMessage": "Message envoyé avec succès ! Nous vous répondrons rapidement."
+    "successMessage": "Message envoyé avec succès ! Nous vous répondrons rapidement.",
+    "sending": "Envoi en cours...",
+    "success": "Message envoyé avec succès !",
+    "error": "Erreur lors de l'envoi du message"
   },
   "footer": {
     "about": "À propos",
@@ -126,6 +179,18 @@
     "terms": "CGU",
     "followUs": "Suivez-nous",
     "copyright": "© 2024 Teknoland. Tous droits réservés."
+  },
+  "home": {
+    "newsletterTitle": "Restez informé !",
+    "newsletterDesc": "Recevez nos dernières actualités, offres et inspirations directement dans votre boîte mail.",
+    "emailPlaceholder": "Votre email",
+    "subscribe": "S'abonner",
+    "premiumQuality": "Qualité Premium",
+    "premiumQualityDesc": "Matériaux de première qualité et soin du détail pour un confort maximal.",
+    "securePayment": "Paiement Sécurisé",
+    "securePaymentDesc": "Transactions protégées et données cryptées pour des achats en toute sécurité.",
+    "returns": "Retours Faciles",
+    "returnsDesc": "Retournez ou échangez vos articles sous 30 jours sans tracas."
   },
   "common": {
     "loading": "Chargement...",
@@ -138,6 +203,8 @@
     "edit": "Modifier",
     "add": "Ajouter",
     "close": "Fermer",
-    "backToTop": "Retour en haut"
+    "backToTop": "Retour en haut",
+    "addToCart": "Ajouter au panier",
+    "new": "Nouveau"
   }
 }
