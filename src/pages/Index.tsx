@@ -3,6 +3,9 @@ import { useTranslation } from "react-i18next";
 import Hero from "@/components/Hero";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import CategorySection from "@/components/CategorySection";
+// React Helmet provides a solution by allowing developers to update the head section as the content changes. 
+// This ensures that each "page" in the SPA has the correct title and meta tags, 
+// improving the user experience and making the pages more shareable on social media
 import { Helmet } from "react-helmet-async";
 
 const Index = () => {
@@ -16,6 +19,7 @@ const Index = () => {
 
   return (
     <div>
+      {/* head meta section */}
       <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
@@ -32,6 +36,7 @@ const Index = () => {
         <meta name="twitter:description" content={description}/>
         <meta name="twitter:image" content={ogImage}/>
       </Helmet>
+      
       <main>
         <Hero />
         <FeaturedProducts />

@@ -117,7 +117,7 @@ const ShopPage = () => {
   const { t } = useTranslation();
 
   // SEO pour la boutique
-  const shopTitle = t('shop.seoTitle', { defaultValue: "Boutique Teknoland – Découvrez nos vêtements tech et tendances" });
+  const shopTitle = t('shop.seoTitle', { defaultValue: "Teknoland clothes | Shop" });
   const shopDescription = t('shop.seoDescription', { defaultValue: "Découvrez tous nos t-shirts, sweats, accessoires et vinyles. Qualité premium, mode et innovation. Expédition rapide et offerte dès 50€." });
   const shopCanonical = "https://teknoland.lovable.app/shop";
   const shopOgImage = "https://lovable.dev/opengraph-image-p98pqg.png";
@@ -138,8 +138,10 @@ const ShopPage = () => {
         <meta name="twitter:description" content={shopDescription}/>
         <meta name="twitter:image" content={shopOgImage}/>
       </Helmet>
+
       {/* H1 principal de la page */}
       <h1 className="text-3xl font-bold mb-2">{shopTitle}</h1>
+
       {/* ShopHeader n'affiche pas de H1, donc c'est bon d'en garder un ici */}
       <ShopHeader 
         title={t('shop.title')}

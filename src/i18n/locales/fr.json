@@ -19,7 +19,7 @@
     "learnMore": "En savoir plus"
   },
   "shop": {
-    "title": "Notre Boutique",
+    "title": "",
     "description": "Découvrez notre collection complète de produits tech et mode",
     "filterByCategory": "Filtrer par catégorie",
     "sortBy": "Trier par",
@@ -34,8 +34,8 @@
     "newest": "Plus récents",
     "priceLowToHigh": "Prix croissant",
     "priceHighToLow": "Prix décroissant",
-    "seoTitle": "Boutique Teknoland – Découvrez nos vêtements tech et tendances",
-    "seoDescription": "Découvrez tous nos t-shirts, sweats, accessoires et vinyles. Qualité premium, mode et innovation. Expédition rapide et offerte dès 50€."
+    "seoTitle": "Shop",
+    "seoDescription": "Découvrez tous nos t-shirts, sweats, accessoires et vinyles."
   },
   "product": {
     "newBadge": "Nouveau",

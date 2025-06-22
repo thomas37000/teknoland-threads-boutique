@@ -84,7 +84,7 @@
     "addToCart": "Add to Cart"
   },
   "shop": {
-    "title": "Shop",
+    "title": "",
     "description": "Browse our full range of trendy clothing and accessories.",
     "filterByCategory": "Filter by category",
     "allProducts": "All products",
@@ -100,7 +100,9 @@
     "sortBy": "Sort by",
     "newest": "Newest",
     "priceLow": "Low price",
-    "priceHigh": "High price"
+    "priceHigh": "High price",
+    "seoTitle": "Shop",
+    "seoDescription": "Discover all our t-shirts, sweats, accessories and vinyls."
   },
   "home": {
     "newsletterTitle": "Stay Updated!",

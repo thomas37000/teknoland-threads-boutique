@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Menu, X, ShoppingBag, User, LogOut } from "lucide-react";
+import { Menu, X, ShoppingCart, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/hooks/use-cart";
@@ -59,7 +59,7 @@ const Navbar = () => {
         </nav>
 
         {/* Language Selector, Cart and Profile Buttons */}
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-4 mt-1">
           <LanguageSelector />
           
           {user ? (
@@ -83,7 +83,7 @@ const Navbar = () => {
 
           <Link to="/cart">
             <Button variant="ghost" size="icon" className="relative">
-              <ShoppingBag size={24} />
+              <ShoppingCart size={24} />
               {cartItems.length > 0 && (
                 <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 bg-tekno-blue text-white rounded-full">
                   {cartItems.length}
@@ -126,6 +126,7 @@ const Navbar = () => {
             >
               {t('nav.contact')}
             </Link>
+
             {isAdmin && (
               <Link
                 to="/admin"
@@ -135,6 +136,7 @@ const Navbar = () => {
                 {t('nav.admin')}
               </Link>
             )}
+
             {user ? (
               <>
                 <Link
@@ -163,15 +165,17 @@ const Navbar = () => {
                 {t('nav.login')}
               </Link>
             )}
+
             <div className="mt-4 flex items-center justify-between">
               <LanguageSelector />
               <Link to="/cart" onClick={toggleMenu}>
                 <Button className="bg-tekno-blue text-white hover:bg-tekno-blue/90">
-                  <ShoppingBag size={18} className="mr-2" />
+                  <ShoppingCart size={18} className="mr-2" />
                   {t('nav.viewCart')} ({cartItems.length})
                 </Button>
               </Link>
             </div>
+            
           </div>
         </div>
       )}
