@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Ideas } from "@/types";
+import { Idea } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -20,10 +20,10 @@ interface IdeasDialogsProps {
   setIsEditDialogOpen: (open: boolean) => void;
   isDeleteDialogOpen: boolean;
   setIsDeleteDialogOpen: (open: boolean) => void;
-  newIdea: Partial<Ideas>;
-  setNewIdea: (Idea: Partial<Ideas>) => void;
-  currentIdea: Ideas | null;
-  setCurrentIdea: (Idea: Ideas| null) => void;
+  newIdea: Partial<Idea>;
+  setNewIdea: (Idea: Partial<Idea>) => void;
+  currentIdea: Idea | null;
+  setCurrentIdea: (Idea: Idea| null) => void;
   handleAddIdea: () => void;
   handleEditIdea: () => void;
   handleDeleteIdea: () => void;
@@ -59,9 +59,9 @@ const IdeasDialogs = ({
               </Label>
               <Input
                 id="name"
-                value={newIdea.name || ""}
+                value={newIdea.desc || ""}
                 onChange={(e) =>
-                  setNewIdea({ ...newIdea, name: e.target.value })
+                  setNewIdea({ ...newIdea, desc: e.target.value })
                 }
                 className="col-span-3"
               />
@@ -90,11 +90,11 @@ const IdeasDialogs = ({
               </Label>
               <Input
                 id="edit-name"
-                value={currentIdea?.name || ""}
+                value={currentIdea?.desc || ""}
                 onChange={(e) =>
                   setCurrentIdea(
                     currentIdea
-                      ? { ...currentIdea, name: e.target.value }
+                      ? { ...currentIdea, desc: e.target.value }
                       : null
                   )
                 }
@@ -119,7 +119,7 @@ const IdeasDialogs = ({
             <DialogTitle>Delete Idea</DialogTitle>
           </DialogHeader>
           <p>
-            Are you sure you want to delete "{currentIdea?.name}"? This action cannot be
+            Are you sure you want to delete "{currentIdea?.desc}"? This action cannot be
             undone.
           </p>
           <DialogFooter>

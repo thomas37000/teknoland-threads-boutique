@@ -103,6 +103,7 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
     try {
       const { data, error } = await supabase.from('ideas').select('*');
       if (error) throw error;
+      console.log(data)
       if (data) {
         // Transform the data to match the Ideas interface
         const transformedData: Idea[] = data.map(item => ({

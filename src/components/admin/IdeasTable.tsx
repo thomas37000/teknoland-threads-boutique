@@ -9,15 +9,12 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
-import { Ideas } from "@/types";
+import { Idea } from "@/types";
 
 interface IdeasTableProps {
-  ideas: Ideas[];
-  openEditDialog: (idea: Ideas) => void;
-  openDeleteDialog: (idea: Ideas) => void;
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
+  ideas: Idea[];
+  openEditDialog: (idea: Idea) => void;
+  openDeleteDialog: (idea: Idea) => void;
 }
 
 const IdeasTable = ({

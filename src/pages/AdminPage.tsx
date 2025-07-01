@@ -11,7 +11,7 @@ import FilterManagement from "@/components/admin/FilterManagement";
 import ContactManagement from "@/components/admin/ContactManagement";
 import LovableManagement from "@/components/admin/LovableManagement";
 import IdeasTable from "@/components/admin/IdeasTable";
-import { Ideas } from "@/types";
+import { Idea } from "@/types";
 
 const AdminPage = () => {
   return (
@@ -75,13 +75,7 @@ const AdminPage = () => {
         </TabsContent>
 
          <TabsContent value="idees">
-          <IdeasTable ideas={[]} openEditDialog={function (idea: Ideas): void {
-            throw new Error("Function not implemented.");
-          } } openDeleteDialog={function (idea: Ideas): void {
-            throw new Error("Function not implemented.");
-          } } currentPage={0} totalPages={0} onPageChange={function (page: number): void {
-            throw new Error("Function not implemented.");
-          } } />
+          <IdeasTable />
         </TabsContent>
       </Tabs>
     </div>

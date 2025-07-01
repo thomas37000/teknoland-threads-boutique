@@ -11,10 +11,6 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
   const { user, isLoading, isAdmin, userRole } = useAuth();
   const location = useLocation();
 
-  console.log("AdminRoute - User:", user);
-  console.log("AdminRoute - isAdmin:", isAdmin);
-  console.log("AdminRoute - userRole:", userRole);
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
