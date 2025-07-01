@@ -137,6 +137,27 @@ export type Database = {
           },
         ]
       }
+      ideas: {
+        Row: {
+          created_at: string
+          desc: string | null
+          id: number
+          priority: string
+        }
+        Insert: {
+          created_at?: string
+          desc?: string | null
+          id?: number
+          priority?: string
+        }
+        Update: {
+          created_at?: string
+          desc?: string | null
+          id?: number
+          priority?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           color: string | null

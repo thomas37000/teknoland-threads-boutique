@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,8 +24,8 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentIdea, setCurrentIdea] = useState<Idea | null>(null);
   const [newIdea, setNewIdea] = useState<Partial<Idea>>({
-    id: "",
     desc: "",
+    priority: "medium" as const,
   });
 
   // Fetch Ideas from Supabase
@@ -134,14 +133,14 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
       setIsDeleteDialogOpen(false);
       
       toast({
-        title: "Ideas deleted",
-        description: `${currentIdea.desc} has been deleted successfully.`
+        title: "Idées supprimées",
+        description: `${currentIdea.desc} a été supprimée avec succès.`
       });
     } catch (error) {
       console.error("Error deleting Ideas:", error);
       toast({
-        title: "Error",
-        description: "Failed to delete the Ideas. Please try again.",
+        title: "Erreur",
+        description: "Échec de la suppression des idées. Veuillez réessayer.",
         variant: "destructive"
       });
     }
@@ -160,10 +159,10 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Manage Ideas</h2>
+        <h2 className="text-2xl font-bold">Gérer les idées</h2>
         <Button onClick={() => setIsAddDialogOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Ajoutez une idée
+          Ajouter une idée
         </Button>
       </div>
 
@@ -172,7 +171,7 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Search Ideas..."
+            placeholder="Rechercher des idées..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-8"
@@ -180,14 +179,13 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
         </div>
       </div>
           
-
       {isLoading ? (
         <div className="flex justify-center py-8">
-          <p>Loading Ideas...</p>
+          <p>Chargement des idées...</p>
         </div>
       ) : (
         <IdeasTable 
-          ideas={currentIdea} 
+          ideas={ideas} 
           openEditDialog={openEditDialog}
           openDeleteDialog={openDeleteDialog}
         />
@@ -209,7 +207,6 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
         handleDeleteIdea={handleDeleteIdeas}
       />
     </div>
-
   );
 };
 

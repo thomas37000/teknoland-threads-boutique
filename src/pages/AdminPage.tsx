@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Package, Users, Tag, Filter, Mail, Heart } from "lucide-react";
@@ -10,7 +9,7 @@ import CategoryManagement from "@/components/admin/CategoryManagement";
 import FilterManagement from "@/components/admin/FilterManagement";
 import ContactManagement from "@/components/admin/ContactManagement";
 import LovableManagement from "@/components/admin/LovableManagement";
-import IdeasTable from "@/components/admin/IdeasTable";
+import IdeasManagement from "@/components/admin/IdeasManagement";
 import { Idea } from "@/types";
 
 const AdminPage = () => {
@@ -75,7 +74,7 @@ const AdminPage = () => {
         </TabsContent>
 
          <TabsContent value="idees">
-          <IdeasTable />
+          <IdeasManagement initialIdeas={[]} />
         </TabsContent>
       </Tabs>
     </div>

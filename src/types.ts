@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -32,7 +31,8 @@ export interface Client {
 }
 
 export interface Idea {
-  id: string;
+  id: number;
   desc: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  created_at: string;
 }
-

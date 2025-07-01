@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Idea } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -28,6 +29,81 @@ interface IdeasDialogsProps {
   handleEditIdea: () => void;
   handleDeleteIdea: () => void;
 }
+
+const handleAddIdeaWithSupabase = async (newIdea: Partial<Idea>, handleAddIdea: () => void, setIsAddDialogOpen: (open: boolean) => void) => {
+  if (!newIdea.desc || !newIdea.priority) {
+    toast({
+      title: "Erreur",
+      description: "Veuillez remplir tous les champs requis.",
+      variant: "destructive"
+    });
+    return;
+  }
+
+  try {
+    const { error } = await supabase
+      .from('ideas')
+      .insert([{
+        desc: newIdea.desc,
+        priority: newIdea.priority
+      }]);
+
+    if (error) throw error;
+
+    toast({
+      title: "Idée ajoutée",
+      description: "L'idée a été ajoutée avec succès."
+    });
+
+    setIsAddDialogOpen(false);
+    handleAddIdea();
+  } catch (error) {
+    console.error("Error adding idea:", error);
+    toast({
+      title: "Erreur",
+      description: "Impossible d'ajouter l'idée. Veuillez réessayer.",
+      variant: "destructive"
+    });
+  }
+};
+
+const handleEditIdeaWithSupabase = async (currentIdea: Idea | null, handleEditIdea: () => void, setIsEditDialogOpen: (open: boolean) => void) => {
+  if (!currentIdea || !currentIdea.desc || !currentIdea.priority) {
+    toast({
+      title: "Erreur",
+      description: "Veuillez remplir tous les champs requis.",
+      variant: "destructive"
+    });
+    return;
+  }
+
+  try {
+    const { error } = await supabase
+      .from('ideas')
+      .update({
+        desc: currentIdea.desc,
+        priority: currentIdea.priority
+      })
+      .eq('id', currentIdea.id);
+
+    if (error) throw error;
+
+    toast({
+      title: "Idée modifiée",
+      description: "L'idée a été modifiée avec succès."
+    });
+
+    setIsEditDialogOpen(false);
+    handleEditIdea();
+  } catch (error) {
+    console.error("Error updating idea:", error);
+    toast({
+      title: "Erreur",
+      description: "Impossible de modifier l'idée. Veuillez réessayer.",
+      variant: "destructive"
+    });
+  }
+};
 
 const IdeasDialogs = ({
   isAddDialogOpen,
@@ -50,12 +126,12 @@ const IdeasDialogs = ({
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Add New Idea</DialogTitle>
+            <DialogTitle>Ajouter une nouvelle idée</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
-                Name
+                Description
               </Label>
               <Input
                 id="name"
@@ -66,13 +142,35 @@ const IdeasDialogs = ({
                 className="col-span-3"
               />
             </div>
-
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="priority" className="text-right">
+                Priorité
+              </Label>
+              <Select
+                value={newIdea.priority || "medium"}
+                onValueChange={(value) =>
+                  setNewIdea({ ...newIdea, priority: value as 'low' | 'medium' | 'high' | 'urgent' })
+                }
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Sélectionnez une priorité" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Basse</SelectItem>
+                  <SelectItem value="medium">Moyenne</SelectItem>
+                  <SelectItem value="high">Haute</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-              Cancel
+              Annuler
             </Button>
-            <Button onClick={handleAddIdea}>Add Idea</Button>
+            <Button onClick={() => handleAddIdeaWithSupabase(newIdea, handleAddIdea, setIsAddDialogOpen)}>
+              Ajouter l'idée
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -81,12 +179,12 @@ const IdeasDialogs = ({
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Idea</DialogTitle>
+            <DialogTitle>Modifier l'idée</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="edit-name" className="text-right">
-                Name
+                Description
               </Label>
               <Input
                 id="edit-name"
@@ -101,13 +199,39 @@ const IdeasDialogs = ({
                 className="col-span-3"
               />
             </div>
-            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="edit-priority" className="text-right">
+                Priorité
+              </Label>
+              <Select
+                value={currentIdea?.priority || "medium"}
+                onValueChange={(value) =>
+                  setCurrentIdea(
+                    currentIdea
+                      ? { ...currentIdea, priority: value as 'low' | 'medium' | 'high' | 'urgent' }
+                      : null
+                  )
+                }
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Sélectionnez une priorité" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Basse</SelectItem>
+                  <SelectItem value="medium">Moyenne</SelectItem>
+                  <SelectItem value="high">Haute</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancel
+              Annuler
             </Button>
-            <Button onClick={handleEditIdea}>Save Changes</Button>
+            <Button onClick={() => handleEditIdeaWithSupabase(currentIdea, handleEditIdea, setIsEditDialogOpen)}>
+              Sauvegarder
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -116,18 +240,18 @@ const IdeasDialogs = ({
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Idea</DialogTitle>
+            <DialogTitle>Supprimer l'idée</DialogTitle>
           </DialogHeader>
           <p>
-            Are you sure you want to delete "{currentIdea?.desc}"? This action cannot be
-            undone.
+            Êtes-vous sûr de vouloir supprimer "{currentIdea?.desc}" ? Cette action ne peut pas être
+            annulée.
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-              Cancel
+              Annuler
             </Button>
             <Button variant="destructive" onClick={handleDeleteIdea}>
-              Delete
+              Supprimer
             </Button>
           </DialogFooter>
         </DialogContent>
