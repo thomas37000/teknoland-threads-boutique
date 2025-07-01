@@ -10,6 +10,8 @@ import CategoryManagement from "@/components/admin/CategoryManagement";
 import FilterManagement from "@/components/admin/FilterManagement";
 import ContactManagement from "@/components/admin/ContactManagement";
 import LovableManagement from "@/components/admin/LovableManagement";
+import IdeasTable from "@/components/admin/IdeasTable";
+import { Ideas } from "@/types";
 
 const AdminPage = () => {
   return (
@@ -20,7 +22,7 @@ const AdminPage = () => {
         <TabsList className="mb-6">
           <TabsTrigger value="products" className="flex items-center gap-2">
             <Package className="h-4 w-4" />
-            Products
+            Produits
           </TabsTrigger>
           <TabsTrigger value="categories" className="flex items-center gap-2">
             <Tag className="h-4 w-4" />
@@ -41,6 +43,10 @@ const AdminPage = () => {
           <TabsTrigger value="clients" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Users
+          </TabsTrigger>
+          <TabsTrigger value="idees" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Idées
           </TabsTrigger>
         </TabsList>
         
@@ -66,6 +72,16 @@ const AdminPage = () => {
         
         <TabsContent value="clients">
           <ClientManagement />
+        </TabsContent>
+
+         <TabsContent value="idees">
+          <IdeasTable ideas={[]} openEditDialog={function (idea: Ideas): void {
+            throw new Error("Function not implemented.");
+          } } openDeleteDialog={function (idea: Ideas): void {
+            throw new Error("Function not implemented.");
+          } } currentPage={0} totalPages={0} onPageChange={function (page: number): void {
+            throw new Error("Function not implemented.");
+          } } />
         </TabsContent>
       </Tabs>
     </div>

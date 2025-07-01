@@ -30,3 +30,9 @@ export interface Client {
   cookieConsent?: boolean;
   cookieConsentDate?: string;
 }
+
+export interface Idea {
+  id: string;
+  desc: string;
+}
+
