@@ -1,4 +1,6 @@
 
+-- Lovable ID : 20250621155158-2b77a367-b472-469a-8973-4015219672c0
+
 -- Create contacts table for contact form submissions
 CREATE TABLE public.contacts (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,

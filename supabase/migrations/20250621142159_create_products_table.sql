@@ -1,4 +1,6 @@
 
+-- Lovable ID : 20250621142159-b91eee4a-0de5-4366-975c-2389ea66da4a
+
 -- Create categories table
 CREATE TABLE public.categories (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
