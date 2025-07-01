@@ -62,6 +62,7 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
     fetchIdeas();
   }, []);
   
+  
   // Apply filters when dependencies change
   useEffect(() => {
     let result = [...ideas];
@@ -71,8 +72,7 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
       const lowerQuery = searchQuery.toLowerCase();
       result = result.filter(
         Ideas => 
-          Ideas.desc.toLowerCase().includes(lowerQuery) || 
-          Ideas.id.toLowerCase().includes(lowerQuery)
+          Ideas.desc.toLowerCase().includes(lowerQuery)
       );
     }
   }, [ideas, searchQuery]);

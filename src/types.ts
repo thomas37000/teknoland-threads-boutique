@@ -32,7 +32,7 @@ export interface Client {
 
 export interface Idea {
   id: number;
-  desc: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  desc: string | null;
+  priority: string;
   created_at: string;
 }
