@@ -12,6 +12,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -26,10 +33,26 @@ interface EditDepenseDialogProps {
   onDepenseUpdated: () => void;
 }
 
+const mois = [
+  { value: "01", label: "Janvier" },
+  { value: "02", label: "Février" },
+  { value: "03", label: "Mars" },
+  { value: "04", label: "Avril" },
+  { value: "05", label: "Mai" },
+  { value: "06", label: "Juin" },
+  { value: "07", label: "Juillet" },
+  { value: "08", label: "Août" },
+  { value: "09", label: "Septembre" },
+  { value: "10", label: "Octobre" },
+  { value: "11", label: "Novembre" },
+  { value: "12", label: "Décembre" },
+];
+
 export const AddDepenseDialog = ({ onDepenseAdded }: AddDepenseDialogProps) => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     annee: "",
+    mois: "",
     total: "",
     semaine_moyenne: "",
   });
@@ -45,6 +68,7 @@ export const AddDepenseDialog = ({ onDepenseAdded }: AddDepenseDialogProps) => {
         .from("depenses_mois")
         .insert({
           annee: formData.annee,
+          mois: formData.mois,
           total: parseFloat(formData.total),
           semaine_moyenne: parseFloat(formData.semaine_moyenne),
         });
@@ -56,7 +80,7 @@ export const AddDepenseDialog = ({ onDepenseAdded }: AddDepenseDialogProps) => {
         description: "Dépense ajoutée avec succès",
       });
 
-      setFormData({ annee: "", total: "", semaine_moyenne: "" });
+      setFormData({ annee: "", mois: "", total: "", semaine_moyenne: "" });
       setOpen(false);
       onDepenseAdded();
     } catch (error) {
@@ -93,6 +117,25 @@ export const AddDepenseDialog = ({ onDepenseAdded }: AddDepenseDialogProps) => {
               placeholder="2024"
               required
             />
+          </div>
+          <div>
+            <Label htmlFor="mois">Mois</Label>
+            <Select
+              value={formData.mois}
+              onValueChange={(value) => setFormData({ ...formData, mois: value })}
+              required
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionnez un mois" />
+              </SelectTrigger>
+              <SelectContent>
+                {mois.map((m) => (
+                  <SelectItem key={m.value} value={m.value}>
+                    {m.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label htmlFor="total">Total (€)</Label>
@@ -140,6 +183,7 @@ export const EditDepenseDialog = ({
 }: EditDepenseDialogProps) => {
   const [formData, setFormData] = useState({
     annee: "",
+    mois: "",
     total: "",
     semaine_moyenne: "",
   });
@@ -150,6 +194,7 @@ export const EditDepenseDialog = ({
     if (depense) {
       setFormData({
         annee: depense.annee,
+        mois: depense.mois,
         total: depense.total.toString(),
         semaine_moyenne: depense.semaine_moyenne.toString(),
       });
@@ -167,6 +212,7 @@ export const EditDepenseDialog = ({
         .from("depenses_mois")
         .update({
           annee: formData.annee,
+          mois: formData.mois,
           total: parseFloat(formData.total),
           semaine_moyenne: parseFloat(formData.semaine_moyenne),
         })
@@ -208,6 +254,25 @@ export const EditDepenseDialog = ({
               onChange={(e) => setFormData({ ...formData, annee: e.target.value })}
               required
             />
+          </div>
+          <div>
+            <Label htmlFor="edit-mois">Mois</Label>
+            <Select
+              value={formData.mois}
+              onValueChange={(value) => setFormData({ ...formData, mois: value })}
+              required
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionnez un mois" />
+              </SelectTrigger>
+              <SelectContent>
+                {mois.map((m) => (
+                  <SelectItem key={m.value} value={m.value}>
+                    {m.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label htmlFor="edit-total">Total (€)</Label>

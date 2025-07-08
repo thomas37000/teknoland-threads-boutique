@@ -30,12 +30,21 @@ const DepensesTable = ({ depenses, onEdit, onDelete }: DepensesTableProps) => {
     return new Date(dateString).toLocaleDateString('fr-FR');
   };
 
+  const getMonthName = (monthNumber: string) => {
+    const months = [
+      "", "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+    ];
+    return months[parseInt(monthNumber)] || monthNumber;
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Année</TableHead>
+            <TableHead>Mois</TableHead>
             <TableHead>Total</TableHead>
             <TableHead>Moyenne/Semaine</TableHead>
             <TableHead>Date de création</TableHead>
@@ -46,6 +55,7 @@ const DepensesTable = ({ depenses, onEdit, onDelete }: DepensesTableProps) => {
           {depenses.map((depense) => (
             <TableRow key={depense.id}>
               <TableCell className="font-medium">{depense.annee}</TableCell>
+              <TableCell>{getMonthName(depense.mois)}</TableCell>
               <TableCell>{formatCurrency(depense.total)}</TableCell>
               <TableCell>{formatCurrency(depense.semaine_moyenne)}</TableCell>
               <TableCell>{formatDate(depense.created_at)}</TableCell>
@@ -71,7 +81,7 @@ const DepensesTable = ({ depenses, onEdit, onDelete }: DepensesTableProps) => {
           ))}
           {depenses.length === 0 && (
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                 Aucune dépense trouvée
               </TableCell>
             </TableRow>

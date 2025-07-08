@@ -43,5 +43,6 @@ export interface DepenseMois {
   total: number;
   semaine_moyenne: number;
   annee: string;
+  mois: string;
   created_at: string;
 }
