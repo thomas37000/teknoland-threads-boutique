@@ -219,5 +219,23 @@
     "backToTop": "Retour en haut",
     "addToCart": "Ajouter au panier",
     "new": "Nouveau"
+  },
+  "admin": {
+    "moni": {
+      "title": "Gestion des Dépenses - Moni",
+      "addExpense": "Ajouter une dépense",
+      "editExpense": "Modifier la dépense",
+      "deleteExpense": "Supprimer la dépense",
+      "year": "Année",
+      "total": "Total",
+      "weeklyAverage": "Moyenne/Semaine",
+      "createdAt": "Date de création",
+      "actions": "Actions",
+      "noExpenses": "Aucune dépense trouvée",
+      "totalExpenses": "Total des dépenses",
+      "averagePerYear": "Moyenne par année",
+      "totalWeeklyAverage": "Moyenne hebdomadaire totale",
+      "yearsRecorded": "Années enregistrées"
+    }
   }
 }

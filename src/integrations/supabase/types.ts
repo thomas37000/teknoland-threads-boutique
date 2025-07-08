@@ -113,6 +113,30 @@ export type Database = {
         }
         Relationships: []
       }
+      depenses_mois: {
+        Row: {
+          annee: string
+          created_at: string
+          id: string
+          semaine_moyenne: number
+          total: number
+        }
+        Insert: {
+          annee: string
+          created_at?: string
+          id?: string
+          semaine_moyenne?: number
+          total?: number
+        }
+        Update: {
+          annee?: string
+          created_at?: string
+          id?: string
+          semaine_moyenne?: number
+          total?: number
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string

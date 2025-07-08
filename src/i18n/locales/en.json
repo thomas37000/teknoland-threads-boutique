@@ -153,5 +153,23 @@
     "size": "Size",
     "color": "Color",
     "remove": "Remove"
+  },
+  "admin": {
+    "moni": {
+      "title": "Expense Management - Moni",
+      "addExpense": "Add Expense",
+      "editExpense": "Edit Expense",
+      "deleteExpense": "Delete Expense",
+      "year": "Year",
+      "total": "Total",
+      "weeklyAverage": "Weekly Average",
+      "createdAt": "Created At",
+      "actions": "Actions",
+      "noExpenses": "No expenses found",
+      "totalExpenses": "Total Expenses",
+      "averagePerYear": "Average per Year",
+      "totalWeeklyAverage": "Total Weekly Average",
+      "yearsRecorded": "Years Recorded"
+    }
   }
 }

@@ -1,3 +1,4 @@
+
 export interface Product {
   id: string;
   name: string;
@@ -34,5 +35,13 @@ export interface Idea {
   id: number;
   desc: string | null;
   priority: string;
+  created_at: string;
+}
+
+export interface DepenseMois {
+  id: string;
+  total: number;
+  semaine_moyenne: number;
+  annee: string;
   created_at: string;
 }
