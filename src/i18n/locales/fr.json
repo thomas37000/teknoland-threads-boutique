@@ -61,7 +61,20 @@
     "inStock": "En stock",
     "price": "Prix",
     "back": "Retour à la boutique",
-    "newProduct": "Nouveau"
+    "newProduct": "Nouveau",
+    "size": "Taille",
+    "color": "Couleur",
+    "buyNow": "Acheter maintenant",
+    "addedToCart": "Ajouté au panier",
+    "productAddedToCart": "a été ajouté à votre panier",
+    "addToFavorites": "Ajouter aux favoris",
+    "removeFromFavorites": "Retirer des favoris",
+    "saved": "Sauvegardé",
+    "save": "Sauvegarder",
+    "processing": "Traitement en cours...",
+    "available": "disponible",
+    "pleaseSelectSize": "Veuillez sélectionner une taille",
+    "pleaseSelectColor": "Veuillez sélectionner une couleur"
   },
   "cart": {
     "title": "Votre Panier",

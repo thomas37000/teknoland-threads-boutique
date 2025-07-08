@@ -7,6 +7,7 @@ import { useFavorites } from "@/hooks/use-favorites";
 import { Product } from "@/types";
 import { toast } from "sonner";
 import { createCheckoutSession } from "@/utils/stripe";
+import { useTranslation } from "react-i18next";
 
 interface ProductDetailsProps {
   product: Product;
@@ -31,6 +32,7 @@ const ProductDetails = ({
   handleAddToCart: externalHandleAddToCart,
   onColorChange 
 }: ProductDetailsProps) => {
+  const { t } = useTranslation();
   const { addToCart } = useCart();
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
   const [localSelectedSize, setLocalSelectedSize] = useState<string | undefined>(
@@ -78,16 +80,28 @@ const ProductDetails = ({
     const currentColor = selectedColor || localSelectedColor;
     const currentQuantity = quantity || localQuantity;
     
+    // Validate selections if needed
+    if (product.sizes && product.sizes.length > 0 && !currentSize) {
+      toast.error(t('product.pleaseSelectSize'));
+      return;
+    }
+
+    if (product.colors && product.colors.length > 0 && !currentColor) {
+      toast.error(t('product.pleaseSelectColor'));
+      return;
+    }
+    
     addToCart(product, currentQuantity, currentSize, currentColor);
+    toast.success(`${product.name} ${t('product.productAddedToCart')}`);
   };
 
   const toggleFavorite = () => {
     if (isFavorite(product.id)) {
       removeFromFavorites(product.id);
-      toast.success("Removed from favorites");
+      toast.success(t('product.removeFromFavorites'));
     } else {
       addToFavorites(product);
-      toast.success("Added to favorites");
+      toast.success(t('product.addToFavorites'));
     }
   };
 
@@ -114,6 +128,41 @@ const ProductDetails = ({
     }
   };
 
+  // Function to get color display name in French
+  const getColorName = (color: string) => {
+    const colorNames: { [key: string]: { fr: string; en: string } } = {
+      '#000000': { fr: 'Noir', en: 'Black' },
+      '#ffffff': { fr: 'Blanc', en: 'White' },
+      '#ff0000': { fr: 'Rouge', en: 'Red' },
+      '#00ff00': { fr: 'Vert', en: 'Green' },
+      '#0000ff': { fr: 'Bleu', en: 'Blue' },
+      '#ffff00': { fr: 'Jaune', en: 'Yellow' },
+      '#ff69b4': { fr: 'Rose', en: 'Pink' },
+      '#800080': { fr: 'Violet', en: 'Purple' },
+      '#ffa500': { fr: 'Orange', en: 'Orange' },
+      '#a52a2a': { fr: 'Marron', en: 'Brown' },
+      '#808080': { fr: 'Gris', en: 'Gray' },
+      'black': { fr: 'Noir', en: 'Black' },
+      'white': { fr: 'Blanc', en: 'White' },
+      'red': { fr: 'Rouge', en: 'Red' },
+      'green': { fr: 'Vert', en: 'Green' },
+      'blue': { fr: 'Bleu', en: 'Blue' },
+      'yellow': { fr: 'Jaune', en: 'Yellow' },
+      'pink': { fr: 'Rose', en: 'Pink' },
+      'purple': { fr: 'Violet', en: 'Purple' },
+      'orange': { fr: 'Orange', en: 'Orange' },
+      'brown': { fr: 'Marron', en: 'Brown' },
+      'gray': { fr: 'Gris', en: 'Gray' },
+      'grey': { fr: 'Gris', en: 'Gray' }
+    };
+
+    const colorInfo = colorNames[color.toLowerCase()];
+    if (colorInfo) {
+      return t('common.language') === 'fr' ? colorInfo.fr : colorInfo.en;
+    }
+    return color;
+  };
+
   // Use either the provided sizes or get from product
   const currentSize = selectedSize || localSelectedSize;
   const currentColor = selectedColor || localSelectedColor;
@@ -127,7 +176,7 @@ const ProductDetails = ({
           <span className="text-2xl font-bold">{product.price.toFixed(2)} €</span>
           {product.isNew && (
             <span className="ml-3 rounded-full bg-tekno-blue px-3 py-1 text-xs text-white">
-              NEW
+              {t('product.newProduct')}
             </span>
           )}
         </div>
@@ -140,25 +189,25 @@ const ProductDetails = ({
       {/* Stock */}
       <div className="text-sm text-tekno-gray">
         {product.stock > 0 ? (
-          <span>In Stock ({product.stock} available)</span>
+          <span>{t('product.inStock')} ({product.stock} {t('product.available')})</span>
         ) : (
-          <span className="text-red-500">Out of Stock</span>
+          <span className="text-red-500">{t('product.outOfStock')}</span>
         )}
       </div>
       
       {/* Size Selector */}
       {product.sizes && product.sizes.length > 0 && (
         <div>
-          <h3 className="font-medium mb-2">Size</h3>
+          <h3 className="font-medium mb-2">{t('product.size')}</h3>
           <div className="flex flex-wrap gap-2">
             {product.sizes.map((size) => (
               <button
                 key={size}
                 onClick={() => handleSizeChange(size)}
-                className={`h-10 w-10 rounded-md border text-center leading-10 ${
+                className={`h-10 w-10 rounded-md border text-center leading-10 transition-colors ${
                   currentSize === size
-                    ? "border-tekno-blue bg-tekno-blue/10"
-                    : "border-gray-200"
+                    ? "border-tekno-blue bg-tekno-blue/10 text-tekno-blue"
+                    : "border-gray-200 hover:border-gray-300"
                 }`}
               >
                 {size}
@@ -171,18 +220,24 @@ const ProductDetails = ({
       {/* Color Selector */}
       {product.colors && product.colors.length > 0 && (
         <div>
-          <h3 className="font-medium mb-2">Color</h3>
-          <div className="flex flex-wrap gap-2">
+          <h3 className="font-medium mb-2">{t('product.color')}</h3>
+          <div className="flex flex-wrap gap-3">
             {product.colors.map((color) => (
-              <button
-                key={color}
-                onClick={() => handleColorChange(color)}
-                className={`h-10 w-10 rounded-full border-2 ${
-                  currentColor === color ? "border-tekno-blue ring-2 ring-tekno-blue/30" : "border-gray-200"
-                }`}
-                style={{ backgroundColor: color }}
-                aria-label={`Select ${color} color`}
-              />
+              <div key={color} className="flex flex-col items-center gap-1">
+                <button
+                  onClick={() => handleColorChange(color)}
+                  className={`h-8 w-8 rounded-full border-2 transition-all duration-200 ${
+                    currentColor === color 
+                      ? "border-tekno-blue ring-2 ring-tekno-blue/30 ring-offset-2" 
+                      : "border-gray-300 hover:border-gray-400"
+                  }`}
+                  style={{ backgroundColor: color }}
+                  aria-label={`${t('product.selectColor')} ${getColorName(color)}`}
+                />
+                <span className="text-xs text-gray-600 capitalize">
+                  {getColorName(color)}
+                </span>
+              </div>
             ))}
           </div>
         </div>
@@ -190,11 +245,11 @@ const ProductDetails = ({
       
       {/* Quantity */}
       <div>
-        <h3 className="font-medium mb-2">Quantity</h3>
+        <h3 className="font-medium mb-2">{t('product.quantity')}</h3>
         <div className="flex items-center border rounded-md w-32">
           <button
             onClick={() => handleQuantityChange(currentQuantity - 1)}
-            className="px-3 py-1 text-lg border-r"
+            className="px-3 py-1 text-lg border-r hover:bg-gray-50 transition-colors"
             disabled={currentQuantity <= 1}
             aria-label="Decrease quantity"
           >
@@ -203,7 +258,7 @@ const ProductDetails = ({
           <div className="px-3 py-1 flex-1 text-center">{currentQuantity}</div>
           <button
             onClick={() => handleQuantityChange(currentQuantity + 1)}
-            className="px-3 py-1 text-lg border-l"
+            className="px-3 py-1 text-lg border-l hover:bg-gray-50 transition-colors"
             disabled={currentQuantity >= product.stock}
             aria-label="Increase quantity"
           >
@@ -220,7 +275,7 @@ const ProductDetails = ({
           disabled={product.stock <= 0}
         >
           <ShoppingCart className="h-4 w-4" />
-          Add to Cart
+          {t('product.addToCart')}
         </Button>
         <Button
           onClick={toggleFavorite}
@@ -230,7 +285,7 @@ const ProductDetails = ({
           <Heart 
             className={`h-4 w-4 ${isFavorite(product.id) ? "fill-tekno-blue" : ""}`}
           />
-          {isFavorite(product.id) ? "Saved" : "Save"}
+          {isFavorite(product.id) ? t('product.saved') : t('product.save')}
         </Button>
       </div>
 
@@ -244,12 +299,12 @@ const ProductDetails = ({
           {isProcessing ? (
             <>
               <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
-              Processing...
+              {t('product.processing')}
             </>
           ) : (
             <>
               <CreditCard className="h-4 w-4" />
-              Buy Now with Stripe
+              {t('product.buyNow')} avec Stripe
             </>
           )}
         </Button>

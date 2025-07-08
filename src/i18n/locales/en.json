@@ -1,3 +1,4 @@
+
 {
   "nav": {
     "home": "Home",
@@ -26,7 +27,26 @@
   },
   "product": {
     "addToCart": "Add to Cart",
-    "newProduct": "New"
+    "newProduct": "New",
+    "size": "Size",
+    "color": "Color",
+    "quantity": "Quantity",
+    "description": "Description",
+    "outOfStock": "Out of Stock",
+    "inStock": "In Stock",
+    "price": "Price",
+    "back": "Back to shop",
+    "buyNow": "Buy Now",
+    "addedToCart": "Added to cart",
+    "productAddedToCart": "has been added to your cart",
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites",
+    "saved": "Saved",
+    "save": "Save",
+    "processing": "Processing...",
+    "available": "available",
+    "pleaseSelectSize": "Please select a size",
+    "pleaseSelectColor": "Please select a color"
   },
   "contact": {
     "title": "Contact Us",
