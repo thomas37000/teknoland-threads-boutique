@@ -118,6 +118,7 @@ export type Database = {
           annee: string
           created_at: string
           id: string
+          mois: string | null
           semaine_moyenne: number
           total: number
         }
@@ -125,6 +126,7 @@ export type Database = {
           annee: string
           created_at?: string
           id?: string
+          mois?: string | null
           semaine_moyenne?: number
           total?: number
         }
@@ -132,6 +134,7 @@ export type Database = {
           annee?: string
           created_at?: string
           id?: string
+          mois?: string | null
           semaine_moyenne?: number
           total?: number
         }
@@ -268,6 +271,7 @@ export type Database = {
           is_new: boolean | null
           name: string
           price: number
+          seller_id: string | null
           size_stocks: Json | null
           sizes: string[] | null
           stock: number
@@ -283,6 +287,7 @@ export type Database = {
           is_new?: boolean | null
           name: string
           price: number
+          seller_id?: string | null
           size_stocks?: Json | null
           sizes?: string[] | null
           stock?: number
@@ -298,11 +303,20 @@ export type Database = {
           is_new?: boolean | null
           name?: string
           price?: number
+          seller_id?: string | null
           size_stocks?: Json | null
           sizes?: string[] | null
           stock?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

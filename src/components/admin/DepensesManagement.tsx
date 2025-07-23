@@ -29,13 +29,18 @@ const DepensesManagement = () => {
   const fetchDepenses = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("depenses_mois")
-        .select("*")
-        .order("annee", { ascending: false });
+    const { data, error } = await supabase
+      .from("depenses_mois")
+      .select("*")
+      .order("annee", { ascending: false });
 
-      if (error) throw error;
-      setDepenses(data || []);
+    if (error) throw error;
+    // Ensure mois field exists in data
+    const formattedData = data?.map(item => ({
+      ...item,
+      mois: item.mois || ''
+    })) || [];
+    setDepenses(formattedData);
     } catch (error) {
       console.error("Erreur lors du chargement des dépenses:", error);
       toast({

@@ -13,6 +13,7 @@ export interface Product {
   colors?: string[];
   colorImages?: {[color: string]: string};
   size_stocks?: {[size: string]: number} | null;
+  seller_id?: string;
 }
 
 // CartItem is now in src/types/cart.ts
@@ -26,7 +27,7 @@ export interface Client {
   totalSpent: number;
   lastPurchase: string;
   accountStatus: "active" | "inactive";
-  roles: "client" | "admin";
+  roles: "client" | "admin" | "seller";
   cookieConsent?: boolean;
   cookieConsentDate?: string;
 }

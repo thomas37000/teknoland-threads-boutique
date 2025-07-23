@@ -16,6 +16,7 @@ import CartPage from "./pages/CartPage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import AdminPage from "./pages/AdminPage";
+import SellerPage from "./pages/SellerPage";
 import ProfilePage from "./pages/ProfilePage";
 import AuthPage from "./pages/AuthPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
@@ -62,6 +63,14 @@ const App = () => {
                             <AdminRoute>
                               <AdminPage />
                             </AdminRoute>
+                          } 
+                        />
+                        <Route 
+                          path="/seller" 
+                          element={
+                            <ProtectedRoute>
+                              <SellerPage />
+                            </ProtectedRoute>
                           } 
                         />
                         <Route 

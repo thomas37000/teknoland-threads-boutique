@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Filter, Search } from "lucide-react";
 import { Product } from "@/types";
-import ProductTable from "./ProductTable";
+import { AdminProductTable } from "./AdminProductTable";
 import ProductDialogs from "./ProductDialogs";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +14,7 @@ interface ProductManagementProps {
 }
 
 const ITEMS_PER_PAGE = 5;
-const CATEGORIES = ["Man's T-Shirts","Women's T-Shirts", "Sweats", "Vinyls"]; // Available categories
+const CATEGORIES = ["Man's T-Shirts","Women's T-Shirts", "Sweats", "Vinyls"];
 
 const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
@@ -24,9 +23,9 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [stockFilter, setStockFilter] = useState<string>("all");
+  const [sellers, setSellers] = useState<any[]>([]);
+  const [sellerFilter, setSellerFilter] = useState<string>("all");
   const [isLoading, setIsLoading] = useState(true);
-
-  // Dialog states
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -37,71 +36,67 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
     description: "",
     price: 0,
     image: "",
-    category: CATEGORIES[0], // Default to first category
+    category: CATEGORIES[0],
     stock: 0,
     sizes: [],
     colors: [],
     size_stocks: {}
   });
 
-  // Fetch products from Supabase
+  const fetchSellers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, email, full_name, roles')
+        .in('roles', ['admin', 'seller']);
+      if (!error) setSellers(data || []);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const calculateTotalStock = (product: Product): number => {
+    if (product.size_stocks) {
+      return Object.values(product.size_stocks).reduce((sum, stock) => sum + (stock || 0), 0);
+    }
+    return product.stock || 0;
+  };
+
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*');
-        
-        if (error) throw error;
-        
-        if (data) {
-          // Transform the data to match the Product interface
+        const { data, error } = await supabase.from('products').select('*');
+        if (!error && data) {
           const transformedData: Product[] = data.map(item => ({
             ...item,
             size_stocks: item.size_stocks ? (item.size_stocks as any) : {},
             isNew: item.is_new
           }));
-          
           setProducts(transformedData);
           setFilteredProducts(transformedData);
         }
       } catch (error) {
         console.error("Error fetching products:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load products",
-          variant: "destructive"
-        });
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchProducts();
+    fetchSellers();
   }, []);
-  
-  // Apply filters when dependencies change
+
   useEffect(() => {
     let result = [...products];
-    
-    // Apply search filter
     if (searchQuery) {
-      const lowerQuery = searchQuery.toLowerCase();
-      result = result.filter(
-        product => 
-          product.name.toLowerCase().includes(lowerQuery) || 
-          product.description.toLowerCase().includes(lowerQuery) ||
-          product.id.toLowerCase().includes(lowerQuery)
+      result = result.filter(product => 
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        product.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-    
-    // Apply category filter
-    if (categoryFilter && categoryFilter !== "all") {
+    if (categoryFilter !== "all") {
       result = result.filter(product => product.category === categoryFilter);
     }
-    
-    // Apply stock filter
     if (stockFilter === "low") {
       result = result.filter(product => product.stock <= 5);
     } else if (stockFilter === "out") {
@@ -109,34 +104,22 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
     } else if (stockFilter === "in") {
       result = result.filter(product => product.stock > 0);
     }
-    
+    if (sellerFilter !== "all") {
+      result = result.filter(product => product.seller_id === sellerFilter);
+    }
     setFilteredProducts(result);
-    setCurrentPage(1); // Reset to first page when filters change
-  }, [products, searchQuery, categoryFilter, stockFilter]);
-
-  // Calculate total pages
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-  
-  // Current page items
-  const currentItems = filteredProducts.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+    setCurrentPage(1);
+  }, [products, searchQuery, categoryFilter, stockFilter, sellerFilter]);
 
   const handleAddProduct = async () => {
-    // The actual adding to Supabase is now handled in ProductDialogs.tsx
-    // This function is now just to refresh the product list
     try {
       const { data, error } = await supabase.from('products').select('*');
-      if (error) throw error;
-      if (data) {
-        // Transform the data to match the Product interface
+      if (!error && data) {
         const transformedData: Product[] = data.map(item => ({
           ...item,
           size_stocks: item.size_stocks ? (item.size_stocks as any) : {},
           isNew: item.is_new
         }));
-        
         setProducts(transformedData);
       }
     } catch (error) {
@@ -145,19 +128,14 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
   };
 
   const handleEditProduct = async () => {
-    // The actual updating in Supabase is now handled in ProductDialogs.tsx
-    // This function is now just to refresh the product list
     try {
       const { data, error } = await supabase.from('products').select('*');
-      if (error) throw error;
-      if (data) {
-        // Transform the data to match the Product interface
+      if (!error && data) {
         const transformedData: Product[] = data.map(item => ({
           ...item,
           size_stocks: item.size_stocks ? (item.size_stocks as any) : {},
           isNew: item.is_new
         }));
-        
         setProducts(transformedData);
       }
     } catch (error) {
@@ -167,31 +145,15 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
 
   const handleDeleteProduct = async () => {
     if (!currentProduct) return;
-    
     try {
-      // Delete the product from Supabase
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', currentProduct.id);
-        
-      if (error) throw error;
-      
-      // Update local state to remove the product
-      setProducts(products.filter((p) => p.id !== currentProduct.id));
-      setIsDeleteDialogOpen(false);
-      
-      toast({
-        title: "Product deleted",
-        description: `${currentProduct.name} has been deleted successfully.`
-      });
+      const { error } = await supabase.from('products').delete().eq('id', currentProduct.id);
+      if (!error) {
+        setProducts(products.filter((p) => p.id !== currentProduct.id));
+        setIsDeleteDialogOpen(false);
+        toast({ title: "Product deleted", description: `${currentProduct.name} has been deleted successfully.` });
+      }
     } catch (error) {
       console.error("Error deleting product:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete the product. Please try again.",
-        variant: "destructive"
-      });
     }
   };
 
@@ -205,15 +167,8 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  // Helper to calculate total stock from size_stocks object
-  const calculateTotalStock = (sizeStocks?: {[size: string]: number} | null): number => {
-    if (!sizeStocks) return 0;
-    return Object.values(sizeStocks).reduce((sum, stock) => sum + stock, 0);
-  };
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const currentItems = filteredProducts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   return (
     <div>
@@ -238,34 +193,44 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
         </div>
         
         <div className="flex gap-2">
-          <div className="w-40">
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger>
-                <Filter className="mr-2 h-4 w-4" />
-                <SelectValue placeholder="Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {CATEGORIES.map(category => (
-                  <SelectItem key={category} value={category}>{category}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-40">
+              <Filter className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {CATEGORIES.map(category => (
+                <SelectItem key={category} value={category}>{category}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           
-          <div className="w-32">
-            <Select value={stockFilter} onValueChange={setStockFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Stock" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Stock</SelectItem>
-                <SelectItem value="in">In Stock</SelectItem>
-                <SelectItem value="low">Low Stock</SelectItem>
-                <SelectItem value="out">Out of Stock</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={stockFilter} onValueChange={setStockFilter}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Stock" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Stock</SelectItem>
+              <SelectItem value="in">In Stock</SelectItem>
+              <SelectItem value="low">Low Stock</SelectItem>
+              <SelectItem value="out">Out of Stock</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={sellerFilter} onValueChange={setSellerFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Vendeur" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les vendeurs</SelectItem>
+              {sellers.map((seller) => (
+                <SelectItem key={seller.id} value={seller.id}>
+                  {seller.full_name || seller.email}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -274,13 +239,17 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
           <p>Loading products...</p>
         </div>
       ) : (
-        <ProductTable 
+        <AdminProductTable 
           products={currentItems} 
-          openEditDialog={openEditDialog}
-          openDeleteDialog={openDeleteDialog}
+          isLoading={isLoading}
+          onEdit={openEditDialog}
+          onDelete={openDeleteDialog}
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={handlePageChange}
+          onPageChange={setCurrentPage}
+          calculateTotalStock={calculateTotalStock}
+          showSeller={true}
+          sellers={sellers}
         />
       )}
 
