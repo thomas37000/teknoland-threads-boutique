@@ -316,6 +316,7 @@ const ProductDialogs = ({
           sizes: selectedSizes,
           colors: colors,
           size_stocks: sizeStocks,
+          seller_id: (await supabase.auth.getUser()).data.user?.id,
           is_new: true
         }])
         .select();
