@@ -220,7 +220,7 @@ const SellerProductManagement = () => {
         setNewProduct={setNewProduct}
         handleAddProduct={handleAddProduct}
         handleEditProduct={handleEditProduct}
-        handleDeleteProduct={handleDeleteProduct}
+        handleDeleteProduct={() => {}}
       />
     </div>
   );

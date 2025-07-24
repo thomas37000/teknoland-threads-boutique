@@ -276,6 +276,27 @@ const ClientDialogs = ({
                 <option value="inactive">Inactive</option>
               </select>
             </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="edit-client-role" className="text-right">
+                Rôle
+              </Label>
+              <select
+                id="edit-client-role"
+                value={currentClient?.roles || "client"}
+                onChange={(e) =>
+                  setCurrentClient(
+                    currentClient
+                      ? { ...currentClient, roles: e.target.value as "client" | "admin" | "seller" }
+                      : null
+                  )
+                }
+                className="col-span-3 px-3 py-2 border rounded-md"
+              >
+                <option value="client">Client</option>
+                <option value="seller">Vendeur</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditClientDialogOpen(false)}>
