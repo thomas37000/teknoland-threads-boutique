@@ -1,11 +1,14 @@
 
 import { Link } from "react-router-dom";
-import { Heart } from "lucide-react";
+import { Heart, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/hooks/use-cart";
 import { useFavorites } from "@/hooks/use-favorites";
 import { Product } from "@/types";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProductCardProps {
   product: Product;
@@ -15,6 +18,27 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const { t } = useTranslation();
   const { addToCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const [sellerName, setSellerName] = useState<string>('');
+
+  useEffect(() => {
+    const fetchSellerInfo = async () => {
+      if (product.seller_id) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('full_name, email')
+          .eq('id', product.seller_id)
+          .maybeSingle();
+        
+        if (data) {
+          setSellerName(data.full_name || data.email || 'Vendeur');
+        }
+      } else {
+        setSellerName('Teknoland');
+      }
+    };
+
+    fetchSellerInfo();
+  }, [product.seller_id]);
   
   return (
     <div className="group">
@@ -51,6 +75,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
               className={isFavorite(product.id) ? "fill-red-500 text-red-500" : "text-gray-400"}
             />
           </button>
+        </div>
+        <div className="mt-2 mb-1">
+          <Badge variant="secondary" className="text-xs">
+            <User size={12} className="mr-1" />
+            {sellerName}
+          </Badge>
         </div>
         <div className="mt-1 flex items-center justify-between">
           <p className="font-bold">{product.price.toFixed(2)} €</p>
