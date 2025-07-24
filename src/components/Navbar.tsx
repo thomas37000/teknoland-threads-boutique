@@ -12,7 +12,7 @@ import LanguageSelector from "./LanguageSelector";
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { cartItems } = useCart();
-  const { user, signOut, isAdmin } = useAuth();
+  const { user, signOut, isAdmin, userRole } = useAuth();
   const { t } = useTranslation();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -45,6 +45,11 @@ const Navbar = () => {
           {isAdmin && (
             <Link to="/admin" className="font-medium hover:text-tekno-blue transition-colors">
               {t('nav.admin')}
+            </Link>
+          )}
+          {userRole === 'seller' && (
+            <Link to="/seller" className="font-medium hover:text-tekno-blue transition-colors">
+              {t('nav.seller')}
             </Link>
           )}
           <Link to="/" className="font-medium hover:text-tekno-blue transition-colors">
@@ -134,6 +139,16 @@ const Navbar = () => {
                 onClick={toggleMenu}
               >
                 {t('nav.admin')}
+              </Link>
+            )}
+
+            {userRole === 'seller' && (
+              <Link
+                to="/seller"
+                className="py-3 border-b font-medium text-tekno-blue"
+                onClick={toggleMenu}
+              >
+                {t('nav.seller')}
               </Link>
             )}
 

@@ -9,6 +9,7 @@
     "login": "Connexion",
     "profile": "Profil",
     "admin": "Admin",
+    "seller": "Vendeur",
     "logout": "Déconnexion",
     "viewCart": "Voir le panier"
   },
