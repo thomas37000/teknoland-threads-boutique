@@ -31,7 +31,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { X } from "lucide-react";
 
-const CATEGORIES = ["T-shirt", "Sweat", "Vinyle"];
+const CATEGORIES = ["Man's T-shirts", "Sweats", "Vinyle"];
 const SIZE_OPTIONS = ["S", "M", "L", "XL"];
 
 interface ProductDialogsProps {
