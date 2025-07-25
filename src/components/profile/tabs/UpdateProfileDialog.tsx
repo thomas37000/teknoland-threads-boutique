@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import CiviliteInput from "./fields/CiviliteInput";
 import PrenomInput from "./fields/PrenomInput";
 import NomInput from "./fields/NomInput";
@@ -52,6 +53,7 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
   open,
   onOpenChange,
 }) => {
+  const { userRole } = useAuth();
   // Préremplissage depuis user_metadata si dispo
   const [civilite, setCivilite] = useState(
     user?.user_metadata?.civilite || "M"
@@ -212,8 +214,10 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
           {/* Adresse (non obligatoire) */}
           <AdresseInput value={adresse} onChange={e => setAdresse(e.target.value)} />
 
-          {/* Nom de marque (non obligatoire) */}
-          <BrandNameInput value={brandName} onChange={e => setBrandName(e.target.value)} />
+          {/* Nom de marque (non obligatoire - seulement pour les vendeurs) */}
+          {userRole === 'seller' && (
+            <BrandNameInput value={brandName} onChange={e => setBrandName(e.target.value)} />
+          )}
 
           {/* Email (modifiable, cf sécurité) */}
           {/* On garde la possibilité d'édition d'e-mail, mais on enlève l'input Utilisateur en lecture seule */}

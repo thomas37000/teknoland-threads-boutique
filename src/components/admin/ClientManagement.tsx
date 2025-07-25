@@ -37,7 +37,7 @@ const ClientManagement = () => {
             totalSpent: profile.totalSpent || 0,
             lastPurchase: profile.lastPurchase || "",
             accountStatus: (profile.accountStatus as "active" | "inactive") || "active",
-            roles: (profile.roles as "client" | "admin") || "client",
+            roles: (profile.roles as "client" | "admin" | "seller") || "client",
             cookieConsent: false,
             cookieConsentDate: ""
           }));
@@ -248,10 +248,11 @@ const ClientEditDialog = ({ client, isOpen, onClose, onSave }: {
             <label className="block text-sm font-medium mb-1">Rôle</label>
             <select
               value={editedClient.roles}
-              onChange={(e) => setEditedClient({...editedClient, roles: e.target.value as "client" | "admin"})}
+              onChange={(e) => setEditedClient({...editedClient, roles: e.target.value as "client" | "admin" | "seller"})}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
               <option value="client">Client</option>
+              <option value="seller">Vendeur</option>
               <option value="admin">Admin</option>
             </select>
           </div>
