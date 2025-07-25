@@ -323,6 +323,7 @@ export type Database = {
           accountStatus: string | null
           address: string | null
           avatar_url: string | null
+          brand_name: string | null
           email: string
           firstname: string | null
           full_name: string | null
@@ -339,6 +340,7 @@ export type Database = {
           accountStatus?: string | null
           address?: string | null
           avatar_url?: string | null
+          brand_name?: string | null
           email: string
           firstname?: string | null
           full_name?: string | null
@@ -355,6 +357,7 @@ export type Database = {
           accountStatus?: string | null
           address?: string | null
           avatar_url?: string | null
+          brand_name?: string | null
           email?: string
           firstname?: string | null
           full_name?: string | null

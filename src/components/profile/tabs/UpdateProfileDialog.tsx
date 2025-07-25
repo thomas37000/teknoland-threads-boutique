@@ -15,6 +15,7 @@ import CiviliteInput from "./fields/CiviliteInput";
 import PrenomInput from "./fields/PrenomInput";
 import NomInput from "./fields/NomInput";
 import AdresseInput from "./fields/AdresseInput";
+import BrandNameInput from "./fields/BrandNameInput";
 // On retire maintenant FullNameInput et EmailInput
 
 interface UpdateProfileDialogProps {
@@ -66,6 +67,7 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
   const [motDePasse, setMotDePasse] = useState("");
   const [nvMotDePasse, setNvMotDePasse] = useState("");
   const [adresse, setAdresse] = useState(user?.user_metadata?.adresse || "");
+  const [brandName, setBrandName] = useState(user?.user_metadata?.brand_name || "");
   const [loading, setLoading] = useState(false);
   const [prenomError, setPrenomError] = useState<string | null>(null);
 
@@ -74,6 +76,7 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
     setPrenom(user?.user_metadata?.prenom || "");
     setNom(user?.user_metadata?.nom || "");
     setEmail(user?.email || "");
+    setBrandName(user?.user_metadata?.brand_name || "");
     setMotDePasse("");
     setNvMotDePasse("");
     setPrenomError(null);
@@ -144,6 +147,7 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
     if (civilite !== user?.user_metadata?.civilite) userMetadataUpdate.civilite = civilite;
     if (nom !== user?.user_metadata?.nom) userMetadataUpdate.nom = nom;
     if (adresse !== user?.user_metadata?.adresse) userMetadataUpdate.adresse = adresse;
+    if (brandName !== user?.user_metadata?.brand_name) userMetadataUpdate.brand_name = brandName;
     if (Object.keys(userMetadataUpdate).length > 0) {
       const { error } = await supabase.auth.updateUser({ data: userMetadataUpdate });
       if (error) errorMeta = error;
@@ -153,6 +157,7 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
     if (prenom) updates.firstname = prenom;
     if (nom) updates.lastname = nom;
     if (adresse) updates.address = adresse;
+    if (brandName) updates.brand_name = brandName;
     // On n'update plus full_name
     if (Object.keys(updates).length > 0) {
       const { error } = await supabase
@@ -206,6 +211,9 @@ const UpdateProfileDialog: React.FC<UpdateProfileDialogProps> = ({
 
           {/* Adresse (non obligatoire) */}
           <AdresseInput value={adresse} onChange={e => setAdresse(e.target.value)} />
+
+          {/* Nom de marque (non obligatoire) */}
+          <BrandNameInput value={brandName} onChange={e => setBrandName(e.target.value)} />
 
           {/* Email (modifiable, cf sécurité) */}
           {/* On garde la possibilité d'édition d'e-mail, mais on enlève l'input Utilisateur en lecture seule */}

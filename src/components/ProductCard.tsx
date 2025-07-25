@@ -25,12 +25,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
       if (product.seller_id) {
         const { data } = await supabase
           .from('profiles')
-          .select('full_name, email')
+          .select('full_name, email, brand_name')
           .eq('id', product.seller_id)
           .maybeSingle();
         
         if (data) {
-          setSellerName(data.full_name || data.email || 'Vendeur');
+          setSellerName(data.brand_name || data.full_name || data.email || 'Vendeur');
         }
       } else {
         setSellerName('Teknoland');
