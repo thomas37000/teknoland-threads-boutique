@@ -21,6 +21,7 @@ const SortSelect = ({ sortOption, onSortChange }: SortSelectProps) => {
           <SelectItem value="newest">{t('shop.newest')}</SelectItem>
           <SelectItem value="price-low">{t('shop.priceLow')}</SelectItem>
           <SelectItem value="price-high">{t('shop.priceHigh')}</SelectItem>
+          <SelectItem value="seller">{t('shop.seller')}</SelectItem>
         </SelectContent>
       </Select>
     </div>

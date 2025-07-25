@@ -21,6 +21,7 @@ const ShopPage = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [sellersData, setSellersData] = useState<{[key: string]: string}>({});
   
   const topRef = useRef<HTMLDivElement>(null);
   
@@ -48,6 +49,23 @@ const ShopPage = () => {
         setError(error);
       } else {
         setProducts(data as Product[]);
+        
+        // Get seller information for products that have seller_id
+        const sellerIds = [...new Set(data?.map(p => p.seller_id).filter(Boolean))];
+        if (sellerIds.length > 0) {
+          const { data: sellersData, error: sellersError } = await supabase
+            .from("profiles")
+            .select("id, brand_name, full_name")
+            .in("id", sellerIds);
+          
+          if (!sellersError && sellersData) {
+            const sellersMap = sellersData.reduce((acc, seller) => {
+              acc[seller.id] = seller.brand_name || seller.full_name || 'Vendeur';
+              return acc;
+            }, {} as {[key: string]: string});
+            setSellersData(sellersMap);
+          }
+        }
       }
     } catch (error) {
       console.error(error);
@@ -75,13 +93,19 @@ const ShopPage = () => {
       result.sort((a, b) => b.price - a.price);
     } else if (sortOption === "newest") {
       result = result.filter(p => p.isNew).concat(result.filter(p => !p.isNew));
+    } else if (sortOption === "seller") {
+      result.sort((a, b) => {
+        const sellerA = a.seller_id ? sellersData[a.seller_id] || 'Vendeur' : 'Teknoland';
+        const sellerB = b.seller_id ? sellersData[b.seller_id] || 'Vendeur' : 'Teknoland';
+        return sellerA.localeCompare(sellerB);
+      });
     }
     
     setFilteredProducts(result);
     
     // Reset displayed products when filters change
     setDisplayedProducts(result.slice(0, pageSize));
-  }, [products, selectedCategory, sortOption, pageSize]);
+  }, [products, selectedCategory, sortOption, pageSize, sellersData]);
   
   // Load more products handler
   const handleLoadMore = () => {
