@@ -9,8 +9,7 @@ const Hero = () => {
   return (
     <section className="relative bg-tekno-black text-white overflow-hidden">
       <div className="absolute inset-0 z-0 opacity-40">
-        {/* <div className="absolute inset-0 bg-gradient-to-r from-tekno-black via-tekno-black/70 to-transparent" /> */}
-        <div className="bg-custom-bg bg-cover bg-center w-full h-64"></div>
+        <div className="bg-custom-bg bg-center w-full h-full"></div>
       </div>
 
       <div className="tekno-container py-16 md:py-24 lg:py-32 relative z-10">
