@@ -57,9 +57,17 @@ const ResetPasswordForm = ({ onCancel }: ResetPasswordFormProps) => {
     try {
       const { error } = await supabase.auth.updateUser({ password: resetPw });
       if (error) throw error;
-      toast.success("Votre mot de passe a été réinitialisé avec succès !");
-      window.location.hash = "";
-      navigate("/profile");
+      
+      // Get the updated session to ensure auth state is refreshed
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        toast.success("Votre mot de passe a été réinitialisé avec succès !");
+        window.location.hash = "";
+        // Give a moment for the auth state to update before navigating
+        setTimeout(() => {
+          navigate("/profile");
+        }, 100);
+      }
     } catch (error: any) {
       toast.error(error.message || "Échec de la réinitialisation du mot de passe.");
     }
