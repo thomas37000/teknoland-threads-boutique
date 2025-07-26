@@ -147,13 +147,26 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
     if (!currentProduct) return;
     try {
       const { error } = await supabase.from('products').delete().eq('id', currentProduct.id);
-      if (!error) {
-        setProducts(products.filter((p) => p.id !== currentProduct.id));
-        setIsDeleteDialogOpen(false);
-        toast({ title: "Product deleted", description: `${currentProduct.name} has been deleted successfully.` });
+      if (error) {
+        console.error("Error deleting product:", error);
+        toast({ 
+          title: "Error", 
+          description: `Failed to delete ${currentProduct.name}. ${error.message}`,
+          variant: "destructive"
+        });
+        return;
       }
+      
+      setProducts(products.filter((p) => p.id !== currentProduct.id));
+      setIsDeleteDialogOpen(false);
+      toast({ title: "Product deleted", description: `${currentProduct.name} has been deleted successfully.` });
     } catch (error) {
       console.error("Error deleting product:", error);
+      toast({ 
+        title: "Error", 
+        description: `Failed to delete ${currentProduct.name}. Please try again.`,
+        variant: "destructive"
+      });
     }
   };
 

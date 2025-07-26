@@ -453,7 +453,13 @@ const ProductDialogs = ({
         .select();
       
       if (updateError) {
-        throw updateError;
+        console.error("Update error:", updateError);
+        toast({
+          title: "Error",
+          description: `Failed to update product. ${updateError.message}`,
+          variant: "destructive"
+        });
+        return;
       }
       
       // Show success message
