@@ -89,7 +89,10 @@ export default {
 				"accordion-down": "accordion-down 0.2s ease-out",
 				"accordion-up": "accordion-up 0.2s ease-out",
 				"fade-in": "fade-in 0.5s ease-out"
-			}
+			},
+			backgroundImage: {
+				'custom-bg': 'var(--background-image)',
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],

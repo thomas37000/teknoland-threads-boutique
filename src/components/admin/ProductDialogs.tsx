@@ -766,8 +766,10 @@ const ProductDialogs = ({
                 />
                 <p className="text-xs text-muted-foreground">
                   JPG, PNG, or WebP. Max 10MB.
-                  Site pour comprésser vos fichiers: https://compresspng.com/fr/
                 </p>
+                <div className="text-xs text-muted-foreground">
+                  Site pour comprésser vos fichiers si suppérier à 10MB: https://compresspng.com/fr/
+                </div>
               </div>
             </div>
             
