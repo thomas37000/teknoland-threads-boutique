@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2 } from "lucide-react";
 import { Product } from "@/types";
+import { useAuth } from "@/hooks/use-auth";
 import {
   Pagination,
   PaginationContent,
@@ -45,6 +46,7 @@ export const AdminProductTable = ({
   showSeller = true,
   sellers = []
 }: AdminProductTableProps) => {
+  const { user } = useAuth();
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -116,20 +118,24 @@ export const AdminProductTable = ({
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onEdit(product)}
-                      >
-                        <Edit size={14} />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onDelete(product)}
-                      >
-                        <Trash2 size={14} />
-                      </Button>
+                      {(!product.seller_id || product.seller_id === user?.id) && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onEdit(product)}
+                          >
+                            <Edit size={14} />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onDelete(product)}
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
