@@ -228,10 +228,14 @@ const ProductDetails = ({
                   onClick={() => handleColorChange(color)}
                   className={`h-8 w-8 rounded-full border-2 transition-all duration-200 ${
                     currentColor === color 
-                      ? "border-tekno-blue ring-2 ring-tekno-blue/30 ring-offset-2" 
+                      ? "ring-2 ring-offset-2" 
                       : "border-gray-300 hover:border-gray-400"
                   }`}
-                  style={{ backgroundColor: color }}
+                  style={{ 
+                    backgroundColor: color,
+                    borderColor: currentColor === color ? color : '#d1d5db',
+                    boxShadow: currentColor === color ? `0 0 0 2px ${color}` : undefined
+                  }}
                   aria-label={`${t('product.selectColor')} ${getColorName(color)}`}
                 />
                 <span className="text-xs text-gray-600 capitalize">

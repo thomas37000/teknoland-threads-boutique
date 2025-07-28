@@ -15,9 +15,10 @@ export interface ClientTableProps {
   clients: Client[];
   onEdit: (client: Client) => void;
   onDelete: (client: Client) => void;
+  showActions?: boolean;
 }
 
-const ClientTable: React.FC<ClientTableProps> = ({ clients, onEdit, onDelete }) => {
+const ClientTable: React.FC<ClientTableProps> = ({ clients, onEdit, onDelete, showActions = true }) => {
   return (
     <Table className="border">
       <TableHeader>
@@ -27,13 +28,13 @@ const ClientTable: React.FC<ClientTableProps> = ({ clients, onEdit, onDelete }) 
           <TableHead>Téléphone</TableHead>
           <TableHead>Statut</TableHead>
           <TableHead>Rôle</TableHead>
-          <TableHead>Actions</TableHead>
+          {showActions && <TableHead>Actions</TableHead>}
         </TableRow>
       </TableHeader>
       <TableBody>
         {clients.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={6} className="text-center py-4">
+            <TableCell colSpan={showActions ? 6 : 5} className="text-center py-4">
               Aucun client trouvé
             </TableCell>
           </TableRow>
@@ -67,24 +68,26 @@ const ClientTable: React.FC<ClientTableProps> = ({ clients, onEdit, onDelete }) 
                   {client.roles === "admin" ? "Admin" : client.roles === "seller" ? "Vendeur" : "Client"}
                 </span>
               </TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onEdit(client)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onDelete(client)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
+              {showActions && (
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onEdit(client)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onDelete(client)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              )}
             </TableRow>
           ))
         )}

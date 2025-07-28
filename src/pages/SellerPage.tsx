@@ -2,7 +2,7 @@ import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Package, Users } from "lucide-react";
 import SellerProductManagement from "@/components/admin/SellerProductManagement";
-import ClientManagement from "@/components/admin/ClientManagement";
+import SellerClientManagement from "@/components/admin/SellerClientManagement";
 
 const SellerPage = () => {
   return (
@@ -32,7 +32,7 @@ const SellerPage = () => {
           </TabsContent>
 
           <TabsContent value="clients" className="space-y-6">
-            <ClientManagement />
+            <SellerClientManagement />
           </TabsContent>
         </Tabs>
       </div>
