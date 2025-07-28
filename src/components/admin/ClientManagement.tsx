@@ -4,6 +4,7 @@ import { Client } from "@/types";
 import ClientTable from "./ClientTable";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import TableSkeleton from "@/components/skeletons/TableSkeleton";
 
 const ClientManagement = () => {
   const [clients, setClients] = useState<Client[]>([]);
@@ -126,8 +127,18 @@ const ClientManagement = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-tekno-blue"></div>
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Rechercher un client..."
+              className="px-4 py-2 border border-gray-300 rounded-md w-full"
+              disabled
+            />
+          </div>
+        </div>
+        <TableSkeleton rows={5} columns={6} />
       </div>
     );
   }

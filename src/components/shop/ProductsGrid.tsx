@@ -2,16 +2,22 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/ProductCard";
+import ProductsGridSkeleton from "@/components/skeletons/ProductsGridSkeleton";
 import { Product } from "@/types";
 
 interface ProductsGridProps {
   displayedProducts: Product[];
   hasMoreProducts: boolean;
   onLoadMore: () => void;
+  loading?: boolean;
 }
 
-const ProductsGrid = ({ displayedProducts, hasMoreProducts, onLoadMore }: ProductsGridProps) => {
+const ProductsGrid = ({ displayedProducts, hasMoreProducts, onLoadMore, loading = false }: ProductsGridProps) => {
   const { t } = useTranslation();
+  
+  if (loading) {
+    return <ProductsGridSkeleton count={8} />;
+  }
   
   if (displayedProducts.length === 0) {
     return (

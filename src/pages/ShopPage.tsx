@@ -189,6 +189,7 @@ const ShopPage = () => {
         displayedProducts={displayedProducts}
         hasMoreProducts={hasMoreProducts}
         onLoadMore={handleLoadMore}
+        loading={loading}
       />
       
       {/* Back to Top Button */}
