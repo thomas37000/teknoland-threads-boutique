@@ -64,6 +64,8 @@ const ProductPageContainer = () => {
             // Set initial image based on the first color if color images exist
             if (product.colorImages && product.colorImages[product.colors[0]]) {
               setCurrentImage(product.colorImages[product.colors[0]]);
+            } else {
+              setCurrentImage(product.image);
             }
           }
         }
@@ -84,8 +86,13 @@ const ProductPageContainer = () => {
 
   // Update image when color changes
   useEffect(() => {
-    if (product && selectedColor && product.colorImages && product.colorImages[selectedColor]) {
-      setCurrentImage(product.colorImages[selectedColor]);
+    if (product && selectedColor) {
+      if (product.colorImages && product.colorImages[selectedColor]) {
+        setCurrentImage(product.colorImages[selectedColor]);
+      } else {
+        // If no specific color image, use the main product image
+        setCurrentImage(product.image);
+      }
     }
   }, [selectedColor, product]);
 
@@ -207,6 +214,7 @@ const ProductPageContainer = () => {
             quantity={quantity}
             setQuantity={setQuantity}
             handleAddToCart={handleAddToCart}
+            onColorChange={setSelectedColor}
           />
         </div>
       </div>
