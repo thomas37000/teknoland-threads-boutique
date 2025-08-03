@@ -4,6 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Heart, Calendar, TrendingUp, RefreshCw } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Lovable {
+  id: string;
+  prompt: number;
+  created_at: string;
+}
 
 interface LovableStats {
   dailyCredits: number;
@@ -14,6 +22,9 @@ interface LovableStats {
 }
 
 const LovableManagement = () => {
+  const [prompts, setPrompts] = useState<Lovable[]>([]);
+  const [count, setCount] = useState(30);
+  const [currentPrompt, setCurrentPrompt] = useState<Lovable | null>(null);
   const [stats, setStats] = useState<LovableStats>({
     dailyCredits: 50,
     monthlyCredits: 500,
@@ -21,8 +32,70 @@ const LovableManagement = () => {
     monthlyUsed: 125,
     resetDate: new Date().toISOString()
   });
-  
   const [loading, setLoading] = useState(false);
+
+  // Fetch prompts from Supabase
+  const fetchPrompts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('lovable')
+        .select('*')
+
+      if (error) {
+        console.error('Error fetching lovable prompts:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger le nombre de prompts",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setPrompts(data || []);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPrompts();
+  }, []);
+
+  const updateNumbersPrompts = async () => {
+    if (!currentPrompt) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('lovable')
+        .update({
+          prompt: currentPrompt.prompt
+        })
+        .eq('id', currentPrompt.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating prompt:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de modifier le nombre de prompts",
+          variant: "destructive"
+        });
+        return;
+      }
+
+       const updatedPrompts = prompts.map(pro => 
+        pro.id === currentPrompt.id ? data : pro
+      );
+      setPrompts(updatedPrompts);
+
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
 
   const refreshStats = async () => {
     setLoading(true);
@@ -39,7 +112,7 @@ const LovableManagement = () => {
 
   const dailyRemaining = stats.dailyCredits - stats.dailyUsed;
   const monthlyRemaining = stats.monthlyCredits - stats.monthlyUsed;
-  
+
   const dailyPercentage = (stats.dailyUsed / stats.dailyCredits) * 100;
   const monthlyPercentage = (stats.monthlyUsed / stats.monthlyCredits) * 100;
 
@@ -55,6 +128,7 @@ const LovableManagement = () => {
     return "bg-blue-500";
   };
 
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -67,8 +141,8 @@ const LovableManagement = () => {
             Suivez votre utilisation des crédits Lovable
           </p>
         </div>
-        <Button 
-          onClick={refreshStats} 
+        <Button
+          onClick={refreshStats}
           disabled={loading}
           variant="outline"
           className="flex items-center gap-2"
@@ -80,7 +154,7 @@ const LovableManagement = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Crédits Journaliers */}
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-blue-500" />
@@ -111,7 +185,7 @@ const LovableManagement = () => {
               {dailyPercentage.toFixed(1)}% utilisé
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Crédits Mensuels */}
         <Card>
@@ -121,7 +195,16 @@ const LovableManagement = () => {
               Crédits Mensuels
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent>
+            <button onClick={() => setCount(prevCount => prevCount - 1)}>
+              Nombre de prompts / mois restants sur 30
+            </button>
+            <h3 className="text-xl font-bold flex items-center gap-2">
+              {count}
+            </h3>
+          </CardContent>
+
+          {/* <CardContent className="space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-2xl font-bold">{monthlyRemaining}</span>
               <Badge variant={monthlyRemaining > 50 ? "default" : "destructive"}>
@@ -144,12 +227,12 @@ const LovableManagement = () => {
             <div className={`text-sm font-medium ${getUsageColor(monthlyPercentage)}`}>
               {monthlyPercentage.toFixed(1)}% utilisé
             </div>
-          </CardContent>
+          </CardContent> */}
         </Card>
       </div>
 
       {/* Informations Supplémentaires */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle>Informations</CardTitle>
         </CardHeader>
@@ -176,7 +259,7 @@ const LovableManagement = () => {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 };
