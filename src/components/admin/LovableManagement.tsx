@@ -23,23 +23,17 @@ interface LovableStats {
 
 const LovableManagement = () => {
   const [prompts, setPrompts] = useState<Lovable[]>([]);
-  const [count, setCount] = useState(30);
   const [currentPrompt, setCurrentPrompt] = useState<Lovable | null>(null);
-  const [stats, setStats] = useState<LovableStats>({
-    dailyCredits: 50,
-    monthlyCredits: 500,
-    dailyUsed: 12,
-    monthlyUsed: 125,
-    resetDate: new Date().toISOString()
-  });
   const [loading, setLoading] = useState(false);
 
   // Fetch prompts from Supabase
   const fetchPrompts = async () => {
+    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('lovable')
         .select('*')
+        .limit(1);
 
       if (error) {
         console.error('Error fetching lovable prompts:', error);
@@ -51,6 +45,9 @@ const LovableManagement = () => {
         return;
       }
 
+      if (data && data.length > 0) {
+        setCurrentPrompt(data[0]);
+      }
       setPrompts(data || []);
     } catch (error) {
       console.error('Error:', error);
@@ -63,14 +60,16 @@ const LovableManagement = () => {
     fetchPrompts();
   }, []);
 
-  const updateNumbersPrompts = async () => {
-    if (!currentPrompt) return;
+  const decrementPrompt = async () => {
+    if (!currentPrompt || currentPrompt.prompt <= 0) return;
 
+    const newPromptCount = currentPrompt.prompt - 1;
+    
     try {
       const { data, error } = await supabase
         .from('lovable')
         .update({
-          prompt: currentPrompt.prompt
+          prompt: newPromptCount
         })
         .eq('id', currentPrompt.id)
         .select()
@@ -80,52 +79,65 @@ const LovableManagement = () => {
         console.error('Error updating prompt:', error);
         toast({
           title: "Erreur",
-          description: "Impossible de modifier le nombre de prompts",
+          description: "Impossible de décrémenter le nombre de prompts",
           variant: "destructive"
         });
         return;
       }
 
-       const updatedPrompts = prompts.map(pro => 
+      setCurrentPrompt(data);
+      const updatedPrompts = prompts.map(pro => 
         pro.id === currentPrompt.id ? data : pro
       );
       setPrompts(updatedPrompts);
+
+      toast({
+        title: "Succès",
+        description: "Prompt utilisé avec succès",
+      });
 
     } catch (error) {
       console.error('Error:', error);
     }
   };
 
+  const resetPrompts = async () => {
+    if (!currentPrompt) return;
 
-  const refreshStats = async () => {
-    setLoading(true);
-    // Simulation d'un appel API - à remplacer par l'API Lovable réelle
-    setTimeout(() => {
-      setStats(prev => ({
-        ...prev,
-        dailyUsed: Math.floor(Math.random() * prev.dailyCredits),
-        monthlyUsed: Math.floor(Math.random() * prev.monthlyCredits),
-      }));
-      setLoading(false);
-    }, 1000);
-  };
+    try {
+      const { data, error } = await supabase
+        .from('lovable')
+        .update({
+          prompt: 30
+        })
+        .eq('id', currentPrompt.id)
+        .select()
+        .single();
 
-  const dailyRemaining = stats.dailyCredits - stats.dailyUsed;
-  const monthlyRemaining = stats.monthlyCredits - stats.monthlyUsed;
+      if (error) {
+        console.error('Error resetting prompts:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de réinitialiser les prompts",
+          variant: "destructive"
+        });
+        return;
+      }
 
-  const dailyPercentage = (stats.dailyUsed / stats.dailyCredits) * 100;
-  const monthlyPercentage = (stats.monthlyUsed / stats.monthlyCredits) * 100;
+      setCurrentPrompt(data);
+      const updatedPrompts = prompts.map(pro => 
+        pro.id === currentPrompt.id ? data : pro
+      );
+      setPrompts(updatedPrompts);
 
-  const getUsageColor = (percentage: number) => {
-    if (percentage >= 90) return "text-red-500";
-    if (percentage >= 70) return "text-orange-500";
-    return "text-green-500";
-  };
+      toast({
+        title: "Succès",
+        description: "Prompts réinitialisés à 30",
+      });
 
-  const getProgressColor = (percentage: number) => {
-    if (percentage >= 90) return "bg-red-500";
-    if (percentage >= 70) return "bg-orange-500";
-    return "bg-blue-500";
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
 
@@ -141,15 +153,25 @@ const LovableManagement = () => {
             Suivez votre utilisation des crédits Lovable
           </p>
         </div>
-        <Button
-          onClick={refreshStats}
-          disabled={loading}
-          variant="outline"
-          className="flex items-center gap-2"
-        >
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          Actualiser
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={fetchPrompts}
+            disabled={loading}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Actualiser
+          </Button>
+          <Button
+            onClick={resetPrompts}
+            disabled={loading || !currentPrompt}
+            variant="destructive"
+            className="flex items-center gap-2"
+          >
+            Réinitialiser à 30
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -195,13 +217,30 @@ const LovableManagement = () => {
               Crédits Mensuels
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <button onClick={() => setCount(prevCount => prevCount - 1)}>
-              Nombre de prompts / mois restants sur 30
-            </button>
-            <h3 className="text-xl font-bold flex items-center gap-2">
-              {count}
-            </h3>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-2xl font-bold">
+                {currentPrompt ? currentPrompt.prompt : 0}
+              </span>
+              <Badge variant={currentPrompt && currentPrompt.prompt > 10 ? "default" : "destructive"}>
+                Restants
+              </Badge>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button
+                onClick={decrementPrompt}
+                disabled={loading || !currentPrompt || currentPrompt.prompt <= 0}
+                variant="outline"
+                size="sm"
+              >
+                Utiliser un prompt (-1)
+              </Button>
+            </div>
+            
+            <div className="text-sm text-muted-foreground">
+              Prompts disponibles ce mois-ci
+            </div>
           </CardContent>
 
           {/* <CardContent className="space-y-4">
