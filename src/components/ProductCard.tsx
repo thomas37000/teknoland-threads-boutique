@@ -77,10 +77,16 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </button>
         </div>
         <div className="mt-2 mb-1">
-          <Badge variant="secondary" className="text-xs">
-            <User size={12} className="mr-1" />
-            {sellerName}
-          </Badge>
+          <Link 
+            to={product.seller_id ? `/vendor/${product.seller_id}` : '#'}
+            className={product.seller_id ? "hover:opacity-80 transition-opacity" : "cursor-default"}
+            onClick={(e) => !product.seller_id && e.preventDefault()}
+          >
+            <Badge variant="secondary" className="text-xs">
+              <User size={12} className="mr-1" />
+              {sellerName}
+            </Badge>
+          </Link>
         </div>
         <div className="mt-1 flex items-center justify-between">
           <p className="font-bold">{product.price.toFixed(2)} €</p>

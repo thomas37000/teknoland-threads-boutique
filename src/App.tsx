@@ -20,6 +20,7 @@ import SellerPage from "./pages/SellerPage";
 import ProfilePage from "./pages/ProfilePage";
 import AuthPage from "./pages/AuthPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
+import VendorStorePage from "./pages/VendorStorePage";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -53,6 +54,7 @@ const App = () => {
                         <Route path="/" element={<Index />} />
                         <Route path="/shop" element={<ShopPage />} />
                         <Route path="/product/:id" element={<ProductPage />} />
+                        <Route path="/vendor/:vendorId" element={<VendorStorePage />} />
                         <Route path="/cart" element={<CartPage />} />
                         <Route path="/about" element={<AboutPage />} />
                         <Route path="/contact" element={<ContactPage />} />
