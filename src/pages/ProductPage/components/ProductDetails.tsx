@@ -1,13 +1,16 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Heart, CreditCard } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ShoppingCart, Heart, CreditCard, User } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useFavorites } from "@/hooks/use-favorites";
 import { Product } from "@/types";
 import { toast } from "sonner";
 import { createCheckoutSession } from "@/utils/stripe";
 import { useTranslation } from "react-i18next";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProductDetailsProps {
   product: Product;
@@ -43,6 +46,28 @@ const ProductDetails = ({
   );
   const [localQuantity, setLocalQuantity] = useState(quantity);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [sellerName, setSellerName] = useState<string>('');
+
+  // Fetch seller info
+  useEffect(() => {
+    const fetchSellerInfo = async () => {
+      if (product.seller_id) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('full_name, email, brand_name')
+          .eq('id', product.seller_id)
+          .maybeSingle();
+        
+        if (data) {
+          setSellerName(data.brand_name || data.full_name || data.email || 'Vendeur');
+        }
+      } else {
+        setSellerName('Teknoland');
+      }
+    };
+
+    fetchSellerInfo();
+  }, [product.seller_id]);
 
   // Use either internal or external state management based on props
   const handleSizeChange = (size: string) => {
@@ -170,15 +195,34 @@ const ProductDetails = ({
 
   return (
     <div className="space-y-6">
+      {/* Product not available message */}
+      {product.stock <= 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-2">404 NOT FOUND</h2>
+          <p className="text-red-700">Ce produit n'est plus disponible</p>
+        </div>
+      )}
+      
       <div>
         <h1 className="text-3xl font-bold tracking-tight">{product.name}</h1>
-        <div className="mt-3 flex items-center">
+        <div className="mt-3 flex items-center flex-wrap gap-3">
           <span className="text-2xl font-bold">{product.price.toFixed(2)} €</span>
           {product.isNew && (
-            <span className="ml-3 rounded-full bg-tekno-blue px-3 py-1 text-xs text-white">
+            <span className="rounded-full bg-tekno-blue px-3 py-1 text-xs text-white">
               {t('product.newProduct')}
             </span>
           )}
+          {/* Seller badge */}
+          <Link 
+            to={product.seller_id ? `/vendor/${product.seller_id}` : '#'}
+            className={product.seller_id ? "hover:opacity-80 transition-opacity" : "cursor-default"}
+            onClick={(e) => !product.seller_id && e.preventDefault()}
+          >
+            <Badge variant="secondary" className="text-xs">
+              <User size={12} className="mr-1" />
+              {sellerName}
+            </Badge>
+          </Link>
         </div>
       </div>
       
@@ -200,19 +244,28 @@ const ProductDetails = ({
         <div>
           <h3 className="font-medium mb-2">{t('product.size')}</h3>
           <div className="flex flex-wrap gap-2">
-            {product.sizes.map((size) => (
-              <button
-                key={size}
-                onClick={() => handleSizeChange(size)}
-                className={`h-10 w-10 rounded-md border text-center leading-10 transition-colors ${
-                  currentSize === size
-                    ? "border-tekno-blue bg-tekno-blue/10 text-tekno-blue"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
-              >
-                {size}
-              </button>
-            ))}
+            {product.sizes.map((size) => {
+              const sizeStock = product.size_stocks?.[size] || 0;
+              const isAvailable = sizeStock > 0;
+              
+              return (
+                <button
+                  key={size}
+                  onClick={() => isAvailable && handleSizeChange(size)}
+                  disabled={!isAvailable}
+                  className={`h-10 w-10 rounded-md border text-center leading-10 transition-colors ${
+                    currentSize === size
+                      ? "border-tekno-blue bg-tekno-blue/10 text-tekno-blue"
+                      : isAvailable
+                        ? "border-gray-200 hover:border-gray-300"
+                        : "border-gray-300 text-gray-400 cursor-not-allowed"
+                  }`}
+                  style={!isAvailable ? { border: '1px solid #ccc', color: '#ccc' } : {}}
+                >
+                  {size}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -222,27 +275,34 @@ const ProductDetails = ({
         <div>
           <h3 className="font-medium mb-2">{t('product.color')}</h3>
           <div className="flex flex-wrap gap-3">
-            {product.colors.map((color) => (
-              <div key={color} className="flex flex-col items-center gap-1">
-                <button
-                  onClick={() => handleColorChange(color)}
-                  className={`h-8 w-8 rounded-full border-2 transition-all duration-200 ${
-                    currentColor === color 
-                      ? "ring-2 ring-offset-2" 
-                      : "border-gray-300 hover:border-gray-400"
-                  }`}
-                  style={{ 
-                    backgroundColor: color,
-                    borderColor: currentColor === color ? color : '#d1d5db',
-                    boxShadow: currentColor === color ? `0 0 0 2px ${color}` : undefined
-                  }}
-                  aria-label={`${t('product.selectColor')} ${getColorName(color)}`}
-                />
-                <span className="text-xs text-gray-600 capitalize">
-                  {getColorName(color)}
-                </span>
-              </div>
-            ))}
+            {product.colors.map((color) => {
+              const isClickable = product.colors && product.colors.length > 1;
+              
+              return (
+                <div key={color} className="flex flex-col items-center gap-1">
+                  <button
+                    onClick={() => isClickable && handleColorChange(color)}
+                    disabled={!isClickable}
+                    className={`h-8 w-8 rounded-full border-2 transition-all duration-200 ${
+                      currentColor === color 
+                        ? "ring-2 ring-offset-2" 
+                        : isClickable 
+                          ? "border-gray-300 hover:border-gray-400"
+                          : "border-gray-300 cursor-default"
+                    }`}
+                    style={{ 
+                      backgroundColor: color,
+                      borderColor: currentColor === color ? color : '#d1d5db',
+                      boxShadow: currentColor === color ? `0 0 0 2px ${color}` : undefined
+                    }}
+                    aria-label={`${t('product.selectColor')} ${getColorName(color)}`}
+                  />
+                  <span className="text-xs text-gray-600 capitalize">
+                    {getColorName(color)}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

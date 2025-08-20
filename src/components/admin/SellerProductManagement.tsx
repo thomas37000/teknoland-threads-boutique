@@ -50,11 +50,26 @@ const SellerProductManagement = () => {
     
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      // Get user role
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('roles')
+        .eq('id', user.id)
+        .single();
+
+      const isAdmin = profile?.roles === 'admin';
+
+      let query = supabase
         .from('products')
         .select('*')
-        .eq('seller_id', user.id)
         .order('created_at', { ascending: false });
+
+      // If not admin, filter by seller_id
+      if (!isAdmin) {
+        query = query.eq('seller_id', user.id);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error("Error fetching products:", error);

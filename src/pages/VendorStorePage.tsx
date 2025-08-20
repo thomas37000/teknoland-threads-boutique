@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, User, MapPin, Mail } from "lucide-react";
 import ProductsGrid from "@/components/shop/ProductsGrid";
 import BackToTop from "@/components/shop/BackToTop";
+import CategoryFilter from "@/components/shop/CategoryFilter";
+import SortSelect from "@/components/shop/SortSelect";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -29,6 +31,9 @@ const VendorStorePage = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [sortOption, setSortOption] = useState<string>("newest");
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   
   const topRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
@@ -74,8 +79,17 @@ const VendorStorePage = () => {
         return;
       }
 
-      setProducts(productsData as Product[] || []);
-      setDisplayedProducts((productsData as Product[] || []).slice(0, pageSize));
+      const productsList = productsData as Product[] || [];
+      
+      // Hide vendor page if no products
+      if (productsList.length === 0) {
+        setError("Ce vendeur n'a pas encore ajouté de produits");
+        return;
+      }
+      
+      setProducts(productsList);
+      setFilteredProducts(productsList);
+      setDisplayedProducts(productsList.slice(0, pageSize));
       
     } catch (error) {
       console.error("Error fetching vendor data:", error);
@@ -85,9 +99,33 @@ const VendorStorePage = () => {
     }
   }
 
+  // Apply filters and sorting
+  useEffect(() => {
+    let result = [...products];
+    
+    // Apply category filter
+    if (selectedCategory !== "all") {
+      result = result.filter(p => 
+        p.category.toLowerCase().includes(selectedCategory)
+      );
+    }
+    
+    // Apply sorting 
+    if (sortOption === "price-low") {
+      result.sort((a, b) => a.price - b.price);
+    } else if (sortOption === "price-high") {
+      result.sort((a, b) => b.price - a.price);
+    } else if (sortOption === "newest") {
+      result = result.filter(p => p.isNew).concat(result.filter(p => !p.isNew));
+    }
+    
+    setFilteredProducts(result);
+    setDisplayedProducts(result.slice(0, pageSize));
+  }, [products, selectedCategory, sortOption, pageSize]);
+
   const handleLoadMore = () => {
     const currentSize = displayedProducts.length;
-    const newProducts = products.slice(currentSize, currentSize + pageSize);
+    const newProducts = filteredProducts.slice(currentSize, currentSize + pageSize);
     setDisplayedProducts([...displayedProducts, ...newProducts]);
   };
 
@@ -104,7 +142,7 @@ const VendorStorePage = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const hasMoreProducts = displayedProducts.length < products.length;
+  const hasMoreProducts = displayedProducts.length < filteredProducts.length;
   const vendorName = vendorInfo?.brand_name || vendorInfo?.full_name || "Vendeur";
 
   if (error) {
@@ -185,6 +223,20 @@ const VendorStorePage = () => {
             Produits de {vendorName}
           </h2>
         </div>
+
+        {/* Filters and Sorting - only show if more than 1 product */}
+        {products.length > 1 && (
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+            <CategoryFilter 
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+            />
+            <SortSelect 
+              sortOption={sortOption}
+              onSortChange={setSortOption}
+            />
+          </div>
+        )}
 
         {/* Products Grid */}
         <ProductsGrid 
