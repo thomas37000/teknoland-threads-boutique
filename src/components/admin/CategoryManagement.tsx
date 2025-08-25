@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import PopupAdmin from "./PopupAdmin";
 import { Label } from "@/components/ui/label";
 import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -243,61 +243,60 @@ const CategoryManagement = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Gestion des Catégories</h2>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Ajouter une catégorie
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Ajouter une nouvelle catégorie</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="name">Nom de la catégorie</Label>
-                <Input
-                  id="name"
-                  value={newCategory.name}
-                  onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
-                  placeholder="Ex: T-Shirts Premium"
-                />
-              </div>
-              <div>
-                <Label htmlFor="slug">Slug (URL)</Label>
-                <Input
-                  id="slug"
-                  value={newCategory.slug}
-                  onChange={(e) => setNewCategory({...newCategory, slug: e.target.value})}
-                  placeholder="Ex: t-shirts-premium"
-                />
-              </div>
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Input
-                  id="description"
-                  value={newCategory.description}
-                  onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
-                  placeholder="Description de la catégorie"
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="is_active"
-                  checked={newCategory.is_active}
-                  onCheckedChange={(checked) => setNewCategory({...newCategory, is_active: checked})}
-                />
-                <Label htmlFor="is_active">Catégorie active</Label>
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={handleAddCategory} className="flex-1">Ajouter</Button>
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="flex-1">Annuler</Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={() => setIsAddDialogOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Ajouter une catégorie
+        </Button>
       </div>
+
+      <PopupAdmin
+        isOpen={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        title="Ajouter une nouvelle catégorie"
+        maxWidth="w-96"
+      >
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="name">Nom de la catégorie</Label>
+            <Input
+              id="name"
+              value={newCategory.name}
+              onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
+              placeholder="Ex: T-Shirts Premium"
+            />
+          </div>
+          <div>
+            <Label htmlFor="slug">Slug (URL)</Label>
+            <Input
+              id="slug"
+              value={newCategory.slug}
+              onChange={(e) => setNewCategory({...newCategory, slug: e.target.value})}
+              placeholder="Ex: t-shirts-premium"
+            />
+          </div>
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <Input
+              id="description"
+              value={newCategory.description}
+              onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
+              placeholder="Description de la catégorie"
+            />
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="is_active"
+              checked={newCategory.is_active}
+              onCheckedChange={(checked) => setNewCategory({...newCategory, is_active: checked})}
+            />
+            <Label htmlFor="is_active">Catégorie active</Label>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={handleAddCategory} className="flex-1">Ajouter</Button>
+            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="flex-1">Annuler</Button>
+          </div>
+        </div>
+      </PopupAdmin>
 
       <Card>
         <CardHeader>
@@ -343,54 +342,16 @@ const CategoryManagement = () => {
                       >
                         {category.is_active ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
-                      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setCurrentCategory(category)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Modifier la catégorie</DialogTitle>
-                          </DialogHeader>
-                          {currentCategory && (
-                            <div className="space-y-4">
-                              <div>
-                                <Label htmlFor="edit-name">Nom de la catégorie</Label>
-                                <Input
-                                  id="edit-name"
-                                  value={currentCategory.name}
-                                  onChange={(e) => setCurrentCategory({...currentCategory, name: e.target.value})}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="edit-slug">Slug (URL)</Label>
-                                <Input
-                                  id="edit-slug"
-                                  value={currentCategory.slug}
-                                  onChange={(e) => setCurrentCategory({...currentCategory, slug: e.target.value})}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="edit-description">Description</Label>
-                                <Input
-                                  id="edit-description"
-                                  value={currentCategory.description || ""}
-                                  onChange={(e) => setCurrentCategory({...currentCategory, description: e.target.value})}
-                                />
-                              </div>
-                              <div className="flex gap-2">
-                                <Button onClick={handleEditCategory} className="flex-1">Sauvegarder</Button>
-                                <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="flex-1">Annuler</Button>
-                              </div>
-                            </div>
-                          )}
-                        </DialogContent>
-                      </Dialog>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setCurrentCategory(category);
+                          setIsEditDialogOpen(true);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -407,6 +368,46 @@ const CategoryManagement = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <PopupAdmin
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        title="Modifier la catégorie"
+        maxWidth="w-96"
+      >
+        {currentCategory && (
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-name">Nom de la catégorie</Label>
+              <Input
+                id="edit-name"
+                value={currentCategory.name}
+                onChange={(e) => setCurrentCategory({...currentCategory, name: e.target.value})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-slug">Slug (URL)</Label>
+              <Input
+                id="edit-slug"
+                value={currentCategory.slug}
+                onChange={(e) => setCurrentCategory({...currentCategory, slug: e.target.value})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-description">Description</Label>
+              <Input
+                id="edit-description"
+                value={currentCategory.description || ""}
+                onChange={(e) => setCurrentCategory({...currentCategory, description: e.target.value})}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={handleEditCategory} className="flex-1">Sauvegarder</Button>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="flex-1">Annuler</Button>
+            </div>
+          </div>
+        )}
+      </PopupAdmin>
     </div>
   );
 };

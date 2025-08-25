@@ -1,12 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter,
-} from "@/components/ui/dialog";
+import PopupAdmin from "./PopupAdmin";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -489,478 +483,476 @@ const ProductDialogs = ({
   return (
     <>
       {/* Add Product Dialog */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Add New Product</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input
-                id="name"
-                value={newProduct.name || ""}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, name: e.target.value })
+      <PopupAdmin
+        isOpen={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        title="Add New Product"
+        maxWidth="max-w-2xl"
+      >
+        <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="name" className="text-right">
+              Name
+            </Label>
+            <Input
+              id="name"
+              value={newProduct.name || ""}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, name: e.target.value })
+              }
+              className="col-span-3"
+            />
+          </div>
+          
+          {/* Category Dropdown */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="category" className="text-right">
+              Category
+            </Label>
+            <div className="col-span-3">
+              <Select
+                value={newProduct.category || ""}
+                onValueChange={(value) =>
+                  setNewProduct({ ...newProduct, category: value })
                 }
-                className="col-span-3"
-              />
-            </div>
-            
-            {/* Category Dropdown */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="category" className="text-right">
-                Category
-              </Label>
-              <div className="col-span-3">
-                <Select
-                  value={newProduct.category || ""}
-                  onValueChange={(value) =>
-                    setNewProduct({ ...newProduct, category: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="price" className="text-right">
-                Price
-              </Label>
-              <Input
-                id="price"
-                type="number"
-                value={newProduct.price || ""}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })
-                }
-                className="col-span-3"
-              />
-            </div>
-            
-            {/* Main Image Upload */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="image" className="text-right">
-                Main Image
-              </Label>
-              <div className="col-span-3">
-                <Input
-                  id="image"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={(e) => handleImageChange(e, false)}
-                  className="col-span-3"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  JPG, PNG, or WebP. Max 10MB.
-                </p>
-              </div>
-            </div>
-            
-            {/* Additional Images Upload */}
-            <div className="grid grid-cols-4 items-start gap-4">
-              <Label htmlFor="additional-images" className="text-right">
-                Additional Images
-              </Label>
-              <div className="col-span-3">
-                <Input
-                  id="additional-images"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={(e) => handleMultipleImageChange(e, false)}
-                  className="col-span-3"
-                  disabled={multipleImageFiles.length >= 4}
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Upload up to 4 additional images. JPG, PNG, or WebP. Max 10MB each.
-                </p>
-                
-                {multipleImageFiles.length > 0 && (
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {multipleImageFiles.map((file, index) => (
-                      <div key={index} className="relative border rounded p-2">
-                        <img 
-                          src={URL.createObjectURL(file)} 
-                          alt={`Preview ${index}`}
-                          className="h-20 w-full object-contain"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index, false)}
-                          className="absolute top-1 right-1 bg-white rounded-full p-1"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                        <p className="text-xs truncate">{file.name}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            {/* Sizes with Stock Quantity */}
-            <div className="grid grid-cols-4 items-start gap-4">
-              <Label className="text-right pt-2">
-                Sizes & Stock
-              </Label>
-              <div className="col-span-3 space-y-3">
-                {SIZE_OPTIONS.map((size) => (
-                  <div key={size} className="flex items-center gap-4">
-                    <Checkbox
-                      id={`size-${size}`}
-                      checked={selectedSizes.includes(size)}
-                      onCheckedChange={() => handleSizeChange(size)}
-                    />
-                    <Label htmlFor={`size-${size}`} className="flex-1">{size}</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      value={sizeStocks[size] || 0}
-                      onChange={(e) => handleSizeStockChange(size, e.target.value, false)}
-                      className="w-24"
-                      disabled={!selectedSizes.includes(size)}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Colors */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="colors" className="text-right">
-                Colors
-              </Label>
-              <Input
-                id="colors"
-                placeholder="Enter colors separated by commas"
-                value={selectedColors}
-                onChange={(e) => setSelectedColors(e.target.value)}
-                className="col-span-3"
-              />
-            </div>
-            
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right">
-                Description
-              </Label>
-              <Input
-                id="description"
-                value={newProduct.description || ""}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, description: e.target.value })
-                }
-                className="col-span-3"
-              />
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAddWithImage}>Add Product</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="price" className="text-right">
+              Price
+            </Label>
+            <Input
+              id="price"
+              type="number"
+              value={newProduct.price || ""}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })
+              }
+              className="col-span-3"
+            />
+          </div>
+          
+          {/* Main Image Upload */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="image" className="text-right">
+              Main Image
+            </Label>
+            <div className="col-span-3">
+              <Input
+                id="image"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => handleImageChange(e, false)}
+                className="col-span-3"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                JPG, PNG, or WebP. Max 10MB.
+              </p>
+            </div>
+          </div>
+          
+          {/* Additional Images Upload */}
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="additional-images" className="text-right">
+              Additional Images
+            </Label>
+            <div className="col-span-3">
+              <Input
+                id="additional-images"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => handleMultipleImageChange(e, false)}
+                className="col-span-3"
+                disabled={multipleImageFiles.length >= 4}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Upload up to 4 additional images. JPG, PNG, or WebP. Max 10MB each.
+              </p>
+              
+              {multipleImageFiles.length > 0 && (
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {multipleImageFiles.map((file, index) => (
+                    <div key={index} className="relative border rounded p-2">
+                      <img 
+                        src={URL.createObjectURL(file)} 
+                        alt={`Preview ${index}`}
+                        className="h-20 w-full object-contain"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index, false)}
+                        className="absolute top-1 right-1 bg-white rounded-full p-1"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                      <p className="text-xs truncate">{file.name}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Sizes with Stock Quantity */}
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label className="text-right pt-2">
+              Sizes & Stock
+            </Label>
+            <div className="col-span-3 space-y-3">
+              {SIZE_OPTIONS.map((size) => (
+                <div key={size} className="flex items-center gap-4">
+                  <Checkbox
+                    id={`size-${size}`}
+                    checked={selectedSizes.includes(size)}
+                    onCheckedChange={() => handleSizeChange(size)}
+                  />
+                  <Label htmlFor={`size-${size}`} className="flex-1">{size}</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={sizeStocks[size] || 0}
+                    onChange={(e) => handleSizeStockChange(size, e.target.value, false)}
+                    className="w-24"
+                    disabled={!selectedSizes.includes(size)}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Colors */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="colors" className="text-right">
+              Colors
+            </Label>
+            <Input
+              id="colors"
+              placeholder="Enter colors separated by commas"
+              value={selectedColors}
+              onChange={(e) => setSelectedColors(e.target.value)}
+              className="col-span-3"
+            />
+          </div>
+          
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="description" className="text-right">
+              Description
+            </Label>
+            <Input
+              id="description"
+              value={newProduct.description || ""}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, description: e.target.value })
+              }
+              className="col-span-3"
+            />
+          </div>
+        </div>
+        <div className="flex gap-2 mt-6">
+          <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="flex-1">
+            Cancel
+          </Button>
+          <Button onClick={handleAddWithImage} className="flex-1">Add Product</Button>
+        </div>
+      </PopupAdmin>
 
       {/* Edit Product Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Product</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-name" className="text-right">
-                Name
-              </Label>
-              <Input
-                id="edit-name"
-                value={currentProduct?.name || ""}
-                onChange={(e) =>
+      <PopupAdmin
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        title="Edit Product"
+        maxWidth="max-w-2xl"
+      >
+        <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="edit-name" className="text-right">
+              Name
+            </Label>
+            <Input
+              id="edit-name"
+              value={currentProduct?.name || ""}
+              onChange={(e) =>
+                setCurrentProduct(
+                  currentProduct
+                    ? { ...currentProduct, name: e.target.value }
+                    : null
+                )
+              }
+              className="col-span-3"
+            />
+          </div>
+          
+          {/* Category Dropdown */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="edit-category" className="text-right">
+              Category
+            </Label>
+            <div className="col-span-3">
+              <Select
+                value={currentProduct?.category || ""}
+                onValueChange={(value) =>
                   setCurrentProduct(
                     currentProduct
-                      ? { ...currentProduct, name: e.target.value }
+                      ? { ...currentProduct, category: value }
                       : null
                   )
                 }
-                className="col-span-3"
-              />
-            </div>
-            
-            {/* Category Dropdown */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-category" className="text-right">
-                Category
-              </Label>
-              <div className="col-span-3">
-                <Select
-                  value={currentProduct?.category || ""}
-                  onValueChange={(value) =>
-                    setCurrentProduct(
-                      currentProduct
-                        ? { ...currentProduct, category: value }
-                        : null
-                    )
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-price" className="text-right">
-                Price
-              </Label>
-              <Input
-                id="edit-price"
-                type="number"
-                value={currentProduct?.price || ""}
-                onChange={(e) =>
-                  setCurrentProduct(
-                    currentProduct
-                      ? { ...currentProduct, price: parseFloat(e.target.value) }
-                      : null
-                  )
-                }
-                className="col-span-3"
-              />
-            </div>
-            
-            {/* Main Image Upload */}
-            <div className="grid grid-cols-4 items-start gap-4">
-              <Label htmlFor="edit-image" className="text-right">
-                Main Image
-              </Label>
-              <div className="col-span-3 space-y-2">
-                {currentProduct?.image && (
-                  <div className="mb-2">
-                    <img 
-                      src={currentProduct.image} 
-                      alt={currentProduct.name} 
-                      className="h-20 w-auto object-contain rounded"
-                    />
-                  </div>
-                )}
-                <Input
-                  id="edit-image"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={(e) => handleImageChange(e, true)}
-                />
-                <p className="text-xs text-muted-foreground">
-                  JPG, PNG, or WebP. Max 10MB.
-                </p>
-                <div className="text-xs text-muted-foreground">
-                  Site pour comprésser vos fichiers si suppérier à 10MB: https://compresspng.com/fr/
-                </div>
-              </div>
-            </div>
-            
-            {/* Additional Images Upload */}
-            <div className="grid grid-cols-4 items-start gap-4">
-              <Label htmlFor="edit-additional-images" className="text-right">
-                Additional Images
-              </Label>
-              <div className="col-span-3">
-                {/* Show existing additional images */}
-                {currentProduct?.images && currentProduct.images.length > 0 && (
-                  <div className="grid grid-cols-2 gap-2 mb-2">
-                    {currentProduct.images.map((img, index) => (
-                      <div key={index} className="relative border rounded p-2">
-                        <img 
-                          src={img} 
-                          alt={`Image ${index}`}
-                          className="h-20 w-full object-contain"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-                
-                <Input
-                  id="edit-additional-images"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={(e) => handleMultipleImageChange(e, true)}
-                  className="col-span-3"
-                  disabled={editMultipleImageFiles.length >= 4}
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Upload up to 4 new additional images. Will replace existing images. JPG, PNG, or WebP. Max 10MB each.
-                </p>
-                
-                {editMultipleImageFiles.length > 0 && (
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {editMultipleImageFiles.map((file, index) => (
-                      <div key={index} className="relative border rounded p-2">
-                        <img 
-                          src={URL.createObjectURL(file)} 
-                          alt={`Preview ${index}`}
-                          className="h-20 w-full object-contain"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index, true)}
-                          className="absolute top-1 right-1 bg-white rounded-full p-1"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                        <p className="text-xs truncate">{file.name}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            {/* Sizes with Stock Quantity */}
-            <div className="grid grid-cols-4 items-start gap-4">
-              <Label className="text-right pt-2">
-                Sizes & Stock
-              </Label>
-              <div className="col-span-3 space-y-3">
-                {SIZE_OPTIONS.map((size) => (
-                  <div key={size} className="flex items-center gap-4">
-                    <Checkbox
-                      id={`edit-size-${size}`}
-                      checked={selectedSizes.includes(size)}
-                      onCheckedChange={() => {
-                        const newSizes = selectedSizes.includes(size)
-                          ? selectedSizes.filter(s => s !== size)
-                          : [...selectedSizes, size];
-                        
-                        setSelectedSizes(newSizes);
-                        
-                        if (currentProduct) {
-                          setCurrentProduct({
-                            ...currentProduct,
-                            sizes: newSizes
-                          });
-                        }
-                      }}
-                    />
-                    <Label htmlFor={`edit-size-${size}`} className="flex-1">{size}</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      value={editSizeStocks[size] || 0}
-                      onChange={(e) => {
-                        const stock = parseInt(e.target.value) || 0;
-                        const newStocks = {
-                          ...editSizeStocks,
-                          [size]: stock
-                        };
-                        
-                        setEditSizeStocks(newStocks);
-                        
-                        if (currentProduct) {
-                          setCurrentProduct({
-                            ...currentProduct,
-                            size_stocks: newStocks
-                          });
-                        }
-                      }}
-                      className="w-24"
-                      disabled={!selectedSizes.includes(size)}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Colors */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-colors" className="text-right">
-                Colors
-              </Label>
-              <Input
-                id="edit-colors"
-                placeholder="Enter colors separated by commas"
-                value={selectedColors}
-                onChange={(e) => {
-                  setSelectedColors(e.target.value);
-                  
-                  if (currentProduct) {
-                    setCurrentProduct({
-                      ...currentProduct,
-                      colors: e.target.value.split(',').map(c => c.trim()).filter(c => c !== '')
-                    });
-                  }
-                }}
-                className="col-span-3"
-              />
-            </div>
-            
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-description" className="text-right">
-                Description
-              </Label>
-              <Input
-                id="edit-description"
-                value={currentProduct?.description || ""}
-                onChange={(e) =>
-                  setCurrentProduct(
-                    currentProduct
-                      ? { ...currentProduct, description: e.target.value }
-                      : null
-                  )
-                }
-                className="col-span-3"
-              />
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleEditWithImage}>Save Changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="edit-price" className="text-right">
+              Price
+            </Label>
+            <Input
+              id="edit-price"
+              type="number"
+              value={currentProduct?.price || ""}
+              onChange={(e) =>
+                setCurrentProduct(
+                  currentProduct
+                    ? { ...currentProduct, price: parseFloat(e.target.value) }
+                    : null
+                )
+              }
+              className="col-span-3"
+            />
+          </div>
+          
+          {/* Main Image Upload */}
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="edit-image" className="text-right">
+              Main Image
+            </Label>
+            <div className="col-span-3 space-y-2">
+              {currentProduct?.image && (
+                <div className="mb-2">
+                  <img 
+                    src={currentProduct.image} 
+                    alt={currentProduct.name} 
+                    className="h-20 w-auto object-contain rounded"
+                  />
+                </div>
+              )}
+              <Input
+                id="edit-image"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => handleImageChange(e, true)}
+              />
+              <p className="text-xs text-muted-foreground">
+                JPG, PNG, or WebP. Max 10MB.
+              </p>
+              <div className="text-xs text-muted-foreground">
+                Site pour comprésser vos fichiers si suppérier à 10MB: https://compresspng.com/fr/
+              </div>
+            </div>
+          </div>
+          
+          {/* Additional Images Upload */}
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="edit-additional-images" className="text-right">
+              Additional Images
+            </Label>
+            <div className="col-span-3">
+              {/* Show existing additional images */}
+              {currentProduct?.images && currentProduct.images.length > 0 && (
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  {currentProduct.images.map((img, index) => (
+                    <div key={index} className="relative border rounded p-2">
+                      <img 
+                        src={img} 
+                        alt={`Image ${index}`}
+                        className="h-20 w-full object-contain"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <Input
+                id="edit-additional-images"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => handleMultipleImageChange(e, true)}
+                className="col-span-3"
+                disabled={editMultipleImageFiles.length >= 4}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Upload up to 4 new additional images. Will replace existing images. JPG, PNG, or WebP. Max 10MB each.
+              </p>
+              
+              {editMultipleImageFiles.length > 0 && (
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {editMultipleImageFiles.map((file, index) => (
+                    <div key={index} className="relative border rounded p-2">
+                      <img 
+                        src={URL.createObjectURL(file)} 
+                        alt={`Preview ${index}`}
+                        className="h-20 w-full object-contain"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index, true)}
+                        className="absolute top-1 right-1 bg-white rounded-full p-1"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                      <p className="text-xs truncate">{file.name}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Sizes with Stock Quantity */}
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label className="text-right pt-2">
+              Sizes & Stock
+            </Label>
+            <div className="col-span-3 space-y-3">
+              {SIZE_OPTIONS.map((size) => (
+                <div key={size} className="flex items-center gap-4">
+                  <Checkbox
+                    id={`edit-size-${size}`}
+                    checked={selectedSizes.includes(size)}
+                    onCheckedChange={() => {
+                      const newSizes = selectedSizes.includes(size)
+                        ? selectedSizes.filter(s => s !== size)
+                        : [...selectedSizes, size];
+                      
+                      setSelectedSizes(newSizes);
+                      
+                      if (currentProduct) {
+                        setCurrentProduct({
+                          ...currentProduct,
+                          sizes: newSizes
+                        });
+                      }
+                    }}
+                  />
+                  <Label htmlFor={`edit-size-${size}`} className="flex-1">{size}</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={editSizeStocks[size] || 0}
+                    onChange={(e) => {
+                      const stock = parseInt(e.target.value) || 0;
+                      const newStocks = {
+                        ...editSizeStocks,
+                        [size]: stock
+                      };
+                      
+                      setEditSizeStocks(newStocks);
+                      
+                      if (currentProduct) {
+                        setCurrentProduct({
+                          ...currentProduct,
+                          size_stocks: newStocks
+                        });
+                      }
+                    }}
+                    className="w-24"
+                    disabled={!selectedSizes.includes(size)}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Colors */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="edit-colors" className="text-right">
+              Colors
+            </Label>
+            <Input
+              id="edit-colors"
+              placeholder="Enter colors separated by commas"
+              value={selectedColors}
+              onChange={(e) => {
+                setSelectedColors(e.target.value);
+                
+                if (currentProduct) {
+                  setCurrentProduct({
+                    ...currentProduct,
+                    colors: e.target.value.split(',').map(c => c.trim()).filter(c => c !== '')
+                  });
+                }
+              }}
+              className="col-span-3"
+            />
+          </div>
+          
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="edit-description" className="text-right">
+              Description
+            </Label>
+            <Input
+              id="edit-description"
+              value={currentProduct?.description || ""}
+              onChange={(e) =>
+                setCurrentProduct(
+                  currentProduct
+                    ? { ...currentProduct, description: e.target.value }
+                    : null
+                )
+              }
+              className="col-span-3"
+            />
+          </div>
+        </div>
+        <div className="flex gap-2 mt-6">
+          <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="flex-1">
+            Cancel
+          </Button>
+          <Button onClick={handleEditWithImage} className="flex-1">Save Changes</Button>
+        </div>
+      </PopupAdmin>
 
       {/* Delete Product Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Product</DialogTitle>
-          </DialogHeader>
-          <p>
-            Are you sure you want to delete "{currentProduct?.name}"? This action cannot be
-            undone.
-          </p>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDeleteProduct}>
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <PopupAdmin
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        title="Delete Product"
+      >
+        <p className="text-gray-600 mb-6">
+          Are you sure you want to delete "{currentProduct?.name}"? This action cannot be undone.
+        </p>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} className="flex-1">
+            Cancel
+          </Button>
+          <Button variant="destructive" onClick={handleDeleteProduct} className="flex-1">
+            Delete
+          </Button>
+        </div>
+      </PopupAdmin>
     </>
   );
 };

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import PopupAdmin from "./PopupAdmin";
 import { Badge } from "@/components/ui/badge";
 import { Eye, Mail, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -182,46 +182,13 @@ const ContactManagement = () => {
                   <TableCell>{new Date(contact.created_at).toLocaleDateString('fr-FR')}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewContact(contact)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl">
-                          <DialogHeader>
-                            <DialogTitle>Message de {selectedContact?.name}</DialogTitle>
-                          </DialogHeader>
-                          {selectedContact && (
-                            <div className="space-y-4">
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <strong>Nom:</strong> {selectedContact.name}
-                                </div>
-                                <div>
-                                  <strong>Email:</strong> {selectedContact.email}
-                                </div>
-                                <div>
-                                  <strong>Sujet:</strong> {getSubjectLabel(selectedContact.subject)}
-                                </div>
-                                <div>
-                                  <strong>Date:</strong> {new Date(selectedContact.created_at).toLocaleDateString('fr-FR')}
-                                </div>
-                              </div>
-                              <div>
-                                <strong>Message:</strong>
-                                <div className="mt-2 p-4 bg-gray-50 rounded-md">
-                                  {selectedContact.message}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </DialogContent>
-                      </Dialog>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewContact(contact)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -238,6 +205,38 @@ const ContactManagement = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <PopupAdmin
+        isOpen={isDetailDialogOpen}
+        onClose={() => setIsDetailDialogOpen(false)}
+        title={`Message de ${selectedContact?.name}`}
+        maxWidth="max-w-2xl"
+      >
+        {selectedContact && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <strong>Nom:</strong> {selectedContact.name}
+              </div>
+              <div>
+                <strong>Email:</strong> {selectedContact.email}
+              </div>
+              <div>
+                <strong>Sujet:</strong> {getSubjectLabel(selectedContact.subject)}
+              </div>
+              <div>
+                <strong>Date:</strong> {new Date(selectedContact.created_at).toLocaleDateString('fr-FR')}
+              </div>
+            </div>
+            <div>
+              <strong>Message:</strong>
+              <div className="mt-2 p-4 bg-gray-50 rounded-md">
+                {selectedContact.message}
+              </div>
+            </div>
+          </div>
+        )}
+      </PopupAdmin>
     </div>
   );
 };

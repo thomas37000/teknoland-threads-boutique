@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import PopupAdmin from "./PopupAdmin";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Edit, Trash2, Filter } from "lucide-react";
@@ -248,68 +248,67 @@ const FilterManagement = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Gestion des Filtres</h2>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Ajouter un filtre
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Ajouter un nouveau filtre</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="filter-name">Nom du filtre</Label>
-                <Input
-                  id="filter-name"
-                  value={newFilter.name}
-                  onChange={(e) => setNewFilter({...newFilter, name: e.target.value})}
-                  placeholder="Ex: Marque"
-                />
-              </div>
-              <div>
-                <Label htmlFor="filter-type">Type de filtre</Label>
-                <Select value={newFilter.type} onValueChange={(value: any) => setNewFilter({...newFilter, type: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="category">Catégorie</SelectItem>
-                    <SelectItem value="price">Prix</SelectItem>
-                    <SelectItem value="size">Taille</SelectItem>
-                    <SelectItem value="color">Couleur</SelectItem>
-                    <SelectItem value="stock">Stock</SelectItem>
-                    <SelectItem value="brand">Marque</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="filter-options">Options (séparées par des virgules)</Label>
-                <Input
-                  id="filter-options"
-                  value={newFilter.options}
-                  onChange={(e) => setNewFilter({...newFilter, options: e.target.value})}
-                  placeholder="Ex: Nike, Adidas, Puma"
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="filter-active"
-                  checked={newFilter.is_active}
-                  onCheckedChange={(checked) => setNewFilter({...newFilter, is_active: checked})}
-                />
-                <Label htmlFor="filter-active">Filtre actif</Label>
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={handleAddFilter} className="flex-1">Ajouter</Button>
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="flex-1">Annuler</Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={() => setIsAddDialogOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Ajouter un filtre
+        </Button>
       </div>
+
+      <PopupAdmin
+        isOpen={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        title="Ajouter un nouveau filtre"
+        maxWidth="w-96"
+      >
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="filter-name">Nom du filtre</Label>
+            <Input
+              id="filter-name"
+              value={newFilter.name}
+              onChange={(e) => setNewFilter({...newFilter, name: e.target.value})}
+              placeholder="Ex: Marque"
+            />
+          </div>
+          <div>
+            <Label htmlFor="filter-type">Type de filtre</Label>
+            <Select value={newFilter.type} onValueChange={(value: any) => setNewFilter({...newFilter, type: value})}>
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionner un type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="category">Catégorie</SelectItem>
+                <SelectItem value="price">Prix</SelectItem>
+                <SelectItem value="size">Taille</SelectItem>
+                <SelectItem value="color">Couleur</SelectItem>
+                <SelectItem value="stock">Stock</SelectItem>
+                <SelectItem value="brand">Marque</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="filter-options">Options (séparées par des virgules)</Label>
+            <Input
+              id="filter-options"
+              value={newFilter.options}
+              onChange={(e) => setNewFilter({...newFilter, options: e.target.value})}
+              placeholder="Ex: Nike, Adidas, Puma"
+            />
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="filter-active"
+              checked={newFilter.is_active}
+              onCheckedChange={(checked) => setNewFilter({...newFilter, is_active: checked})}
+            />
+            <Label htmlFor="filter-active">Filtre actif</Label>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={handleAddFilter} className="flex-1">Ajouter</Button>
+            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="flex-1">Annuler</Button>
+          </div>
+        </div>
+      </PopupAdmin>
 
       <Card>
         <CardHeader>
@@ -356,49 +355,16 @@ const FilterManagement = () => {
                       >
                         <Switch checked={filter.is_active} />
                       </Button>
-                      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setCurrentFilter(filter)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Modifier le filtre</DialogTitle>
-                          </DialogHeader>
-                          {currentFilter && (
-                            <div className="space-y-4">
-                              <div>
-                                <Label htmlFor="edit-filter-name">Nom du filtre</Label>
-                                <Input
-                                  id="edit-filter-name"
-                                  value={currentFilter.name}
-                                  onChange={(e) => setCurrentFilter({...currentFilter, name: e.target.value})}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="edit-filter-options">Options (séparées par des virgules)</Label>
-                                <Input
-                                  id="edit-filter-options"
-                                  value={currentFilter.options?.join(", ") || ""}
-                                  onChange={(e) => setCurrentFilter({
-                                    ...currentFilter, 
-                                    options: e.target.value ? e.target.value.split(",").map(o => o.trim()) : null
-                                  })}
-                                />
-                              </div>
-                              <div className="flex gap-2">
-                                <Button onClick={handleEditFilter} className="flex-1">Sauvegarder</Button>
-                                <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="flex-1">Annuler</Button>
-                              </div>
-                            </div>
-                          )}
-                        </DialogContent>
-                      </Dialog>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setCurrentFilter(filter);
+                          setIsEditDialogOpen(true);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -415,6 +381,41 @@ const FilterManagement = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <PopupAdmin
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        title="Modifier le filtre"
+        maxWidth="w-96"
+      >
+        {currentFilter && (
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-filter-name">Nom du filtre</Label>
+              <Input
+                id="edit-filter-name"
+                value={currentFilter.name}
+                onChange={(e) => setCurrentFilter({...currentFilter, name: e.target.value})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-filter-options">Options (séparées par des virgules)</Label>
+              <Input
+                id="edit-filter-options"
+                value={currentFilter.options?.join(", ") || ""}
+                onChange={(e) => setCurrentFilter({
+                  ...currentFilter, 
+                  options: e.target.value ? e.target.value.split(",").map(o => o.trim()) : null
+                })}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={handleEditFilter} className="flex-1">Sauvegarder</Button>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="flex-1">Annuler</Button>
+            </div>
+          </div>
+        )}
+      </PopupAdmin>
     </div>
   );
 };

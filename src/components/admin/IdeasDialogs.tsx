@@ -1,11 +1,5 @@
 
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter,
-} from "@/components/ui/dialog";
+import PopupAdmin from "./PopupAdmin";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -123,139 +117,138 @@ const IdeasDialogs = ({
   return (
     <>
       {/* Add Idea Dialog */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Ajouter une nouvelle idée</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Description
-              </Label>
-              <Input
-                id="name"
-                value={newIdea.desc || ""}
-                onChange={(e) =>
-                  setNewIdea({ ...newIdea, desc: e.target.value })
-                }
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="priority" className="text-right">
-                Priorité
-              </Label>
-              <Select
-                value={newIdea.priority || "medium"}
-                onValueChange={(value) =>
-                  setNewIdea({ ...newIdea, priority: value as 'low' | 'medium' | 'high' | 'urgent' })
-                }
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Sélectionnez une priorité" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Basse</SelectItem>
-                  <SelectItem value="medium">Moyenne</SelectItem>
-                  <SelectItem value="high">Haute</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <PopupAdmin
+        isOpen={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        title="Ajouter une nouvelle idée"
+        maxWidth="max-w-2xl"
+      >
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="name" className="text-right">
+              Description
+            </Label>
+            <Input
+              id="name"
+              value={newIdea.desc || ""}
+              onChange={(e) =>
+                setNewIdea({ ...newIdea, desc: e.target.value })
+              }
+              className="col-span-3"
+            />
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-              Annuler
-            </Button>
-            <Button onClick={() => handleAddIdeaWithSupabase(newIdea, handleAddIdea, setIsAddDialogOpen)}>
-              Ajouter l'idée
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="priority" className="text-right">
+              Priorité
+            </Label>
+            <Select
+              value={newIdea.priority || "medium"}
+              onValueChange={(value) =>
+                setNewIdea({ ...newIdea, priority: value as 'low' | 'medium' | 'high' | 'urgent' })
+              }
+            >
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder="Sélectionnez une priorité" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="low">Basse</SelectItem>
+                <SelectItem value="medium">Moyenne</SelectItem>
+                <SelectItem value="high">Haute</SelectItem>
+                <SelectItem value="urgent">Urgent</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="flex gap-2 mt-6">
+          <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="flex-1">
+            Annuler
+          </Button>
+          <Button onClick={() => handleAddIdeaWithSupabase(newIdea, handleAddIdea, setIsAddDialogOpen)} className="flex-1">
+            Ajouter l'idée
+          </Button>
+        </div>
+      </PopupAdmin>
 
       {/* Edit Idea Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Modifier l'idée</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-name" className="text-right">
-                Description
-              </Label>
-              <Input
-                id="edit-name"
-                value={currentIdea?.desc || ""}
-                onChange={(e) =>
-                  setCurrentIdea(
-                    currentIdea
-                      ? { ...currentIdea, desc: e.target.value }
-                      : null
-                  )
-                }
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-priority" className="text-right">
-                Priorité
-              </Label>
-              <Select
-                value={currentIdea?.priority || "medium"}
-                onValueChange={(value) =>
-                  setCurrentIdea(
-                    currentIdea
-                      ? { ...currentIdea, priority: value as 'low' | 'medium' | 'high' | 'urgent' }
-                      : null
-                  )
-                }
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Sélectionnez une priorité" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Basse</SelectItem>
-                  <SelectItem value="medium">Moyenne</SelectItem>
-                  <SelectItem value="high">Haute</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <PopupAdmin
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        title="Modifier l'idée"
+        maxWidth="max-w-2xl"
+      >
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="edit-name" className="text-right">
+              Description
+            </Label>
+            <Input
+              id="edit-name"
+              value={currentIdea?.desc || ""}
+              onChange={(e) =>
+                setCurrentIdea(
+                  currentIdea
+                    ? { ...currentIdea, desc: e.target.value }
+                    : null
+                )
+              }
+              className="col-span-3"
+            />
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Annuler
-            </Button>
-            <Button onClick={() => handleEditIdeaWithSupabase(currentIdea, handleEditIdea, setIsEditDialogOpen)}>
-              Sauvegarder
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="edit-priority" className="text-right">
+              Priorité
+            </Label>
+            <Select
+              value={currentIdea?.priority || "medium"}
+              onValueChange={(value) =>
+                setCurrentIdea(
+                  currentIdea
+                    ? { ...currentIdea, priority: value as 'low' | 'medium' | 'high' | 'urgent' }
+                    : null
+                )
+              }
+            >
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder="Sélectionnez une priorité" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="low">Basse</SelectItem>
+                <SelectItem value="medium">Moyenne</SelectItem>
+                <SelectItem value="high">Haute</SelectItem>
+                <SelectItem value="urgent">Urgent</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="flex gap-2 mt-6">
+          <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="flex-1">
+            Annuler
+          </Button>
+          <Button onClick={() => handleEditIdeaWithSupabase(currentIdea, handleEditIdea, setIsEditDialogOpen)} className="flex-1">
+            Sauvegarder
+          </Button>
+        </div>
+      </PopupAdmin>
 
       {/* Delete Idea Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Supprimer l'idée</DialogTitle>
-          </DialogHeader>
-          <p>
-            Êtes-vous sûr de vouloir supprimer "{currentIdea?.desc}" ? Cette action ne peut pas être
-            annulée.
-          </p>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-              Annuler
-            </Button>
-            <Button variant="destructive" onClick={handleDeleteIdea}>
-              Supprimer
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <PopupAdmin
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        title="Supprimer l'idée"
+      >
+        <p className="text-gray-600 mb-6">
+          Êtes-vous sûr de vouloir supprimer "{currentIdea?.desc}" ? Cette action ne peut pas être
+          annulée.
+        </p>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} className="flex-1">
+            Annuler
+          </Button>
+          <Button variant="destructive" onClick={handleDeleteIdea} className="flex-1">
+            Supprimer
+          </Button>
+        </div>
+      </PopupAdmin>
     </>
   );
 };
