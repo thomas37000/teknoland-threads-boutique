@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Client } from "@/types";
 import ClientTable from "./ClientTable";
+import PopupAdmin from "./PopupAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import TableSkeleton from "@/components/skeletons/TableSkeleton";
@@ -205,86 +206,84 @@ const ClientEditDialog = ({ client, isOpen, onClose, onSave }: {
     onSave(editedClient);
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg w-96 max-w-full">
-        <h3 className="text-lg font-semibold mb-4">Modifier le client</h3>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Nom</label>
-            <input
-              type="text"
-              value={editedClient.name}
-              onChange={(e) => setEditedClient({...editedClient, name: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-1">Téléphone</label>
-            <input
-              type="text"
-              value={editedClient.phone}
-              onChange={(e) => setEditedClient({...editedClient, phone: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-1">Adresse</label>
-            <input
-              type="text"
-              value={editedClient.address}
-              onChange={(e) => setEditedClient({...editedClient, address: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-1">Statut</label>
-            <select
-              value={editedClient.accountStatus}
-              onChange={(e) => setEditedClient({...editedClient, accountStatus: e.target.value as "active" | "inactive"})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            >
-              <option value="active">Actif</option>
-              <option value="inactive">Inactif</option>
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-1">Rôle</label>
-            <select
-              value={editedClient.roles}
-              onChange={(e) => setEditedClient({...editedClient, roles: e.target.value as "client" | "admin" | "seller"})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            >
-              <option value="client">Client</option>
-              <option value="seller">Vendeur</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
+    <PopupAdmin
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Modifier le client"
+    >
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Nom</label>
+          <input
+            type="text"
+            value={editedClient.name}
+            onChange={(e) => setEditedClient({...editedClient, name: e.target.value})}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
         </div>
         
-        <div className="flex gap-2 mt-6">
-          <button
-            onClick={handleSave}
-            className="flex-1 bg-tekno-blue text-white py-2 rounded-md hover:bg-tekno-blue/90"
+        <div>
+          <label className="block text-sm font-medium mb-1">Téléphone</label>
+          <input
+            type="text"
+            value={editedClient.phone}
+            onChange={(e) => setEditedClient({...editedClient, phone: e.target.value})}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">Adresse</label>
+          <input
+            type="text"
+            value={editedClient.address}
+            onChange={(e) => setEditedClient({...editedClient, address: e.target.value})}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">Statut</label>
+          <select
+            value={editedClient.accountStatus}
+            onChange={(e) => setEditedClient({...editedClient, accountStatus: e.target.value as "active" | "inactive"})}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
           >
-            Sauvegarder
-          </button>
-          <button
-            onClick={onClose}
-            className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-400"
+            <option value="active">Actif</option>
+            <option value="inactive">Inactif</option>
+          </select>
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">Rôle</label>
+          <select
+            value={editedClient.roles}
+            onChange={(e) => setEditedClient({...editedClient, roles: e.target.value as "client" | "admin" | "seller"})}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
           >
-            Annuler
-          </button>
+            <option value="client">Client</option>
+            <option value="seller">Vendeur</option>
+            <option value="admin">Admin</option>
+          </select>
         </div>
       </div>
-    </div>
+      
+      <div className="flex gap-2 mt-6">
+        <button
+          onClick={handleSave}
+          className="flex-1 bg-tekno-blue text-white py-2 rounded-md hover:bg-tekno-blue/90"
+        >
+          Sauvegarder
+        </button>
+        <button
+          onClick={onClose}
+          className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-400"
+        >
+          Annuler
+        </button>
+      </div>
+    </PopupAdmin>
   );
 };
 
@@ -295,34 +294,32 @@ const ClientDeleteDialog = ({ client, isOpen, onClose, onConfirm }: {
   onClose: () => void;
   onConfirm: () => void;
 }) => {
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg w-96 max-w-full">
-        <h3 className="text-lg font-semibold mb-4">Supprimer le client</h3>
-        
-        <p className="text-gray-600 mb-6">
-          Êtes-vous sûr de vouloir supprimer le client <strong>{client.name}</strong> ? 
-          Cette action est irréversible.
-        </p>
-        
-        <div className="flex gap-2">
-          <button
-            onClick={onConfirm}
-            className="flex-1 bg-red-600 text-white py-2 rounded-md hover:bg-red-700"
-          >
-            Supprimer
-          </button>
-          <button
-            onClick={onClose}
-            className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-400"
-          >
-            Annuler
-          </button>
-        </div>
+    <PopupAdmin
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Supprimer le client"
+    >
+      <p className="text-gray-600 mb-6">
+        Êtes-vous sûr de vouloir supprimer le client <strong>{client.name}</strong> ? 
+        Cette action est irréversible.
+      </p>
+      
+      <div className="flex gap-2">
+        <button
+          onClick={onConfirm}
+          className="flex-1 bg-red-600 text-white py-2 rounded-md hover:bg-red-700"
+        >
+          Supprimer
+        </button>
+        <button
+          onClick={onClose}
+          className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-400"
+        >
+          Annuler
+        </button>
       </div>
-    </div>
+    </PopupAdmin>
   );
 };
 
