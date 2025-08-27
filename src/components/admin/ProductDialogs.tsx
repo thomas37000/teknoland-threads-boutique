@@ -642,7 +642,16 @@ const ProductDialogs = ({
               id="colors"
               placeholder="Enter colors separated by commas"
               value={selectedColors}
-              onChange={(e) => setSelectedColors(e.target.value)}
+              onChange={(e) => {
+                setSelectedColors(e.target.value);
+                
+                // Update newProduct colors as well
+                const colors = e.target.value.split(',').map(c => c.trim()).filter(c => c !== '');
+                setNewProduct({
+                  ...newProduct,
+                  colors: colors
+                });
+              }}
               className="col-span-3"
             />
           </div>
