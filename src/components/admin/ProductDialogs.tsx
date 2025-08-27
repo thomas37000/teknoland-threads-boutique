@@ -12,21 +12,19 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { X } from "lucide-react";
+import { X, Plus, Trash2 } from "lucide-react";
 
 const CATEGORIES = ["Man's T-shirts", "Sweats", "Vinyle"];
 const SIZE_OPTIONS = ["S", "M", "L", "XL"];
+const COLOR_OPTIONS = ["Noir", "Blanc", "Rouge", "Bleu", "Vert", "Jaune", "Rose", "Violet", "Orange", "Gris"];
+
+interface ProductVariation {
+  color: string;
+  size: string;
+  stock: number;
+}
 
 interface ProductDialogsProps {
   isAddDialogOpen: boolean;
@@ -42,11 +40,6 @@ interface ProductDialogsProps {
   handleAddProduct: () => void;
   handleEditProduct: () => void;
   handleDeleteProduct: () => void;
-}
-
-interface SizeStock {
-  size: string;
-  stock: number;
 }
 
 const ProductDialogs = ({
@@ -68,38 +61,45 @@ const ProductDialogs = ({
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const [multipleImageFiles, setMultipleImageFiles] = useState<File[]>([]);
   const [editMultipleImageFiles, setEditMultipleImageFiles] = useState<File[]>([]);
-  const [sizeStocks, setSizeStocks] = useState<{[size: string]: number}>({
-    'S': 0,
-    'M': 0,
-    'L': 0,
-    'XL': 0
-  });
-  const [editSizeStocks, setEditSizeStocks] = useState<{[size: string]: number}>({});
-  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-  const [selectedColors, setSelectedColors] = useState<string>("");
+  const [variations, setVariations] = useState<ProductVariation[]>([]);
+  const [editVariations, setEditVariations] = useState<ProductVariation[]>([]);
   
-  // Setup initial edit size stocks when a product is loaded
+  // Setup initial variations when a product is loaded
   useEffect(() => {
-    if (currentProduct && currentProduct.size_stocks) {
-      // Initialize from existing size_stocks
-      setEditSizeStocks(currentProduct.size_stocks as {[size: string]: number} || {});
-      setSelectedSizes(currentProduct.sizes || []);
-      setSelectedColors(currentProduct.colors?.join(', ') || '');
-    } else if (currentProduct) {
-      // Fallback to initialize from available sizes
-      const stocks: {[size: string]: number} = {};
-      (currentProduct.sizes || []).forEach(size => {
-        stocks[size] = currentProduct.stock || 0;
-      });
-      setEditSizeStocks(stocks);
-      setSelectedSizes(currentProduct.sizes || []);
-      setSelectedColors(currentProduct.colors?.join(', ') || '');
+    if (currentProduct) {
+      // Try to convert from current format to variations
+      const existingVariations: ProductVariation[] = [];
+      
+      if (currentProduct.size_stocks) {
+        const sizeStocksData = currentProduct.size_stocks as any;
+        
+        // Check if the new format with variations exists
+        if (sizeStocksData.variations && Array.isArray(sizeStocksData.variations)) {
+          setEditVariations(sizeStocksData.variations);
+        } else if (currentProduct.sizes && currentProduct.colors) {
+          // Convert from old format
+          currentProduct.colors.forEach(color => {
+            currentProduct.sizes!.forEach(size => {
+              const stock = sizeStocksData[size] || 0;
+              existingVariations.push({ color, size, stock });
+            });
+          });
+          setEditVariations(existingVariations);
+        }
+      } else {
+        setEditVariations([]);
+      }
     } else {
-      setEditSizeStocks({});
-      setSelectedSizes([]);
-      setSelectedColors('');
+      setEditVariations([]);
     }
   }, [currentProduct]);
+
+  // Reset variations when dialog closes
+  useEffect(() => {
+    if (!isAddDialogOpen) {
+      setVariations([]);
+    }
+  }, [isAddDialogOpen]);
 
   // Handle main image file selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, isEdit: boolean) => {
@@ -196,53 +196,60 @@ const ProductDialogs = ({
     }
   };
 
-  // Handle size selection for new product
-  const handleSizeChange = (size: string) => {
-    const newSelectedSizes = selectedSizes.includes(size)
-      ? selectedSizes.filter(s => s !== size)
-      : [...selectedSizes, size];
-    
-    setSelectedSizes(newSelectedSizes);
-    
-    // Update newProduct sizes
-    setNewProduct({
-      ...newProduct,
-      sizes: newSelectedSizes
-    });
-  };
-
-  // Handle stock change for a specific size
-  const handleSizeStockChange = (size: string, value: string, isEdit: boolean) => {
-    const stock = parseInt(value) || 0;
+  // Add new variation
+  const addVariation = (isEdit: boolean = false) => {
+    const newVariation: ProductVariation = {
+      color: COLOR_OPTIONS[0],
+      size: SIZE_OPTIONS[0],
+      stock: 0
+    };
     
     if (isEdit) {
-      setEditSizeStocks({
-        ...editSizeStocks,
-        [size]: stock
-      });
+      setEditVariations([...editVariations, newVariation]);
     } else {
-      setSizeStocks({
-        ...sizeStocks,
-        [size]: stock
-      });
-      
-      // Update newProduct size_stocks
-      setNewProduct({
-        ...newProduct,
-        size_stocks: {
-          ...sizeStocks,
-          [size]: stock
-        }
-      });
+      setVariations([...variations, newVariation]);
     }
+  };
+
+  // Remove variation
+  const removeVariation = (index: number, isEdit: boolean = false) => {
+    if (isEdit) {
+      setEditVariations(editVariations.filter((_, i) => i !== index));
+    } else {
+      setVariations(variations.filter((_, i) => i !== index));
+    }
+  };
+
+  // Update variation
+  const updateVariation = (index: number, field: keyof ProductVariation, value: string | number, isEdit: boolean = false) => {
+    const targetVariations = isEdit ? editVariations : variations;
+    const setTargetVariations = isEdit ? setEditVariations : setVariations;
+    
+    const updatedVariations = [...targetVariations];
+    updatedVariations[index] = {
+      ...updatedVariations[index],
+      [field]: field === 'stock' ? parseInt(value as string) || 0 : value
+    };
+    
+    setTargetVariations(updatedVariations);
   };
 
   // Handle add product with image upload
   const handleAddWithImage = async () => {
     try {
-      // Calculate total stock from size stocks
-      const totalStock = Object.values(sizeStocks).reduce((sum, stock) => sum + stock, 0);
-      const colors = selectedColors.split(',').map(c => c.trim()).filter(c => c !== '');
+      if (variations.length === 0) {
+        toast({
+          title: "Error",
+          description: "Please add at least one variation (color/size/stock).",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Calculate total stock from variations
+      const totalStock = variations.reduce((sum, variation) => sum + variation.stock, 0);
+      const uniqueColors = [...new Set(variations.map(v => v.color))];
+      const uniqueSizes = [...new Set(variations.map(v => v.size))];
       
       // Prepare product data for Supabase
       let imageUrl = '';
@@ -295,6 +302,12 @@ const ProductDialogs = ({
           additionalImages.push(urlData.publicUrl);
         }
       }
+
+      // Create size_stocks object for backward compatibility
+      const sizeStocks: {[size: string]: number} = {};
+      variations.forEach(variation => {
+        sizeStocks[variation.size] = (sizeStocks[variation.size] || 0) + variation.stock;
+      });
       
       // Insert the product into the Supabase database
       const { data: productData, error: insertError } = await supabase
@@ -307,9 +320,9 @@ const ProductDialogs = ({
           images: additionalImages.length > 0 ? additionalImages : null,
           category: newProduct.category || CATEGORIES[0],
           stock: totalStock,
-          sizes: selectedSizes,
-          colors: colors,
-          size_stocks: sizeStocks,
+          sizes: uniqueSizes,
+          colors: uniqueColors,
+          size_stocks: JSON.parse(JSON.stringify({ variations, sizeStocks })), // Store both new and old format
           seller_id: (await supabase.auth.getUser()).data.user?.id,
           is_new: true
         }])
@@ -340,14 +353,7 @@ const ProductDialogs = ({
       });
       setImageFile(null);
       setMultipleImageFiles([]);
-      setSizeStocks({
-        'S': 0,
-        'M': 0,
-        'L': 0,
-        'XL': 0
-      });
-      setSelectedSizes([]);
-      setSelectedColors('');
+      setVariations([]);
       setIsAddDialogOpen(false);
       
       // Call the original handler to update UI
@@ -368,9 +374,19 @@ const ProductDialogs = ({
     if (!currentProduct) return;
     
     try {
-      // Calculate total stock from size stocks
-      const totalStock = Object.values(editSizeStocks).reduce((sum, stock) => sum + stock, 0);
-      const colors = selectedColors.split(',').map(c => c.trim()).filter(c => c !== '');
+      if (editVariations.length === 0) {
+        toast({
+          title: "Error",
+          description: "Please add at least one variation (color/size/stock).",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Calculate total stock from variations
+      const totalStock = editVariations.reduce((sum, variation) => sum + variation.stock, 0);
+      const uniqueColors = [...new Set(editVariations.map(v => v.color))];
+      const uniqueSizes = [...new Set(editVariations.map(v => v.size))];
       
       // Prepare product data for update
       let imageUrl = currentProduct.image;
@@ -427,6 +443,12 @@ const ProductDialogs = ({
         // Replace existing additional images
         additionalImages = newImages;
       }
+
+      // Create size_stocks object for backward compatibility
+      const sizeStocks: {[size: string]: number} = {};
+      editVariations.forEach(variation => {
+        sizeStocks[variation.size] = (sizeStocks[variation.size] || 0) + variation.stock;
+      });
       
       // Update the product in the Supabase database
       const { data: updatedData, error: updateError } = await supabase
@@ -439,9 +461,9 @@ const ProductDialogs = ({
           images: additionalImages.length > 0 ? additionalImages : null,
           category: currentProduct.category,
           stock: totalStock,
-          sizes: selectedSizes,
-          colors: colors,
-          size_stocks: editSizeStocks
+          sizes: uniqueSizes,
+          colors: uniqueColors,
+          size_stocks: JSON.parse(JSON.stringify({ variations: editVariations, sizeStocks }))
         })
         .eq('id', currentProduct.id)
         .select();
@@ -606,54 +628,90 @@ const ProductDialogs = ({
             </div>
           </div>
           
-          {/* Sizes with Stock Quantity */}
+          {/* Product Variations */}
           <div className="grid grid-cols-4 items-start gap-4">
             <Label className="text-right pt-2">
-              Sizes & Stock
+              Variations
             </Label>
-            <div className="col-span-3 space-y-3">
-              {SIZE_OPTIONS.map((size) => (
-                <div key={size} className="flex items-center gap-4">
-                  <Checkbox
-                    id={`size-${size}`}
-                    checked={selectedSizes.includes(size)}
-                    onCheckedChange={() => handleSizeChange(size)}
-                  />
-                  <Label htmlFor={`size-${size}`} className="flex-1">{size}</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    value={sizeStocks[size] || 0}
-                    onChange={(e) => handleSizeStockChange(size, e.target.value, false)}
-                    className="w-24"
-                    disabled={!selectedSizes.includes(size)}
-                  />
+            <div className="col-span-3 space-y-4">
+              {variations.map((variation, index) => (
+                <div key={index} className="border rounded-lg p-4 space-y-3 bg-muted/20">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">Variation {index + 1}</h4>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeVariation(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <Label className="text-sm">Couleur</Label>
+                      <Select
+                        value={variation.color}
+                        onValueChange={(value) => updateVariation(index, 'color', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {COLOR_OPTIONS.map(color => (
+                            <SelectItem key={color} value={color}>{color}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-sm">Taille</Label>
+                      <Select
+                        value={variation.size}
+                        onValueChange={(value) => updateVariation(index, 'size', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SIZE_OPTIONS.map(size => (
+                            <SelectItem key={size} value={size}>{size}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-sm">Stock</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={variation.stock}
+                        onChange={(e) => updateVariation(index, 'stock', e.target.value)}
+                      />
+                    </div>
+                  </div>
                 </div>
               ))}
+              
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => addVariation()}
+                className="w-full"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Ajouter une variation
+              </Button>
+              
+              {variations.length > 0 && (
+                <div className="text-sm text-muted-foreground">
+                  Stock total: {variations.reduce((sum, v) => sum + v.stock, 0)} unités
+                </div>
+              )}
             </div>
-          </div>
-          
-          {/* Colors */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="colors" className="text-right">
-              Colors
-            </Label>
-            <Input
-              id="colors"
-              placeholder="Enter colors separated by commas"
-              value={selectedColors}
-              onChange={(e) => {
-                setSelectedColors(e.target.value);
-                
-                // Update newProduct colors as well
-                const colors = e.target.value.split(',').map(c => c.trim()).filter(c => c !== '');
-                setNewProduct({
-                  ...newProduct,
-                  colors: colors
-                });
-              }}
-              className="col-span-3"
-            />
           </div>
           
           <div className="grid grid-cols-4 items-center gap-4">
@@ -840,82 +898,90 @@ const ProductDialogs = ({
             </div>
           </div>
           
-          {/* Sizes with Stock Quantity */}
+          {/* Product Variations */}
           <div className="grid grid-cols-4 items-start gap-4">
             <Label className="text-right pt-2">
-              Sizes & Stock
+              Variations
             </Label>
-            <div className="col-span-3 space-y-3">
-              {SIZE_OPTIONS.map((size) => (
-                <div key={size} className="flex items-center gap-4">
-                  <Checkbox
-                    id={`edit-size-${size}`}
-                    checked={selectedSizes.includes(size)}
-                    onCheckedChange={() => {
-                      const newSizes = selectedSizes.includes(size)
-                        ? selectedSizes.filter(s => s !== size)
-                        : [...selectedSizes, size];
-                      
-                      setSelectedSizes(newSizes);
-                      
-                      if (currentProduct) {
-                        setCurrentProduct({
-                          ...currentProduct,
-                          sizes: newSizes
-                        });
-                      }
-                    }}
-                  />
-                  <Label htmlFor={`edit-size-${size}`} className="flex-1">{size}</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    value={editSizeStocks[size] || 0}
-                    onChange={(e) => {
-                      const stock = parseInt(e.target.value) || 0;
-                      const newStocks = {
-                        ...editSizeStocks,
-                        [size]: stock
-                      };
-                      
-                      setEditSizeStocks(newStocks);
-                      
-                      if (currentProduct) {
-                        setCurrentProduct({
-                          ...currentProduct,
-                          size_stocks: newStocks
-                        });
-                      }
-                    }}
-                    className="w-24"
-                    disabled={!selectedSizes.includes(size)}
-                  />
+            <div className="col-span-3 space-y-4">
+              {editVariations.map((variation, index) => (
+                <div key={index} className="border rounded-lg p-4 space-y-3 bg-muted/20">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">Variation {index + 1}</h4>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeVariation(index, true)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <Label className="text-sm">Couleur</Label>
+                      <Select
+                        value={variation.color}
+                        onValueChange={(value) => updateVariation(index, 'color', value, true)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {COLOR_OPTIONS.map(color => (
+                            <SelectItem key={color} value={color}>{color}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-sm">Taille</Label>
+                      <Select
+                        value={variation.size}
+                        onValueChange={(value) => updateVariation(index, 'size', value, true)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SIZE_OPTIONS.map(size => (
+                            <SelectItem key={size} value={size}>{size}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-sm">Stock</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={variation.stock}
+                        onChange={(e) => updateVariation(index, 'stock', e.target.value, true)}
+                      />
+                    </div>
+                  </div>
                 </div>
               ))}
+              
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => addVariation(true)}
+                className="w-full"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Ajouter une variation
+              </Button>
+              
+              {editVariations.length > 0 && (
+                <div className="text-sm text-muted-foreground">
+                  Stock total: {editVariations.reduce((sum, v) => sum + v.stock, 0)} unités
+                </div>
+              )}
             </div>
-          </div>
-          
-          {/* Colors */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="edit-colors" className="text-right">
-              Colors
-            </Label>
-            <Input
-              id="edit-colors"
-              placeholder="Enter colors separated by commas"
-              value={selectedColors}
-              onChange={(e) => {
-                setSelectedColors(e.target.value);
-                
-                if (currentProduct) {
-                  setCurrentProduct({
-                    ...currentProduct,
-                    colors: e.target.value.split(',').map(c => c.trim()).filter(c => c !== '')
-                  });
-                }
-              }}
-              className="col-span-3"
-            />
           </div>
           
           <div className="grid grid-cols-4 items-center gap-4">
