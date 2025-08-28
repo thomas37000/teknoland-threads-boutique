@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
+import { transformProductsFromDB } from "@/utils/product-transform";
 
 interface VendorInfo {
   id: string;
@@ -79,7 +80,7 @@ const VendorStorePage = () => {
         return;
       }
 
-      const productsList = productsData as Product[] || [];
+      const productsList = transformProductsFromDB(productsData || []);
       
       // Hide vendor page if no products
       if (productsList.length === 0) {

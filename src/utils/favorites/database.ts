@@ -2,6 +2,7 @@
 import { toast } from 'sonner';
 import { Product } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
+import { transformProductsFromDB } from '@/utils/product-transform';
 
 /**
  * Fetch user favorites from Supabase
@@ -31,7 +32,7 @@ export const fetchUserFavorites = async (userId: string): Promise<Product[]> => 
     }
     
     if (productsData) {
-      return productsData as Product[];
+      return transformProductsFromDB(productsData);
     }
   }
   

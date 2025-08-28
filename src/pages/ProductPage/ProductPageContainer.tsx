@@ -9,6 +9,7 @@ import { Product } from "@/types";
 import { ArrowUp } from "lucide-react";
 import ProductImages from "./components/ProductImages";
 import ProductDetails from "./components/ProductDetails";
+import { transformProductFromDB } from "@/utils/product-transform";
 
 const ProductPageContainer = () => {
   const { id } = useParams<{ id: string }>();
@@ -43,29 +44,23 @@ const ProductPageContainer = () => {
         }
 
         if (data) {
-          // Transform the data to match the Product interface
-          const product: Product = {
-            ...data,
-            isNew: data.is_new,
-            size_stocks: data.size_stocks as Record<string, number> | null,
-          };
-
-          setProduct(product);
-          setCurrentImage(product.image);
+          const transformedProduct = transformProductFromDB(data);
+          setProduct(transformedProduct);
+          setCurrentImage(transformedProduct.image);
 
           // Set initial size if available
-          if (product.sizes && product.sizes.length > 0) {
-            setSelectedSize(product.sizes[0]);
+          if (transformedProduct.sizes && transformedProduct.sizes.length > 0) {
+            setSelectedSize(transformedProduct.sizes[0]);
           }
 
           // Set initial color if available
-          if (product.colors && product.colors.length > 0) {
-            setSelectedColor(product.colors[0]);
+          if (transformedProduct.colors && transformedProduct.colors.length > 0) {
+            setSelectedColor(transformedProduct.colors[0]);
             // Set initial image based on the first color if color images exist
-            if (product.colorImages && product.colorImages[product.colors[0]]) {
-              setCurrentImage(product.colorImages[product.colors[0]]);
+            if (transformedProduct.colorImages && transformedProduct.colorImages[transformedProduct.colors[0]]) {
+              setCurrentImage(transformedProduct.colorImages[transformedProduct.colors[0]]);
             } else {
-              setCurrentImage(product.image);
+              setCurrentImage(transformedProduct.image);
             }
           }
         }

@@ -8,6 +8,7 @@ import { AdminProductTable } from "./AdminProductTable";
 import ProductDialogs from "./ProductDialogs";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { transformProductsFromDB } from "@/utils/product-transform";
 
 interface ProductManagementProps {
   initialProducts: Product[];
@@ -74,11 +75,7 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
       try {
         const { data, error } = await supabase.from('products').select('*');
         if (!error && data) {
-          const transformedData: Product[] = data.map(item => ({
-            ...item,
-            size_stocks: item.size_stocks ? (item.size_stocks as any) : {},
-            isNew: item.is_new
-          }));
+          const transformedData = transformProductsFromDB(data);
           setProducts(transformedData);
           setFilteredProducts(transformedData);
         }
@@ -121,11 +118,7 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
     try {
       const { data, error } = await supabase.from('products').select('*');
       if (!error && data) {
-        const transformedData: Product[] = data.map(item => ({
-          ...item,
-          size_stocks: item.size_stocks ? (item.size_stocks as any) : {},
-          isNew: item.is_new
-        }));
+        const transformedData = transformProductsFromDB(data);
         setProducts(transformedData);
       }
     } catch (error) {
@@ -137,11 +130,7 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
     try {
       const { data, error } = await supabase.from('products').select('*');
       if (!error && data) {
-        const transformedData: Product[] = data.map(item => ({
-          ...item,
-          size_stocks: item.size_stocks ? (item.size_stocks as any) : {},
-          isNew: item.is_new
-        }));
+        const transformedData = transformProductsFromDB(data);
         setProducts(transformedData);
       }
     } catch (error) {

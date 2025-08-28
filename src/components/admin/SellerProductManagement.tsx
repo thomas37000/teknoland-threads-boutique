@@ -9,6 +9,7 @@ import ProductTable from "./ProductTable";
 import ProductDialogs from "./ProductDialogs";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { transformProductsFromDB } from "@/utils/product-transform";
 
 const SellerProductManagement = () => {
   const { t } = useTranslation();
@@ -76,11 +77,7 @@ const SellerProductManagement = () => {
         toast.error("Erreur lors de la récupération des produits");
       } else {
         // Transform the data to match Product interface
-        const transformedData: Product[] = (data || []).map(item => ({
-          ...item,
-          size_stocks: item.size_stocks as any || {},
-          isNew: item.is_new || false
-        }));
+        const transformedData = transformProductsFromDB(data || []);
         setProducts(transformedData);
       }
     } catch (error) {

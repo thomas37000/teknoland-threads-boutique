@@ -6,6 +6,7 @@ import ProductCard from "@/components/ProductCard";
 import ProductCardSkeleton from "@/components/skeletons/ProductCardSkeleton";
 import { Product } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
+import { transformProductsFromDB } from "@/utils/product-transform";
 
 const FeaturedProducts = () => {
   const { t } = useTranslation();
@@ -29,7 +30,8 @@ const FeaturedProducts = () => {
         console.error(error);
         setError(error);
       } else {
-        setProducts(data as Product[]);
+        const transformedProducts = transformProductsFromDB(data);
+        setProducts(transformedProducts);
       }
     } catch (error) {
       console.error(error);

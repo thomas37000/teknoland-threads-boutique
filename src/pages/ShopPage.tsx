@@ -9,6 +9,7 @@ import ProductsGrid from "@/components/shop/ProductsGrid";
 import BackToTop from "@/components/shop/BackToTop";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
+import { transformProductsFromDB } from "@/utils/product-transform";
 
 const ShopPage = () => {
   const [searchParams] = useSearchParams();
@@ -48,7 +49,8 @@ const ShopPage = () => {
         console.error(error);
         setError(error);
       } else {
-        setProducts(data as Product[]);
+        const transformedProducts = transformProductsFromDB(data);
+        setProducts(transformedProducts);
         
         // Get seller information for products that have seller_id
         const sellerIds = [...new Set(data?.map(p => p.seller_id).filter(Boolean))];
