@@ -56,9 +56,15 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
   };
 
   const calculateTotalStock = (product: Product): number => {
+    // Nouveau format avec variations
+    if (product.variations && Array.isArray(product.variations)) {
+      return product.variations.reduce((sum, variation) => sum + (variation.stock || 0), 0);
+    }
+    // Ancien format avec size_stocks
     if (product.size_stocks) {
       return Object.values(product.size_stocks).reduce((sum, stock) => sum + (stock || 0), 0);
     }
+    // Fallback sur stock simple
     return product.stock || 0;
   };
 
@@ -98,11 +104,11 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
       result = result.filter(product => product.category === categoryFilter);
     }
     if (stockFilter === "low") {
-      result = result.filter(product => product.stock <= 5);
+      result = result.filter(product => calculateTotalStock(product) <= 5);
     } else if (stockFilter === "out") {
-      result = result.filter(product => product.stock === 0);
+      result = result.filter(product => calculateTotalStock(product) === 0);
     } else if (stockFilter === "in") {
-      result = result.filter(product => product.stock > 0);
+      result = result.filter(product => calculateTotalStock(product) > 0);
     }
     if (sellerFilter !== "all") {
       result = result.filter(product => product.seller_id === sellerFilter);

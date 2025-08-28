@@ -1,4 +1,10 @@
 
+export interface ProductVariation {
+  color: string;
+  size: string;
+  stock: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -13,6 +19,7 @@ export interface Product {
   colors?: string[];
   colorImages?: {[color: string]: string};
   size_stocks?: {[size: string]: number} | null;
+  variations?: ProductVariation[];
   seller_id?: string;
 }
 
