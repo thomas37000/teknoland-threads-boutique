@@ -19,8 +19,23 @@ import { Heart, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const FavoritesSlider = () => {
-  const { favorites, loading } = useFavorites();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [localFavorites, setLocalFavorites] = useState<any[]>([]);
+  
+  // Safely use favorites hook with error boundary
+  let favorites: any[] = [];
+  let loading = false;
+  
+  try {
+    const favoritesData = useFavorites();
+    favorites = favoritesData.favorites;
+    loading = favoritesData.loading;
+  } catch (error) {
+    console.error("Error with favorites provider:", error);
+    // Fallback to empty state
+    favorites = localFavorites;
+    loading = false;
+  }
   
   useEffect(() => {
     const checkAuth = async () => {

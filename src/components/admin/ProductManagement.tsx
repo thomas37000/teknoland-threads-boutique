@@ -58,11 +58,11 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
 
   const calculateTotalStock = (product: Product): number => {
     // Nouveau format avec variations
-    if (product.variations && Array.isArray(product.variations)) {
+    if (product.variations && Array.isArray(product.variations) && product.variations.length > 0) {
       return product.variations.reduce((sum, variation) => sum + (variation.stock || 0), 0);
     }
     // Ancien format avec size_stocks
-    if (product.size_stocks) {
+    if (product.size_stocks && typeof product.size_stocks === 'object' && Object.keys(product.size_stocks).length > 0) {
       return Object.values(product.size_stocks).reduce((sum, stock) => sum + (stock || 0), 0);
     }
     // Fallback sur stock simple
@@ -76,6 +76,14 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
         const { data, error } = await supabase.from('products').select('*');
         if (!error && data) {
           const transformedData = transformProductsFromDB(data);
+          console.log('Fetched products:', transformedData.length);
+          console.log('Sample product stock calculation:', transformedData[0] ? {
+            name: transformedData[0].name,
+            stock: transformedData[0].stock,
+            size_stocks: transformedData[0].size_stocks,
+            variations: transformedData[0].variations,
+            calculatedStock: calculateTotalStock(transformedData[0])
+          } : 'No products');
           setProducts(transformedData);
           setFilteredProducts(transformedData);
         }
