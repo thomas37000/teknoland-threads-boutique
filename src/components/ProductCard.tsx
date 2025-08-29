@@ -88,6 +88,27 @@ const ProductCard = ({ product }: ProductCardProps) => {
             </Badge>
           </Link>
         </div>
+        
+        {/* Couleurs disponibles */}
+        {product.colors && product.colors.length > 0 && (
+          <div className="mt-2 flex items-center gap-1">
+            <span className="text-xs text-gray-500">{t('product.color')}:</span>
+            <div className="flex gap-1">
+              {product.colors.slice(0, 4).map((color) => (
+                <div
+                  key={color}
+                  className="w-4 h-4 rounded-full border border-gray-300"
+                  style={{ backgroundColor: color }}
+                  title={color}
+                />
+              ))}
+              {product.colors.length > 4 && (
+                <span className="text-xs text-gray-500 ml-1">+{product.colors.length - 4}</span>
+              )}
+            </div>
+          </div>
+        )}
+        
         <div className="mt-1 flex items-center justify-between">
           <p className="font-bold">{product.price.toFixed(2)} €</p>
         </div>
