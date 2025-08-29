@@ -62,8 +62,12 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
       return product.variations.reduce((sum, variation) => sum + (variation.stock || 0), 0);
     }
     // Ancien format avec size_stocks
-    if (product.size_stocks && typeof product.size_stocks === 'object' && Object.keys(product.size_stocks).length > 0) {
-      return Object.values(product.size_stocks).reduce((sum, stock) => sum + (stock || 0), 0);
+    if (product.size_stocks && typeof product.size_stocks === 'object') {
+      // Gérer le cas où size_stocks contient un objet sizeStocks imbriqué
+      const sizeStocks = (product.size_stocks as any).sizeStocks || product.size_stocks;
+      if (sizeStocks && typeof sizeStocks === 'object' && Object.keys(sizeStocks).length > 0) {
+        return Object.values(sizeStocks as Record<string, number>).reduce((sum: number, stock: number) => sum + (Number(stock) || 0), 0);
+      }
     }
     // Fallback sur stock simple
     return product.stock || 0;
