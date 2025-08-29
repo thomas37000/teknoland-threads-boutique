@@ -9,6 +9,7 @@ import { useFavorites } from "@/hooks/use-favorites";
 import { Product } from "@/types";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getColorCode } from "@/utils/color-mapping";
 
 interface ProductCardProps {
   product: Product;
@@ -98,7 +99,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
                 <div
                   key={color}
                   className="w-4 h-4 rounded-full border border-gray-300"
-                  style={{ backgroundColor: color }}
+                  style={{ backgroundColor: getColorCode(color) }}
                   title={color}
                 />
               ))}

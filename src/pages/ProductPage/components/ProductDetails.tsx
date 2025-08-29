@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { createCheckoutSession } from "@/utils/stripe";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { getColorCode } from "@/utils/color-mapping";
 
 interface ProductDetailsProps {
   product: Product;
@@ -297,8 +298,8 @@ const ProductDetails = ({
                         : "border-gray-300 hover:border-gray-400"
                     }`}
                     style={{ 
-                      backgroundColor: color,
-                      borderColor: currentColor === color ? color : '#d1d5db'
+                      backgroundColor: getColorCode(color),
+                      borderColor: currentColor === color ? getColorCode(color) : '#d1d5db'
                     }}
                     aria-label={`${t('product.selectColor')} ${getColorName(color)}`}
                   />
