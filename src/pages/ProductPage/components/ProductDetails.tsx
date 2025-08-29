@@ -245,22 +245,33 @@ const ProductDetails = ({
           <h3 className="font-medium mb-2">{t('product.size')}</h3>
           <div className="flex flex-wrap gap-2">
             {product.sizes.map((size) => {
-              const sizeStock = product.size_stocks?.[size] || 0;
+              // Calculer le stock pour cette taille en utilisant les variations
+              let sizeStock = 0;
+              
+              if (product.variations && product.variations.length > 0) {
+                // Nouveau format avec variations
+                sizeStock = product.variations
+                  .filter(variation => variation.size === size)
+                  .reduce((total, variation) => total + (variation.stock || 0), 0);
+              } else if (product.size_stocks) {
+                // Ancien format avec size_stocks
+                const stockData = (product.size_stocks as any).sizeStocks || product.size_stocks;
+                sizeStock = stockData[size] || 0;
+              }
+              
               const isAvailable = sizeStock > 0;
               
               return (
                 <button
                   key={size}
-                  onClick={() => isAvailable && handleSizeChange(size)}
-                  disabled={!isAvailable}
-                  className={`h-10 w-10 rounded-md border text-center leading-10 transition-colors ${
+                  onClick={() => handleSizeChange(size)}
+                  className={`h-10 w-10 rounded-md border text-center leading-10 transition-colors cursor-pointer ${
                     currentSize === size
                       ? "border-tekno-blue bg-tekno-blue/10 text-tekno-blue"
                       : isAvailable
-                        ? "border-gray-200 hover:border-gray-300"
-                        : "border-gray-300 text-gray-400 cursor-not-allowed"
+                        ? "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                        : "border-gray-300 text-gray-400 opacity-50"
                   }`}
-                  style={!isAvailable ? { border: '1px solid #ccc', color: '#ccc' } : {}}
                 >
                   {size}
                 </button>
@@ -276,24 +287,18 @@ const ProductDetails = ({
           <h3 className="font-medium mb-2">{t('product.color')}</h3>
           <div className="flex flex-wrap gap-3">
             {product.colors.map((color) => {
-              const isClickable = product.colors && product.colors.length > 1;
-              
               return (
                 <div key={color} className="flex flex-col items-center gap-1">
                   <button
-                    onClick={() => isClickable && handleColorChange(color)}
-                    disabled={!isClickable}
-                    className={`h-8 w-8 rounded-full border-2 transition-all duration-200 ${
+                    onClick={() => handleColorChange(color)}
+                    className={`h-8 w-8 rounded-full border-2 transition-all duration-200 cursor-pointer hover:scale-110 ${
                       currentColor === color 
-                        ? "ring-2 ring-offset-2" 
-                        : isClickable 
-                          ? "border-gray-300 hover:border-gray-400"
-                          : "border-gray-300 cursor-default"
+                        ? "ring-2 ring-offset-2 ring-tekno-blue" 
+                        : "border-gray-300 hover:border-gray-400"
                     }`}
                     style={{ 
                       backgroundColor: color,
-                      borderColor: currentColor === color ? color : '#d1d5db',
-                      boxShadow: currentColor === color ? `0 0 0 2px ${color}` : undefined
+                      borderColor: currentColor === color ? color : '#d1d5db'
                     }}
                     aria-label={`${t('product.selectColor')} ${getColorName(color)}`}
                   />
