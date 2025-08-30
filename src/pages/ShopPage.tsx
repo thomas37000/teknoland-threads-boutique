@@ -4,6 +4,7 @@ import { Product } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import ShopHeader from "@/components/shop/ShopHeader";
 import CategoryFilter from "@/components/shop/CategoryFilter";
+import ColorFilter from "@/components/shop/ColorFilter";
 import SortSelect from "@/components/shop/SortSelect";
 import ProductsGrid from "@/components/shop/ProductsGrid";
 import BackToTop from "@/components/shop/BackToTop";
@@ -17,6 +18,7 @@ const ShopPage = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedColor, setSelectedColor] = useState<string>("all");
   const [sortOption, setSortOption] = useState<string>("newest");
   const [pageSize, setPageSize] = useState(8);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -88,6 +90,15 @@ const ShopPage = () => {
       );
     }
     
+    // Apply color filter
+    if (selectedColor !== "all") {
+      result = result.filter(p => 
+        p.colors && p.colors.some(color => 
+          color.toLowerCase().trim() === selectedColor
+        )
+      );
+    }
+    
     // Apply sorting
     if (sortOption === "price-low") {
       result.sort((a, b) => a.price - b.price);
@@ -107,7 +118,7 @@ const ShopPage = () => {
     
     // Reset displayed products when filters change
     setDisplayedProducts(result.slice(0, pageSize));
-  }, [products, selectedCategory, sortOption, pageSize, sellersData]);
+  }, [products, selectedCategory, selectedColor, sortOption, pageSize, sellersData]);
   
   // Load more products handler
   const handleLoadMore = () => {
@@ -175,14 +186,20 @@ const ShopPage = () => {
       />
 
       {/* Filters and Sorting */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-        <CategoryFilter 
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-        />
-        <SortSelect 
-          sortOption={sortOption}
-          onSortChange={setSortOption}
+      <div className="flex flex-col gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <CategoryFilter 
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+          />
+          <SortSelect 
+            sortOption={sortOption}
+            onSortChange={setSortOption}
+          />
+        </div>
+        <ColorFilter 
+          selectedColor={selectedColor}
+          onColorChange={setSelectedColor}
         />
       </div>
       
