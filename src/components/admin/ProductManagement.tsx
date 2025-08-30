@@ -77,7 +77,7 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
-        const { data, error } = await supabase.from('products').select('*');
+        const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
         if (!error && data) {
           const transformedData = transformProductsFromDB(data);
           console.log('Fetched products:', transformedData.length);
@@ -128,7 +128,7 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
 
   const handleAddProduct = async () => {
     try {
-      const { data, error } = await supabase.from('products').select('*');
+      const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
       if (!error && data) {
         const transformedData = transformProductsFromDB(data);
         setProducts(transformedData);
@@ -140,7 +140,7 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
 
   const handleEditProduct = async () => {
     try {
-      const { data, error } = await supabase.from('products').select('*');
+      const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
       if (!error && data) {
         const transformedData = transformProductsFromDB(data);
         setProducts(transformedData);
