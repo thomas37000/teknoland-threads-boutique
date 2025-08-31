@@ -188,24 +188,36 @@ const ShopPage = () => {
           />
         </div>
 
-        <SortSelect
-          sortOption={sortOption}
-          onSortChange={setSortOption}
-        />
+        {/* Sort hidden on responsive tablet and phone */}
+        <div className="max-lg:hidden">
+          <SortSelect
+            sortOption={sortOption}
+            onSortChange={setSortOption}
+          />
+        </div>
+
       </div>
 
       <div className="flex flex-col lg:flex-row justify-between">
-        <div className="hidden w-full lg:w-2/5 lg:sticky lg:top-0 lg:overflow-y-scroll lg:block">
+        <div className="w-full lg:w-2/5 lg:sticky lg:top-0 lg:overflow-y-scroll lg:block">
           {/* Filters */}
           <CategoryFilter
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
           />
 
-            <ColorFilter
+          <ColorFilter
             selectedColor={selectedColor}
             onColorChange={setSelectedColor}
           />
+
+          {/* Sort only visible on responsive tablet and phone */}
+          <div className="min-lg:hidden mb-4">
+            <SortSelect
+              sortOption={sortOption}
+              onSortChange={setSortOption}
+            />
+          </div>
         </div>
 
         <div>

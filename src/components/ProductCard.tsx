@@ -29,7 +29,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           .select('full_name, email, brand_name')
           .eq('id', product.seller_id)
           .maybeSingle();
-        
+
         if (data) {
           setSellerName(data.brand_name || data.full_name || data.email || 'Vendeur');
         }
@@ -40,13 +40,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
     fetchSellerInfo();
   }, [product.seller_id]);
-  
+
   return (
     <div className="group">
       <Link to={`/product/${product.id}`} className="block overflow-hidden rounded-md">
         <div className="aspect-square overflow-hidden bg-gray-100 relative">
-          <img 
-            src={product.image} 
+          <img
+            src={product.image}
             alt={product.name}
             className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
           />
@@ -57,63 +57,65 @@ const ProductCard = ({ product }: ProductCardProps) => {
           )}
         </div>
       </Link>
-      
+
       <div className="mt-4">
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-start  ">
           <Link to={`/product/${product.id}`}>
             <h3 className="font-medium text-lg">{product.name}</h3>
           </Link>
-          <button 
-            onClick={(e) => {
-              e.preventDefault();
-              toggleFavorite(product);
-            }}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-            aria-label={isFavorite(product.id) ? "Remove from favorites" : "Add to favorites"}
-          >
-            <Heart 
-              size={18} 
-              className={isFavorite(product.id) ? "fill-red-500 text-red-500" : "text-gray-400"}
-            />
-          </button>
-        </div>
-        <div className="mt-2 mb-1">
-          <Link 
-            to={product.seller_id ? `/vendor/${product.seller_id}` : '#'}
-            className={product.seller_id ? "hover:opacity-80 transition-opacity" : "cursor-default"}
-            onClick={(e) => !product.seller_id && e.preventDefault()}
-          >
-            <Badge variant="secondary" className="text-xs">
-              <User size={12} className="mr-1" />
-              {sellerName}
-            </Badge>
-          </Link>
-        </div>
-        
-        {/* Couleurs disponibles */}
-        {product.colors && product.colors.length > 0 && (
-          <div className="mt-2 flex items-center gap-1">
-            <span className="text-xs text-gray-500">{t('product.color')}:</span>
-            <div className="flex gap-1">
-              {product.colors.slice(0, 4).map((color) => (
-                <div
-                  key={color}
-                  className="w-4 h-4 rounded-full border border-gray-300"
-                  style={{ backgroundColor: getColorCode(color) }}
-                  title={color}
-                />
-              ))}
-              {product.colors.length > 4 && (
-                <span className="text-xs text-gray-500 ml-1">+{product.colors.length - 4}</span>
-              )}
+
+          <div className="flex justify-between">
+            <div className="mt-1 mb-1">
+              <Link
+                to={product.seller_id ? `/vendor/${product.seller_id}` : '#'}
+                className={product.seller_id ? "hover:opacity-80 transition-opacity" : "cursor-default"}
+                onClick={(e) => !product.seller_id && e.preventDefault()}
+              >
+                <Badge variant="secondary" className="text-xs">
+                  {sellerName}
+                </Badge>
+              </Link>
             </div>
+
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                toggleFavorite(product);
+              }}
+              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              aria-label={isFavorite(product.id) ? "Remove from favorites" : "Add to favorites"}
+            >
+              <Heart
+                size={18}
+                className={isFavorite(product.id) ? "fill-red-500 text-red-500" : "text-gray-400"}
+              />
+            </button>
           </div>
-        )}
-        
+        </div>
+
         <div className="mt-1 flex items-center justify-between">
+          {/* Couleurs disponibles */}
+          {product.colors && product.colors.length > 1 && (
+            <div className="mt-2 flex items-center gap-1">
+              <div className="flex gap-1">
+                {product.colors.slice(0, 4).map((color) => (
+                  <div
+                    key={color}
+                    className="w-4 h-4 rounded-full border border-gray-300"
+                    style={{ backgroundColor: getColorCode(color) }}
+                    title={color}
+                  />
+                ))}
+                {product.colors.length > 4 && (
+                  <span className="text-xs text-gray-500 ml-1">+{product.colors.length - 4}</span>
+                )}
+              </div>
+            </div>
+          )}
+
           <p className="font-bold">{product.price.toFixed(2)} €</p>
         </div>
-        <Button 
+        <Button
           className="w-full mt-3 bg-tekno-black text-white hover:bg-tekno-blue transition-colors"
           onClick={() => addToCart(product)}
         >

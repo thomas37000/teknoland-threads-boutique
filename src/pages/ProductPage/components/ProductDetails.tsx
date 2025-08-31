@@ -358,27 +358,6 @@ const ProductDetails = ({
           {isFavorite(product.id) ? t('product.saved') : t('product.save')}
         </Button>
       </div>
-
-      {/* Stripe Payment Button */}
-      <div className="pt-4">
-        <Button 
-          onClick={handleBuyNow}
-          className="w-full gap-2 bg-black text-white hover:bg-black/80"
-          disabled={isProcessing || product.stock <= 0}
-        >
-          {isProcessing ? (
-            <>
-              <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
-              {t('product.processing')}
-            </>
-          ) : (
-            <>
-              <CreditCard className="h-4 w-4" />
-              {t('product.buyNow')} avec Stripe
-            </>
-          )}
-        </Button>
-      </div>
     </div>
   );
 };

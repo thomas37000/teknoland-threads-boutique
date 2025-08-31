@@ -1,7 +1,8 @@
 import PopupAdmin from "./PopupAdmin";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/input"
+import { Textarea } from '@/components/ui/textarea';;
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Idea } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
@@ -127,7 +128,7 @@ const IdeasDialogs = ({
             <Label htmlFor="name" className="text-right">
               Description
             </Label>
-            <Input
+            <Textarea
               id="name"
               value={newIdea.desc || ""}
               onChange={(e) =>

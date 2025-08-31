@@ -69,7 +69,7 @@ const ColorFilter = ({ selectedColor, onColorChange }: ColorFilterProps) => {
   return (
     <div>
       <h3 className="text-sm font-medium mb-2 mt-2">{t('shop.filterByColor', { defaultValue: 'Filtrer par couleur' })}</h3>
-      <div className="gap-2 mt-2 mb-4">
+      <div className="max-lg:flex max-lg:flex-wrap max-lg:gap-2 gap-2 mt-2 mb-4">
         {colorOptions.map((colorOption) => (
           <button
             key={colorOption.key}
