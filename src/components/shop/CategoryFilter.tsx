@@ -53,11 +53,11 @@ const CategoryFilter = ({ selectedCategory, onCategoryChange }: CategoryFilterPr
   return (
     <div>
       <h3 className="text-sm font-medium mb-2">{t('shop.filterByCategory')}</h3>
-      <div className="flex flex-wrap gap-2">
+      <div className="gap-2 mt-2 mb-4">
         {allCategories.map((category) => (
           <button
             key={category.key}
-            className={`px-4 py-2 text-sm rounded-full border ${
+            className={`flex items-center gap-2 px-4 py-2 mt-1 text-sm rounded-full border ${
               selectedCategory === category.key
                 ? "bg-tekno-black text-white border-tekno-black"
                 : "border-gray-300 hover:border-tekno-black"

@@ -24,10 +24,10 @@ const ShopPage = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [sellersData, setSellersData] = useState<{[key: string]: string}>({});
-  
+  const [sellersData, setSellersData] = useState<{ [key: string]: string }>({});
+
   const topRef = useRef<HTMLDivElement>(null);
-  
+
   // Get category from URL parameters
   useEffect(() => {
     const categoryParam = searchParams.get("category");
@@ -53,7 +53,7 @@ const ShopPage = () => {
       } else {
         const transformedProducts = transformProductsFromDB(data);
         setProducts(transformedProducts);
-        
+
         // Get seller information for products that have seller_id
         const sellerIds = [...new Set(data?.map(p => p.seller_id).filter(Boolean))];
         if (sellerIds.length > 0) {
@@ -61,12 +61,12 @@ const ShopPage = () => {
             .from("profiles")
             .select("id, brand_name, full_name")
             .in("id", sellerIds);
-          
+
           if (!sellersError && sellersData) {
             const sellersMap = sellersData.reduce((acc, seller) => {
               acc[seller.id] = seller.brand_name || seller.full_name || 'Vendeur';
               return acc;
-            }, {} as {[key: string]: string});
+            }, {} as { [key: string]: string });
             setSellersData(sellersMap);
           }
         }
@@ -78,27 +78,27 @@ const ShopPage = () => {
       setLoading(false);
     }
   }
-  
+
   // Apply filters and sorting
   useEffect(() => {
     let result = [...products];
-    
+
     // Apply category filter
     if (selectedCategory !== "all") {
-      result = result.filter(p => 
+      result = result.filter(p =>
         p.category.toLowerCase().includes(selectedCategory)
       );
     }
-    
+
     // Apply color filter
     if (selectedColor !== "all") {
-      result = result.filter(p => 
-        p.colors && p.colors.some(color => 
+      result = result.filter(p =>
+        p.colors && p.colors.some(color =>
           color.toLowerCase().trim() === selectedColor
         )
       );
     }
-    
+
     // Apply sorting
     if (sortOption === "price-low") {
       result.sort((a, b) => a.price - b.price);
@@ -113,25 +113,25 @@ const ShopPage = () => {
         return sellerA.localeCompare(sellerB);
       });
     }
-    
+
     setFilteredProducts(result);
-    
+
     // Reset displayed products when filters change
     setDisplayedProducts(result.slice(0, pageSize));
   }, [products, selectedCategory, selectedColor, sortOption, pageSize, sellersData]);
-  
+
   // Load more products handler
   const handleLoadMore = () => {
     const currentSize = displayedProducts.length;
     const newProducts = filteredProducts.slice(currentSize, currentSize + pageSize);
     setDisplayedProducts([...displayedProducts, ...newProducts]);
   };
-  
+
   // Scroll to top handler
   const scrollToTop = () => {
     topRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
-  
+
   // Handle scroll event to show/hide back to top button
   useEffect(() => {
     const handleScroll = () => {
@@ -141,16 +141,16 @@ const ShopPage = () => {
         setShowBackToTop(false);
       }
     };
-    
+
     window.addEventListener('scroll', handleScroll);
-    
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
-  
+
   const hasMoreProducts = displayedProducts.length < filteredProducts.length;
-  
+
   const { t } = useTranslation();
 
   // SEO pour la boutique
@@ -165,57 +165,65 @@ const ShopPage = () => {
         <title>{shopTitle}</title>
         <meta name="description" content={shopDescription} />
         <link rel="canonical" href={shopCanonical} />
-        <meta property="og:title" content={shopTitle}/>
-        <meta property="og:description" content={shopDescription}/>
-        <meta property="og:url" content={shopCanonical}/>
-        <meta property="og:type" content="website"/>
-        <meta property="og:image" content={shopOgImage}/>
-        <meta name="twitter:card" content="summary_large_image"/>
-        <meta name="twitter:title" content={shopTitle}/>
-        <meta name="twitter:description" content={shopDescription}/>
-        <meta name="twitter:image" content={shopOgImage}/>
+        <meta property="og:title" content={shopTitle} />
+        <meta property="og:description" content={shopDescription} />
+        <meta property="og:url" content={shopCanonical} />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content={shopOgImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={shopTitle} />
+        <meta name="twitter:description" content={shopDescription} />
+        <meta name="twitter:image" content={shopOgImage} />
       </Helmet>
 
-      {/* H1 principal de la page */}
-      <h1 className="text-3xl font-bold mb-2">{shopTitle}</h1>
+      <div className="flex justify-between">
+        <div>
+          {/* H1 principal de la page */}
+          <h1 className="text-3xl font-bold mb-2">{shopTitle}</h1>
 
-      {/* ShopHeader n'affiche pas de H1, donc c'est bon d'en garder un ici */}
-      <ShopHeader 
-        title={t('shop.title')}
-        description={t('shop.description')}
-      />
+          {/* ShopHeader n'affiche pas de H1, donc c'est bon d'en garder un ici */}
+          <ShopHeader
+            title={t('shop.title')}
+            description={t('shop.description')}
+          />
+        </div>
 
-      {/* Filters and Sorting */}
-      <div className="flex flex-col gap-4 mb-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <CategoryFilter 
+        <SortSelect
+          sortOption={sortOption}
+          onSortChange={setSortOption}
+        />
+      </div>
+
+      <div className="flex flex-col lg:flex-row justify-between">
+        <div className="hidden w-full lg:w-2/5 lg:sticky lg:top-0 lg:overflow-y-scroll lg:block">
+          {/* Filters */}
+          <CategoryFilter
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
           />
-          <SortSelect 
-            sortOption={sortOption}
-            onSortChange={setSortOption}
+
+            <ColorFilter
+            selectedColor={selectedColor}
+            onColorChange={setSelectedColor}
           />
         </div>
-        <ColorFilter 
-          selectedColor={selectedColor}
-          onColorChange={setSelectedColor}
-        />
+
+        <div>
+          {/* Products Grid */}
+          <ProductsGrid
+            displayedProducts={displayedProducts}
+            hasMoreProducts={hasMoreProducts}
+            onLoadMore={handleLoadMore}
+            loading={loading}
+          />
+
+          {/* Back to Top Button */}
+          <BackToTop
+            show={showBackToTop}
+            onClick={scrollToTop}
+          />
+        </div>
       </div>
-      
-      {/* Products Grid */}
-      <ProductsGrid 
-        displayedProducts={displayedProducts}
-        hasMoreProducts={hasMoreProducts}
-        onLoadMore={handleLoadMore}
-        loading={loading}
-      />
-      
-      {/* Back to Top Button */}
-      <BackToTop 
-        show={showBackToTop}
-        onClick={scrollToTop}
-      />
     </div>
   );
 };

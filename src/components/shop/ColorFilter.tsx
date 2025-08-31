@@ -68,12 +68,12 @@ const ColorFilter = ({ selectedColor, onColorChange }: ColorFilterProps) => {
 
   return (
     <div>
-      <h3 className="text-sm font-medium mb-2">{t('shop.filterByColor', { defaultValue: 'Filtrer par couleur' })}</h3>
-      <div className="flex flex-wrap gap-2">
+      <h3 className="text-sm font-medium mb-2 mt-2">{t('shop.filterByColor', { defaultValue: 'Filtrer par couleur' })}</h3>
+      <div className="gap-2 mt-2 mb-4">
         {colorOptions.map((colorOption) => (
           <button
             key={colorOption.key}
-            className={`flex items-center gap-2 px-3 py-2 text-sm rounded-full border transition-colors ${
+            className={`flex items-center gap-2 px-3 py-2 mt-1 text-sm rounded-full border transition-colors ${
               selectedColor === colorOption.key
                 ? "bg-tekno-black text-white border-tekno-black"
                 : "border-gray-300 hover:border-tekno-black"
@@ -82,7 +82,7 @@ const ColorFilter = ({ selectedColor, onColorChange }: ColorFilterProps) => {
           >
             {colorOption.color && (
               <div
-                className="w-4 h-4 rounded-full border border-gray-300"
+                className="w-5 h-5 rounded-full border border-gray-300"
                 style={{ backgroundColor: colorOption.color }}
               />
             )}
