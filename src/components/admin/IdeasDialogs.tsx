@@ -25,7 +25,7 @@ interface IdeasDialogsProps {
 }
 
 const handleAddIdeaWithSupabase = async (newIdea: Partial<Idea>, handleAddIdea: () => void, setIsAddDialogOpen: (open: boolean) => void) => {
-  if (!newIdea.desc || !newIdea.priority) {
+  if (!newIdea.desc || !newIdea.priority || !newIdea.cat_ideas) {
     toast({
       title: "Erreur",
       description: "Veuillez remplir tous les champs requis.",
@@ -39,7 +39,8 @@ const handleAddIdeaWithSupabase = async (newIdea: Partial<Idea>, handleAddIdea: 
       .from('ideas')
       .insert([{
         desc: newIdea.desc,
-        priority: newIdea.priority
+        priority: newIdea.priority,
+        cat_ideas: newIdea.cat_ideas
       }]);
 
     if (error) throw error;
@@ -62,7 +63,7 @@ const handleAddIdeaWithSupabase = async (newIdea: Partial<Idea>, handleAddIdea: 
 };
 
 const handleEditIdeaWithSupabase = async (currentIdea: Idea | null, handleEditIdea: () => void, setIsEditDialogOpen: (open: boolean) => void) => {
-  if (!currentIdea || !currentIdea.desc || !currentIdea.priority) {
+  if (!currentIdea || !currentIdea.desc || !currentIdea.priority || !currentIdea.cat_ideas) {
     toast({
       title: "Erreur",
       description: "Veuillez remplir tous les champs requis.",
@@ -76,7 +77,8 @@ const handleEditIdeaWithSupabase = async (currentIdea: Idea | null, handleEditId
       .from('ideas')
       .update({
         desc: currentIdea.desc,
-        priority: currentIdea.priority
+        priority: currentIdea.priority,
+        cat_ideas: currentIdea.cat_ideas
       })
       .eq('id', currentIdea.id);
 
@@ -158,6 +160,30 @@ const IdeasDialogs = ({
               </SelectContent>
             </Select>
           </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="cat_ideas" className="text-right">
+              Catégorie
+            </Label>
+            <Select
+              value={newIdea.cat_ideas || "Shop"}
+              onValueChange={(value) =>
+                setNewIdea({ ...newIdea, cat_ideas: value as 'Shop' | 'Label' | 'Graphisme' | 'Dev' | 'Primitik' | 'Supabase' |'Youtube' })
+              }
+            >
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder="Sélectionnez une catégorie" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Shop">Shop</SelectItem>
+                <SelectItem value="Label">Label</SelectItem>
+                <SelectItem value="Graphisme">Graphisme</SelectItem>
+                <SelectItem value="Dev">Dev</SelectItem>
+                <SelectItem value="Primitik">Primitik</SelectItem>
+                <SelectItem value="Supabase">Supabase</SelectItem>
+                <SelectItem value="Youtube">Youtube</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <div className="flex gap-2 mt-6">
           <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="flex-1">
@@ -216,6 +242,30 @@ const IdeasDialogs = ({
                 <SelectItem value="medium">Moyenne</SelectItem>
                 <SelectItem value="high">Haute</SelectItem>
                 <SelectItem value="urgent">Urgent</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="edit-cat_ideas" className="text-right">
+              Catégorie
+            </Label>
+            <Select
+              value={currentIdea?.cat_ideas || "Shop"}
+              onValueChange={(value) =>
+                setCurrentIdea({ ...currentIdea, cat_ideas: value as 'Shop' | 'Label' | 'Graphisme' | 'Dev' | 'Primitik' | 'Supabase' |'Youtube' })
+              }
+            >
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder="Sélectionnez une catégorie" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Shop">Shop</SelectItem>
+                <SelectItem value="Label">Label</SelectItem>
+                <SelectItem value="Graphisme">Graphisme</SelectItem>
+                <SelectItem value="Dev">Dev</SelectItem>
+                <SelectItem value="Primitik">Primitik</SelectItem>
+                <SelectItem value="Supabase">Supabase</SelectItem>
+                <SelectItem value="Youtube">Youtube</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -44,6 +44,7 @@ export interface Idea {
   desc: string | null;
   priority: string;
   created_at: string;
+  cat_ideas?: string;
 }
 
 export interface DepenseMois {

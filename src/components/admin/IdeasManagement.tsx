@@ -26,6 +26,7 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
   const [newIdea, setNewIdea] = useState<Partial<Idea>>({
     desc: "",
     priority: "medium" as const,
+    cat_ideas: ""
   });
 
   // Fetch Ideas from Supabase

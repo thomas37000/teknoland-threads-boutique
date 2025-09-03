@@ -62,6 +62,7 @@ const IdeasTable = ({
           <TableRow>
             <TableHead>ID</TableHead>
             <TableHead>Idées</TableHead>
+            <TableHead>Catégorie</TableHead>
             <TableHead>Priorité</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -78,6 +79,7 @@ const IdeasTable = ({
               <TableRow key={idea.id}>
                 <TableCell className="font-medium">{idea.id}</TableCell>
                 <TableCell>{idea.desc}</TableCell>
+                <TableCell>{idea.cat_ideas}</TableCell>
                 <TableCell>
                   <Badge variant={getPriorityColor(idea.priority)}>
                     {getPriorityLabel(idea.priority)}
