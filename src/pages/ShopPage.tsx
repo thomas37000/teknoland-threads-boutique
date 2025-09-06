@@ -8,6 +8,7 @@ import ColorFilter from "@/components/shop/ColorFilter";
 import SortSelect from "@/components/shop/SortSelect";
 import ProductsGrid from "@/components/shop/ProductsGrid";
 import BackToTop from "@/components/shop/BackToTop";
+import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
 import { transformProductsFromDB } from "@/utils/product-transform";
@@ -153,6 +154,13 @@ const ShopPage = () => {
 
   const { t } = useTranslation();
 
+  // Reset all filters
+  const handleResetFilters = () => {
+    setSelectedCategory("all");
+    setSelectedColor("all");
+    setSortOption("newest");
+  };
+
   // SEO pour la boutique
   const shopTitle = t('shop.seoTitle', { defaultValue: "Teknoland clothes | Shop" });
   const shopDescription = t('shop.seoDescription', { defaultValue: "Découvrez tous nos t-shirts, sweats, accessoires et vinyles. Qualité premium, mode et innovation. Expédition rapide et offerte dès 50€." });
@@ -198,29 +206,47 @@ const ShopPage = () => {
 
       </div>
 
-      <div className="flex flex-col lg:flex-row justify-between">
-        <div className="w-full lg:w-2/5 lg:sticky lg:top-0 lg:overflow-y-scroll lg:block">
-          {/* Filters */}
-          <CategoryFilter
-            selectedCategory={selectedCategory}
-            onCategoryChange={setSelectedCategory}
-          />
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Filters Sidebar - Fixed width */}
+        <div className="w-full lg:w-80 lg:flex-shrink-0">
+          <div className="lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto bg-white lg:border lg:rounded-lg lg:p-4 lg:shadow-sm">
+            {/* Reset Filters Button */}
+            <div className="flex justify-between items-center mb-4 pb-2 border-b">
+              <h2 className="text-lg font-semibold">{t('shop.filters', { defaultValue: 'Filtres' })}</h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleResetFilters}
+                className="text-sm"
+                disabled={selectedCategory === "all" && selectedColor === "all" && sortOption === "newest"}
+              >
+                {t('shop.resetFilters', { defaultValue: 'Reset' })}
+              </Button>
+            </div>
 
-          <ColorFilter
-            selectedColor={selectedColor}
-            onColorChange={setSelectedColor}
-          />
-
-          {/* Sort only visible on responsive tablet and phone */}
-          <div className="min-lg:hidden mb-4">
-            <SortSelect
-              sortOption={sortOption}
-              onSortChange={setSortOption}
+            {/* Filters */}
+            <CategoryFilter
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
             />
+
+            <ColorFilter
+              selectedColor={selectedColor}
+              onColorChange={setSelectedColor}
+            />
+
+            {/* Sort only visible on responsive tablet and phone */}
+            <div className="lg:hidden mb-4">
+              <SortSelect
+                sortOption={sortOption}
+                onSortChange={setSortOption}
+              />
+            </div>
           </div>
         </div>
 
-        <div>
+        {/* Products Section - Fixed width */}
+        <div className="flex-1 min-w-0">
           {/* Products Grid */}
           <ProductsGrid
             displayedProducts={displayedProducts}
