@@ -195,18 +195,9 @@ const VendorStorePage = () => {
                 
                 <div className="flex-1">
                   <h1 className="text-3xl font-bold mb-2">{vendorName}</h1>
-                  <div className="flex flex-col sm:flex-row gap-4 text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Mail size={16} />
-                      {vendorInfo.email}
-                    </div>
-                    {vendorInfo.address && (
-                      <div className="flex items-center gap-2">
-                        <MapPin size={16} />
-                        {vendorInfo.address}
-                      </div>
-                    )}
-                  </div>
+                  {/* <div className="flex flex-col sm:flex-row gap-4 text-muted-foreground">
+                  
+                  </div> */}
                   <div className="mt-4">
                     <p className="text-sm text-muted-foreground">
                       {products.length} produit{products.length > 1 ? 's' : ''} disponible{products.length > 1 ? 's' : ''}
