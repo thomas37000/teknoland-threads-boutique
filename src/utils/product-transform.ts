@@ -4,12 +4,24 @@ export const transformProductFromDB = (dbProduct: any): Product => {
   const colors = dbProduct.colors || [];
   const images = dbProduct.images || [];
   
-  // Create colorImages mapping if we have both colors and images
+  // Create colorImages mapping
   let colorImages: {[color: string]: string} = {};
-  if (colors.length > 0 && images.length > 0) {
+  
+  // Prioritize variations if they exist and have images
+  if (dbProduct.variations && dbProduct.variations.length > 0) {
+    dbProduct.variations.forEach((variation: any) => {
+      if (variation.color && variation.image) {
+        colorImages[variation.color] = variation.image;
+      }
+    });
+  }
+  
+  // Fallback to colors/images mapping if no variations or missing images
+  if (colors.length > 0 && Object.keys(colorImages).length === 0) {
+    // Create a complete mapping including main image
+    const allImages = [dbProduct.image, ...images];
     colors.forEach((color: string, index: number) => {
-      // Map each color to corresponding image, or use main image as fallback
-      colorImages[color] = images[index] || dbProduct.image;
+      colorImages[color] = allImages[index] || dbProduct.image;
     });
   }
 
