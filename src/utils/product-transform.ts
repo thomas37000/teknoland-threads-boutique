@@ -25,11 +25,17 @@ export const transformProductFromDB = (dbProduct: any): Product => {
     });
   }
 
+  // Calculate if product is new (created within last 2 months)
+  const createdAt = new Date(dbProduct.created_at);
+  const twoMonthsAgo = new Date();
+  twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+  const isNew = createdAt > twoMonthsAgo;
+
   return {
     ...dbProduct,
     size_stocks: dbProduct.size_stocks ? (dbProduct.size_stocks as Record<string, number>) : {},
     variations: dbProduct.variations ? (dbProduct.variations as ProductVariation[]) : [],
-    isNew: dbProduct.is_new || false,
+    isNew: isNew,
     colors,
     sizes: dbProduct.sizes || [],
     images,
