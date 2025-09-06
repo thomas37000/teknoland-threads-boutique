@@ -24,6 +24,7 @@ interface ProductVariation {
   color: string;
   size: string;
   stock: number;
+  image?: string; // URL de l'image pour cette variation
 }
 
 interface ProductDialogsProps {
@@ -201,7 +202,8 @@ const ProductDialogs = ({
     const newVariation: ProductVariation = {
       color: COLOR_OPTIONS[0],
       size: SIZE_OPTIONS[0],
-      stock: 0
+      stock: 0,
+      image: isEdit ? currentProduct?.image : '' // Initialize with main image
     };
     
     if (isEdit) {
@@ -648,51 +650,84 @@ const ProductDialogs = ({
                     </Button>
                   </div>
                   
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <Label className="text-sm">Couleur</Label>
-                      <Select
-                        value={variation.color}
-                        onValueChange={(value) => updateVariation(index, 'color', value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {COLOR_OPTIONS.map(color => (
-                            <SelectItem key={color} value={color}>{color}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <Label className="text-sm">Taille</Label>
-                      <Select
-                        value={variation.size}
-                        onValueChange={(value) => updateVariation(index, 'size', value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {SIZE_OPTIONS.map(size => (
-                            <SelectItem key={size} value={size}>{size}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <Label className="text-sm">Stock</Label>
-                      <Input
-                        type="number"
-                        min="0"
-                        value={variation.stock}
-                        onChange={(e) => updateVariation(index, 'stock', e.target.value)}
-                      />
-                    </div>
-                  </div>
+                   <div className="grid grid-cols-4 gap-3">
+                     <div>
+                       <Label className="text-sm">Image</Label>
+                       <div className="space-y-2">
+                         <Select
+                           value={variation.image || ''}
+                           onValueChange={(value) => updateVariation(index, 'image', value)}
+                         >
+                           <SelectTrigger>
+                             <SelectValue placeholder="Choisir image" />
+                           </SelectTrigger>
+                           <SelectContent>
+                             {imageFile && (
+                               <SelectItem value={URL.createObjectURL(imageFile)}>
+                                 Image principale
+                               </SelectItem>
+                             )}
+                             {multipleImageFiles.map((file, imgIndex) => (
+                               <SelectItem key={imgIndex} value={URL.createObjectURL(file)}>
+                                 Image {imgIndex + 1}
+                               </SelectItem>
+                             ))}
+                           </SelectContent>
+                         </Select>
+                         {variation.image && (
+                           <img 
+                             src={variation.image} 
+                             alt={`Variation ${index + 1}`}
+                             className="w-12 h-12 object-cover rounded border"
+                           />
+                         )}
+                       </div>
+                     </div>
+                     
+                     <div>
+                       <Label className="text-sm">Couleur</Label>
+                       <Select
+                         value={variation.color}
+                         onValueChange={(value) => updateVariation(index, 'color', value)}
+                       >
+                         <SelectTrigger>
+                           <SelectValue />
+                         </SelectTrigger>
+                         <SelectContent>
+                           {COLOR_OPTIONS.map(color => (
+                             <SelectItem key={color} value={color}>{color}</SelectItem>
+                           ))}
+                         </SelectContent>
+                       </Select>
+                     </div>
+                     
+                     <div>
+                       <Label className="text-sm">Taille</Label>
+                       <Select
+                         value={variation.size}
+                         onValueChange={(value) => updateVariation(index, 'size', value)}
+                       >
+                         <SelectTrigger>
+                           <SelectValue />
+                         </SelectTrigger>
+                         <SelectContent>
+                           {SIZE_OPTIONS.map(size => (
+                             <SelectItem key={size} value={size}>{size}</SelectItem>
+                           ))}
+                         </SelectContent>
+                       </Select>
+                     </div>
+                     
+                     <div>
+                       <Label className="text-sm">Stock</Label>
+                       <Input
+                         type="number"
+                         min="0"
+                         value={variation.stock}
+                         onChange={(e) => updateVariation(index, 'stock', e.target.value)}
+                       />
+                     </div>
+                   </div>
                 </div>
               ))}
               
@@ -918,51 +953,94 @@ const ProductDialogs = ({
                     </Button>
                   </div>
                   
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <Label className="text-sm">Couleur</Label>
-                      <Select
-                        value={variation.color}
-                        onValueChange={(value) => updateVariation(index, 'color', value, true)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {COLOR_OPTIONS.map(color => (
-                            <SelectItem key={color} value={color}>{color}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <Label className="text-sm">Taille</Label>
-                      <Select
-                        value={variation.size}
-                        onValueChange={(value) => updateVariation(index, 'size', value, true)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {SIZE_OPTIONS.map(size => (
-                            <SelectItem key={size} value={size}>{size}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <Label className="text-sm">Stock</Label>
-                      <Input
-                        type="number"
-                        min="0"
-                        value={variation.stock}
-                        onChange={(e) => updateVariation(index, 'stock', e.target.value, true)}
-                      />
-                    </div>
-                  </div>
+                   <div className="grid grid-cols-4 gap-3">
+                     <div>
+                       <Label className="text-sm">Image</Label>
+                       <div className="space-y-2">
+                         <Select
+                           value={variation.image || ''}
+                           onValueChange={(value) => updateVariation(index, 'image', value, true)}
+                         >
+                           <SelectTrigger>
+                             <SelectValue placeholder="Choisir image" />
+                           </SelectTrigger>
+                           <SelectContent>
+                             {currentProduct?.image && (
+                               <SelectItem value={currentProduct.image}>
+                                 Image principale
+                               </SelectItem>
+                             )}
+                             {editImageFile && (
+                               <SelectItem value={URL.createObjectURL(editImageFile)}>
+                                 Nouvelle image principale
+                               </SelectItem>
+                             )}
+                             {currentProduct?.images?.map((img, imgIndex) => (
+                               <SelectItem key={imgIndex} value={img}>
+                                 Image {imgIndex + 1}
+                               </SelectItem>
+                             ))}
+                             {editMultipleImageFiles.map((file, imgIndex) => (
+                               <SelectItem key={`new-${imgIndex}`} value={URL.createObjectURL(file)}>
+                                 Nouvelle image {imgIndex + 1}
+                               </SelectItem>
+                             ))}
+                           </SelectContent>
+                         </Select>
+                         {variation.image && (
+                           <img 
+                             src={variation.image} 
+                             alt={`Variation ${index + 1}`}
+                             className="w-12 h-12 object-cover rounded border"
+                           />
+                         )}
+                       </div>
+                     </div>
+                     
+                     <div>
+                       <Label className="text-sm">Couleur</Label>
+                       <Select
+                         value={variation.color}
+                         onValueChange={(value) => updateVariation(index, 'color', value, true)}
+                       >
+                         <SelectTrigger>
+                           <SelectValue />
+                         </SelectTrigger>
+                         <SelectContent>
+                           {COLOR_OPTIONS.map(color => (
+                             <SelectItem key={color} value={color}>{color}</SelectItem>
+                           ))}
+                         </SelectContent>
+                       </Select>
+                     </div>
+                     
+                     <div>
+                       <Label className="text-sm">Taille</Label>
+                       <Select
+                         value={variation.size}
+                         onValueChange={(value) => updateVariation(index, 'size', value, true)}
+                       >
+                         <SelectTrigger>
+                           <SelectValue />
+                         </SelectTrigger>
+                         <SelectContent>
+                           {SIZE_OPTIONS.map(size => (
+                             <SelectItem key={size} value={size}>{size}</SelectItem>
+                           ))}
+                         </SelectContent>
+                       </Select>
+                     </div>
+                     
+                     <div>
+                       <Label className="text-sm">Stock</Label>
+                       <Input
+                         type="number"
+                         min="0"
+                         value={variation.stock}
+                         onChange={(e) => updateVariation(index, 'stock', e.target.value, true)}
+                       />
+                     </div>
+                   </div>
                 </div>
               ))}
               

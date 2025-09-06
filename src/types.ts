@@ -3,6 +3,7 @@ export interface ProductVariation {
   color: string;
   size: string;
   stock: number;
+  image?: string; // URL de l'image pour cette variation
 }
 
 export interface Product {
