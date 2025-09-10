@@ -15,7 +15,7 @@ interface ProductManagementProps {
 }
 
 const ITEMS_PER_PAGE = 5;
-const CATEGORIES = ["Man's T-Shirts","Women's T-Shirts", "Sweats", "Vinyls"];
+const CATEGORIES = ["Man's T-Shirts","Women's T-Shirts", "Sweats", "Vinyles"];
 
 const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
