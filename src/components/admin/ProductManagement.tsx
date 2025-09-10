@@ -80,14 +80,6 @@ const ProductManagement = ({ initialProducts }: ProductManagementProps) => {
         const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
         if (!error && data) {
           const transformedData = transformProductsFromDB(data);
-          console.log('Fetched products:', transformedData.length);
-          console.log('Sample product stock calculation:', transformedData[0] ? {
-            name: transformedData[0].name,
-            stock: transformedData[0].stock,
-            size_stocks: transformedData[0].size_stocks,
-            variations: transformedData[0].variations,
-            calculatedStock: calculateTotalStock(transformedData[0])
-          } : 'No products');
           setProducts(transformedData);
           setFilteredProducts(transformedData);
         }

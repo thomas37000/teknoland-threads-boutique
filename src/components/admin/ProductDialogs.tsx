@@ -16,7 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { X, Plus, Trash2 } from "lucide-react";
 
-const CATEGORIES = ["Man's T-shirts", "Sweats", "Vinyle"];
+const CATEGORIES = ["Man's T-shirts", "Sweats", "Vinyles", "Stickers"];
 const SIZE_OPTIONS = ["S", "M", "L", "XL"];
 const COLOR_OPTIONS = ["Noir", "Blanc", "Rouge", "Bleu", "Vert", "Jaune", "Rose", "Violet", "Orange", "Gris"];
 
@@ -64,7 +64,10 @@ const ProductDialogs = ({
   const [editMultipleImageFiles, setEditMultipleImageFiles] = useState<File[]>([]);
   const [variations, setVariations] = useState<ProductVariation[]>([]);
   const [editVariations, setEditVariations] = useState<ProductVariation[]>([]);
-  
+
+  const categorySelected = newProduct?.category;
+  const showVariations = categorySelected && !["Vinyles", "Stickers"].includes(categorySelected)
+
   // Setup initial variations when a product is loaded
   useEffect(() => {
     if (currentProduct) {
@@ -310,7 +313,13 @@ const ProductDialogs = ({
       variations.forEach(variation => {
         sizeStocks[variation.size] = (sizeStocks[variation.size] || 0) + variation.stock;
       });
-      
+
+      const categoriesWithoutVariations = ["Vinyles", "Stickers"];
+      const sizeStocksToSave = categoriesWithoutVariations.includes(newProduct.category)
+      ? {} // Pas de variations pour Vinyles ou Stickers
+      : JSON.parse(JSON.stringify({ variations, sizeStocks })); // Les autres catégories gardent variations
+      const needsVariations = !categoriesWithoutVariations.includes(currentProduct.category);
+
       // Insert the product into the Supabase database
       const { data: productData, error: insertError } = await supabase
         .from('products')
@@ -324,7 +333,7 @@ const ProductDialogs = ({
           stock: totalStock,
           sizes: uniqueSizes,
           colors: uniqueColors,
-          size_stocks: JSON.parse(JSON.stringify({ variations, sizeStocks })), // Store both new and old format
+          size_stocks: sizeStocksToSave, // Store both new and old format
           seller_id: (await supabase.auth.getUser()).data.user?.id,
           is_new: true
         }])
@@ -376,7 +385,11 @@ const ProductDialogs = ({
     if (!currentProduct) return;
     
     try {
-      if (editVariations.length === 0) {
+     const categoriesWithoutVariations = ["Vinyles", "Stickers"];
+
+     // Vérifie si la catégorie nécessite des variations
+     const needsVariations = !categoriesWithoutVariations.includes(currentProduct.category);
+      if ( needsVariations && editVariations.length === 0) {
         toast({
           title: "Error",
           description: "Please add at least one variation (color/size/stock).",
@@ -386,9 +399,22 @@ const ProductDialogs = ({
       }
 
       // Calculate total stock from variations
-      const totalStock = editVariations.reduce((sum, variation) => sum + variation.stock, 0);
-      const uniqueColors = [...new Set(editVariations.map(v => v.color))];
-      const uniqueSizes = [...new Set(editVariations.map(v => v.size))];
+      // Calcul du stock total et des couleurs/sizes uniques
+    const totalStock = needsVariations
+      ? editVariations.reduce((sum, variation) => sum + variation.stock, 0)
+      : Number(currentProduct.stock) || 0;
+
+    const uniqueColors = needsVariations
+      ? [...new Set(editVariations.map(v => v.color))]
+      : [];
+    const uniqueSizes = needsVariations
+      ? [...new Set(editVariations.map(v => v.size))]
+      : [];
+
+    // Préparer size_stocks
+    const sizeStocksToSave = needsVariations
+      ? JSON.parse(JSON.stringify({ variations: editVariations, sizeStocks: editVariations.reduce((acc, v) => ({ ...acc, [`${v.color}-${v.size}`]: v.stock }), {}) }))
+      : {};
       
       // Prepare product data for update
       let imageUrl = currentProduct.image;
@@ -554,6 +580,7 @@ const ProductDialogs = ({
             </div>
           </div>
           
+          {/* Price */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="price" className="text-right">
               Price
@@ -631,6 +658,7 @@ const ProductDialogs = ({
           </div>
           
           {/* Product Variations */}
+          { !["Vinyles", "Stickers"].includes(newProduct?.category) && (
           <div className="grid grid-cols-4 items-start gap-4">
             <Label className="text-right pt-2">
               Variations
@@ -748,6 +776,7 @@ const ProductDialogs = ({
               )}
             </div>
           </div>
+          )}
           
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="description" className="text-right">
@@ -827,6 +856,7 @@ const ProductDialogs = ({
             </div>
           </div>
           
+          {/* Price */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="edit-price" className="text-right">
               Price
@@ -1062,6 +1092,7 @@ const ProductDialogs = ({
             </div>
           </div>
           
+          {/* Description */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="edit-description" className="text-right">
               Description
