@@ -8,17 +8,24 @@ const categories = [
     link: "/shop?category=t-shirts"
   },
   {
-    id: "hoodies",
+    id: "sweats",
     name: "Sweats",
     image: "https://images.unsplash.com/photo-1579572331145-5e53b299c64e?auto=format&fit=crop&w=800&h=600",
-    link: "/shop?category=hoodies"
+    link: "/shop?category=sweats"
   },
   {
-    id: "vinyls",
+    id: "vinyles",
     name: "Vinyles",
     image: "https://f4.bcbits.com/img/0030996771_10.jpg",
-    link: "/shop?category=vinyls"
+    link: "/shop?category=vinyles"
+  },
+  {
+    id: "stickers",
+    name: "Stickers",
+    image: "",
+    link: "/shop?category=stickers"
   }
+
 ];
 
 const CategorySection = () => {

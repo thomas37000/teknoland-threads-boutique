@@ -19,28 +19,28 @@ const Footer = () => {
             <h4 className="font-bold mb-4">Shop</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/shop" className="text-tekno-gray hover:text-white transition-colors">
-                  All Products
+                <Link to="/shop?category=all" className="text-tekno-gray hover:text-white transition-colors">
+                  Boutique
                 </Link>
               </li>
               <li>
-                <Link to="/shop?category=tshirts" className="text-tekno-gray hover:text-white transition-colors">
+                <Link to="/shop?category=t-shirts" className="text-tekno-gray hover:text-white transition-colors">
                   T-Shirts
                 </Link>
               </li>
               <li>
-                <Link to="/shop?category=hoodies" className="text-tekno-gray hover:text-white transition-colors">
+                <Link to="/shop?category=sweats" className="text-tekno-gray hover:text-white transition-colors">
                   Sweats
                 </Link>
               </li>
               <li>
-                <Link to="/shop?category=vinyls" className="text-tekno-gray hover:text-white transition-colors">
+                <Link to="/shop?category=vinyles" className="text-tekno-gray hover:text-white transition-colors">
                   Vinyles
                 </Link>
               </li>
               <li>
-                <Link to="/shop?category=accessories" className="text-tekno-gray hover:text-white transition-colors">
-                  Accessories
+                <Link to="/shop?category=stickers" className="text-tekno-gray hover:text-white transition-colors">
+                  Stickers
                 </Link>
               </li>
             </ul>

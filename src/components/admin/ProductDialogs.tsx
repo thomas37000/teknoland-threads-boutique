@@ -16,7 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { X, Plus, Trash2 } from "lucide-react";
 
-const CATEGORIES = ["Man's T-shirts", "Sweats", "Vinyles", "Double Vinyles", "Stickers"];
+const CATEGORIES = ["T-shirts", "Sweats", "Vinyles", "Double Vinyles", "Stickers"];
 const SIZE_OPTIONS = ["S", "M", "L", "XL"];
 const COLOR_OPTIONS = ["Noir", "Blanc", "Rouge", "Bleu", "Vert", "Jaune", "Rose", "Violet", "Orange", "Gris"];
 

@@ -191,10 +191,10 @@ const SellerProductManagement = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Toutes les catégories</SelectItem>
-            <SelectItem value="man">T-Shirts Hommes</SelectItem>
+            <SelectItem value="t-shirts">T-Shirts Hommes</SelectItem>
             <SelectItem value="women">T-Shirts Femmes</SelectItem>
             <SelectItem value="sweats">Sweats</SelectItem>
-            <SelectItem value="vinyls">Vinyles</SelectItem>
+            <SelectItem value="vinyles">Vinyles</SelectItem>
           </SelectContent>
         </Select>
 
