@@ -242,7 +242,10 @@ const ProductDialogs = ({
   // Handle add product with image upload
   const handleAddWithImage = async () => {
     try {
-      if (variations.length === 0) {
+      const categoriesWithoutVariations = ["Vinyles", "Stickers"];
+      const needsVariations = !categoriesWithoutVariations.includes(newProduct.category || '');
+      
+      if (needsVariations && variations.length === 0) {
         toast({
           title: "Error",
           description: "Please add at least one variation (color/size/stock).",
@@ -252,9 +255,11 @@ const ProductDialogs = ({
       }
 
       // Calculate total stock from variations
-      const totalStock = variations.reduce((sum, variation) => sum + variation.stock, 0);
-      const uniqueColors = [...new Set(variations.map(v => v.color))];
-      const uniqueSizes = [...new Set(variations.map(v => v.size))];
+      const totalStock = needsVariations 
+        ? variations.reduce((sum, variation) => sum + variation.stock, 0)
+        : Number(newProduct.stock) || 0;
+      const uniqueColors = needsVariations ? [...new Set(variations.map(v => v.color))] : [];
+      const uniqueSizes = needsVariations ? [...new Set(variations.map(v => v.size))] : [];
       
       // Prepare product data for Supabase
       let imageUrl = '';
@@ -310,15 +315,15 @@ const ProductDialogs = ({
 
       // Create size_stocks object for backward compatibility
       const sizeStocks: {[size: string]: number} = {};
-      variations.forEach(variation => {
-        sizeStocks[variation.size] = (sizeStocks[variation.size] || 0) + variation.stock;
-      });
+      if (needsVariations) {
+        variations.forEach(variation => {
+          sizeStocks[variation.size] = (sizeStocks[variation.size] || 0) + variation.stock;
+        });
+      }
 
-      const categoriesWithoutVariations = ["Vinyles", "Stickers"];
-      const sizeStocksToSave = categoriesWithoutVariations.includes(newProduct.category)
-      ? {} // Pas de variations pour Vinyles ou Stickers
-      : JSON.parse(JSON.stringify({ variations, sizeStocks })); // Les autres catégories gardent variations
-      const needsVariations = !categoriesWithoutVariations.includes(currentProduct.category);
+      const sizeStocksToSave = needsVariations
+        ? JSON.parse(JSON.stringify({ variations, sizeStocks }))
+        : {};
 
       // Insert the product into the Supabase database
       const { data: productData, error: insertError } = await supabase
