@@ -16,7 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { X, Plus, Trash2 } from "lucide-react";
 
-const CATEGORIES = ["Man's T-shirts", "Sweats", "Vinyles", "Stickers"];
+const CATEGORIES = ["Man's T-shirts", "Sweats", "Vinyles", "Double Vinyles", "Stickers"];
 const SIZE_OPTIONS = ["S", "M", "L", "XL"];
 const COLOR_OPTIONS = ["Noir", "Blanc", "Rouge", "Bleu", "Vert", "Jaune", "Rose", "Violet", "Orange", "Gris"];
 
@@ -25,6 +25,14 @@ interface ProductVariation {
   size: string;
   stock: number;
   image?: string; // URL de l'image pour cette variation
+}
+
+interface VinylTrack {
+  id: string;
+  name: string;
+  duration: string; // Format MM:SS
+  artist: string;
+  year: string;
 }
 
 interface ProductDialogsProps {
@@ -64,11 +72,15 @@ const ProductDialogs = ({
   const [editMultipleImageFiles, setEditMultipleImageFiles] = useState<File[]>([]);
   const [variations, setVariations] = useState<ProductVariation[]>([]);
   const [editVariations, setEditVariations] = useState<ProductVariation[]>([]);
+  const [vinylTracks, setVinylTracks] = useState<VinylTrack[]>([]);
+  const [editVinylTracks, setEditVinylTracks] = useState<VinylTrack[]>([]);
 
   const categorySelected = newProduct?.category;
-  const showVariations = categorySelected && !["Vinyles", "Stickers"].includes(categorySelected)
+  const showVariations = categorySelected && !["Vinyles", "Double Vinyles", "Stickers"].includes(categorySelected)
+  const showVinylTracks = categorySelected && ["Vinyles", "Double Vinyles"].includes(categorySelected)
+  const showSimpleStock = categorySelected && ["Stickers"].includes(categorySelected)
 
-  // Setup initial variations when a product is loaded
+  // Setup initial variations and vinyl tracks when a product is loaded
   useEffect(() => {
     if (currentProduct) {
       // Try to convert from current format to variations
@@ -77,8 +89,10 @@ const ProductDialogs = ({
       if (currentProduct.size_stocks) {
         const sizeStocksData = currentProduct.size_stocks as any;
         
-        // Check if the new format with variations exists
-        if (sizeStocksData.variations && Array.isArray(sizeStocksData.variations)) {
+        // Check if this is vinyl tracks data
+        if (sizeStocksData.vinylTracks && Array.isArray(sizeStocksData.vinylTracks)) {
+          setEditVinylTracks(sizeStocksData.vinylTracks);
+        } else if (sizeStocksData.variations && Array.isArray(sizeStocksData.variations)) {
           setEditVariations(sizeStocksData.variations);
         } else if (currentProduct.sizes && currentProduct.colors) {
           // Convert from old format
@@ -92,18 +106,76 @@ const ProductDialogs = ({
         }
       } else {
         setEditVariations([]);
+        setEditVinylTracks([]);
+      }
+      
+      // Initialize default vinyl tracks if it's a vinyl category but no tracks exist
+      if (["Vinyles", "Double Vinyles"].includes(currentProduct.category)) {
+        const sizeStocksData = currentProduct.size_stocks as any;
+        if (!sizeStocksData?.vinylTracks) {
+          if (currentProduct.category === "Vinyles") {
+            const defaultTracks: VinylTrack[] = [
+              { id: "A1", name: "", duration: "0:00", artist: "", year: "" },
+              { id: "A2", name: "", duration: "0:00", artist: "", year: "" },
+              { id: "B1", name: "", duration: "0:00", artist: "", year: "" },
+              { id: "B2", name: "", duration: "0:00", artist: "", year: "" },
+            ];
+            setEditVinylTracks(defaultTracks);
+          } else if (currentProduct.category === "Double Vinyles") {
+            const defaultTracks: VinylTrack[] = [
+              { id: "A1", name: "", duration: "0:00", artist: "", year: "" },
+              { id: "A2", name: "", duration: "0:00", artist: "", year: "" },
+              { id: "B1", name: "", duration: "0:00", artist: "", year: "" },
+              { id: "B2", name: "", duration: "0:00", artist: "", year: "" },
+              { id: "C1", name: "", duration: "0:00", artist: "", year: "" },
+              { id: "C2", name: "", duration: "0:00", artist: "", year: "" },
+              { id: "D1", name: "", duration: "0:00", artist: "", year: "" },
+              { id: "D2", name: "", duration: "0:00", artist: "", year: "" },
+            ];
+            setEditVinylTracks(defaultTracks);
+          }
+        }
       }
     } else {
       setEditVariations([]);
+      setEditVinylTracks([]);
     }
   }, [currentProduct]);
 
-  // Reset variations when dialog closes
+  // Reset variations and vinyl tracks when dialog closes
   useEffect(() => {
     if (!isAddDialogOpen) {
       setVariations([]);
+      setVinylTracks([]);
     }
   }, [isAddDialogOpen]);
+
+  // Initialize vinyl tracks based on category
+  useEffect(() => {
+    if (categorySelected === "Vinyles") {
+      const defaultTracks: VinylTrack[] = [
+        { id: "A1", name: "", duration: "0:00", artist: "", year: "" },
+        { id: "A2", name: "", duration: "0:00", artist: "", year: "" },
+        { id: "B1", name: "", duration: "0:00", artist: "", year: "" },
+        { id: "B2", name: "", duration: "0:00", artist: "", year: "" },
+      ];
+      setVinylTracks(defaultTracks);
+    } else if (categorySelected === "Double Vinyles") {
+      const defaultTracks: VinylTrack[] = [
+        { id: "A1", name: "", duration: "0:00", artist: "", year: "" },
+        { id: "A2", name: "", duration: "0:00", artist: "", year: "" },
+        { id: "B1", name: "", duration: "0:00", artist: "", year: "" },
+        { id: "B2", name: "", duration: "0:00", artist: "", year: "" },
+        { id: "C1", name: "", duration: "0:00", artist: "", year: "" },
+        { id: "C2", name: "", duration: "0:00", artist: "", year: "" },
+        { id: "D1", name: "", duration: "0:00", artist: "", year: "" },
+        { id: "D2", name: "", duration: "0:00", artist: "", year: "" },
+      ];
+      setVinylTracks(defaultTracks);
+    } else {
+      setVinylTracks([]);
+    }
+  }, [categorySelected]);
 
   // Handle main image file selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, isEdit: boolean) => {
@@ -239,11 +311,26 @@ const ProductDialogs = ({
     setTargetVariations(updatedVariations);
   };
 
+  // Update vinyl track
+  const updateVinylTrack = (index: number, field: keyof VinylTrack, value: string, isEdit: boolean = false) => {
+    const targetTracks = isEdit ? editVinylTracks : vinylTracks;
+    const setTargetTracks = isEdit ? setEditVinylTracks : setVinylTracks;
+    
+    const updatedTracks = [...targetTracks];
+    updatedTracks[index] = {
+      ...updatedTracks[index],
+      [field]: value
+    };
+    
+    setTargetTracks(updatedTracks);
+  };
+
   // Handle add product with image upload
   const handleAddWithImage = async () => {
     try {
-      const categoriesWithoutVariations = ["Vinyles", "Stickers"];
+      const categoriesWithoutVariations = ["Vinyles", "Double Vinyles", "Stickers"];
       const needsVariations = !categoriesWithoutVariations.includes(newProduct.category || '');
+      const isVinyl = ["Vinyles", "Double Vinyles"].includes(newProduct.category || '');
       
       if (needsVariations && variations.length === 0) {
         toast({
@@ -254,12 +341,18 @@ const ProductDialogs = ({
         return;
       }
 
-      // Calculate total stock from variations
-      const totalStock = needsVariations 
-        ? variations.reduce((sum, variation) => sum + variation.stock, 0)
-        : Number(newProduct.stock) || 0;
-      const uniqueColors = needsVariations ? [...new Set(variations.map(v => v.color))] : [];
-      const uniqueSizes = needsVariations ? [...new Set(variations.map(v => v.size))] : [];
+      // Calculate total stock from variations or use simple stock
+      let totalStock = 0;
+      let uniqueColors: string[] = [];
+      let uniqueSizes: string[] = [];
+      
+      if (needsVariations) {
+        totalStock = variations.reduce((sum, variation) => sum + variation.stock, 0);
+        uniqueColors = [...new Set(variations.map(v => v.color))];
+        uniqueSizes = [...new Set(variations.map(v => v.size))];
+      } else {
+        totalStock = Number(newProduct.stock) || 0;
+      }
       
       // Prepare product data for Supabase
       let imageUrl = '';
@@ -314,16 +407,17 @@ const ProductDialogs = ({
       }
 
       // Create size_stocks object for backward compatibility
-      const sizeStocks: {[size: string]: number} = {};
+      let sizeStocksToSave = {};
+      
       if (needsVariations) {
+        const sizeStocks: {[size: string]: number} = {};
         variations.forEach(variation => {
           sizeStocks[variation.size] = (sizeStocks[variation.size] || 0) + variation.stock;
         });
+        sizeStocksToSave = JSON.parse(JSON.stringify({ variations, sizeStocks }));
+      } else if (isVinyl) {
+        sizeStocksToSave = JSON.parse(JSON.stringify({ vinylTracks }));
       }
-
-      const sizeStocksToSave = needsVariations
-        ? JSON.parse(JSON.stringify({ variations, sizeStocks }))
-        : {};
 
       // Insert the product into the Supabase database
       const { data: productData, error: insertError } = await supabase
@@ -370,6 +464,7 @@ const ProductDialogs = ({
       setImageFile(null);
       setMultipleImageFiles([]);
       setVariations([]);
+      setVinylTracks([]);
       setIsAddDialogOpen(false);
       
       // Call the original handler to update UI
@@ -390,11 +485,11 @@ const ProductDialogs = ({
     if (!currentProduct) return;
     
     try {
-     const categoriesWithoutVariations = ["Vinyles", "Stickers"];
-
-     // Vérifie si la catégorie nécessite des variations
+     const categoriesWithoutVariations = ["Vinyles", "Double Vinyles", "Stickers"];
      const needsVariations = !categoriesWithoutVariations.includes(currentProduct.category);
-      if ( needsVariations && editVariations.length === 0) {
+     const isVinyl = ["Vinyles", "Double Vinyles"].includes(currentProduct.category);
+     
+      if (needsVariations && editVariations.length === 0) {
         toast({
           title: "Error",
           description: "Please add at least one variation (color/size/stock).",
@@ -403,23 +498,31 @@ const ProductDialogs = ({
         return;
       }
 
-      // Calculate total stock from variations
-      // Calcul du stock total et des couleurs/sizes uniques
-    const totalStock = needsVariations
-      ? editVariations.reduce((sum, variation) => sum + variation.stock, 0)
-      : Number(currentProduct.stock) || 0;
+      // Calculate total stock from variations or use simple stock
+      let totalStock = 0;
+      let uniqueColors: string[] = [];
+      let uniqueSizes: string[] = [];
+      
+      if (needsVariations) {
+        totalStock = editVariations.reduce((sum, variation) => sum + variation.stock, 0);
+        uniqueColors = [...new Set(editVariations.map(v => v.color))];
+        uniqueSizes = [...new Set(editVariations.map(v => v.size))];
+      } else {
+        totalStock = Number(currentProduct.stock) || 0;
+      }
 
-    const uniqueColors = needsVariations
-      ? [...new Set(editVariations.map(v => v.color))]
-      : [];
-    const uniqueSizes = needsVariations
-      ? [...new Set(editVariations.map(v => v.size))]
-      : [];
-
-    // Préparer size_stocks
-    const sizeStocksToSave = needsVariations
-      ? JSON.parse(JSON.stringify({ variations: editVariations, sizeStocks: editVariations.reduce((acc, v) => ({ ...acc, [`${v.color}-${v.size}`]: v.stock }), {}) }))
-      : {};
+      // Prepare size_stocks
+      let sizeStocksToSave = {};
+      
+      if (needsVariations) {
+        const sizeStocks: {[size: string]: number} = {};
+        editVariations.forEach(variation => {
+          sizeStocks[variation.size] = (sizeStocks[variation.size] || 0) + variation.stock;
+        });
+        sizeStocksToSave = JSON.parse(JSON.stringify({ variations: editVariations, sizeStocks }));
+      } else if (isVinyl) {
+        sizeStocksToSave = JSON.parse(JSON.stringify({ vinylTracks: editVinylTracks }));
+      }
       
       // Prepare product data for update
       let imageUrl = currentProduct.image;
@@ -663,7 +766,7 @@ const ProductDialogs = ({
           </div>
           
           {/* Product Variations */}
-          { !["Vinyles", "Stickers"].includes(newProduct?.category) && (
+          { showVariations && (
           <div className="grid grid-cols-4 items-start gap-4">
             <Label className="text-right pt-2">
               Variations
@@ -780,6 +883,81 @@ const ProductDialogs = ({
                 </div>
               )}
             </div>
+          </div>
+          )}
+          
+          {/* Vinyl Tracks */}
+          { showVinylTracks && (
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label className="text-right pt-2">
+              Pistes
+            </Label>
+            <div className="col-span-3 space-y-4">
+              {vinylTracks.map((track, index) => (
+                <div key={track.id} className="border rounded-lg p-4 space-y-3 bg-muted/20">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">Piste {track.id}</h4>
+                  </div>
+                  
+                   <div className="grid grid-cols-4 gap-3">
+                     <div>
+                       <Label className="text-sm">Nom de la piste</Label>
+                       <Input
+                         value={track.name}
+                         onChange={(e) => updateVinylTrack(index, 'name', e.target.value)}
+                         placeholder="Titre de la chanson"
+                       />
+                     </div>
+                     
+                     <div>
+                       <Label className="text-sm">Durée (MM:SS)</Label>
+                       <Input
+                         value={track.duration}
+                         onChange={(e) => updateVinylTrack(index, 'duration', e.target.value)}
+                         placeholder="3:45"
+                       />
+                     </div>
+                     
+                     <div>
+                       <Label className="text-sm">Artiste</Label>
+                       <Input
+                         value={track.artist}
+                         onChange={(e) => updateVinylTrack(index, 'artist', e.target.value)}
+                         placeholder="Nom de l'artiste"
+                       />
+                     </div>
+                     
+                     <div>
+                       <Label className="text-sm">Année</Label>
+                       <Input
+                         value={track.year}
+                         onChange={(e) => updateVinylTrack(index, 'year', e.target.value)}
+                         placeholder="2024"
+                       />
+                     </div>
+                   </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          )}
+          
+          {/* Simple Stock for Stickers */}
+          { showSimpleStock && (
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="stock" className="text-right">
+              Stock
+            </Label>
+            <Input
+              id="stock"
+              type="number"
+              min="0"
+              value={newProduct.stock || ""}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, stock: parseInt(e.target.value) || 0 })
+              }
+              className="col-span-3"
+            />
           </div>
           )}
           
@@ -969,6 +1147,7 @@ const ProductDialogs = ({
           </div>
           
           {/* Product Variations */}
+          { currentProduct && !["Vinyles", "Double Vinyles", "Stickers"].includes(currentProduct.category) && (
           <div className="grid grid-cols-4 items-start gap-4">
             <Label className="text-right pt-2">
               Variations
@@ -1096,6 +1275,86 @@ const ProductDialogs = ({
               )}
             </div>
           </div>
+          )}
+          
+          {/* Vinyl Tracks for Edit */}
+          { currentProduct && ["Vinyles", "Double Vinyles"].includes(currentProduct.category) && (
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label className="text-right pt-2">
+              Pistes
+            </Label>
+            <div className="col-span-3 space-y-4">
+              {editVinylTracks.map((track, index) => (
+                <div key={track.id} className="border rounded-lg p-4 space-y-3 bg-muted/20">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">Piste {track.id}</h4>
+                  </div>
+                  
+                   <div className="grid grid-cols-4 gap-3">
+                     <div>
+                       <Label className="text-sm">Nom de la piste</Label>
+                       <Input
+                         value={track.name}
+                         onChange={(e) => updateVinylTrack(index, 'name', e.target.value, true)}
+                         placeholder="Titre de la chanson"
+                       />
+                     </div>
+                     
+                     <div>
+                       <Label className="text-sm">Durée (MM:SS)</Label>
+                       <Input
+                         value={track.duration}
+                         onChange={(e) => updateVinylTrack(index, 'duration', e.target.value, true)}
+                         placeholder="3:45"
+                       />
+                     </div>
+                     
+                     <div>
+                       <Label className="text-sm">Artiste</Label>
+                       <Input
+                         value={track.artist}
+                         onChange={(e) => updateVinylTrack(index, 'artist', e.target.value, true)}
+                         placeholder="Nom de l'artiste"
+                       />
+                     </div>
+                     
+                     <div>
+                       <Label className="text-sm">Année</Label>
+                       <Input
+                         value={track.year}
+                         onChange={(e) => updateVinylTrack(index, 'year', e.target.value, true)}
+                         placeholder="2024"
+                       />
+                     </div>
+                   </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          )}
+          
+          {/* Simple Stock for Stickers Edit */}
+          { currentProduct && ["Stickers"].includes(currentProduct.category) && (
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="edit-stock" className="text-right">
+              Stock
+            </Label>
+            <Input
+              id="edit-stock"
+              type="number"
+              min="0"
+              value={currentProduct.stock || ""}
+              onChange={(e) =>
+                setCurrentProduct(
+                  currentProduct
+                    ? { ...currentProduct, stock: parseInt(e.target.value) || 0 }
+                    : null
+                )
+              }
+              className="col-span-3"
+            />
+          </div>
+          )}
           
           {/* Description */}
           <div className="grid grid-cols-4 items-center gap-4">
