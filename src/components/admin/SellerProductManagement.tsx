@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { transformProductsFromDB } from "@/utils/product-transform";
 
-const SellerProductManagement = () => {
+const SellerProductManagement = () => { // Page Admin VENDEUR
   const { t } = useTranslation();
   const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
@@ -195,6 +195,7 @@ const SellerProductManagement = () => {
             <SelectItem value="women">T-Shirts Femmes</SelectItem>
             <SelectItem value="sweats">Sweats</SelectItem>
             <SelectItem value="vinyles">Vinyles</SelectItem>
+            <SelectItem value="stickers">Stickers</SelectItem>
           </SelectContent>
         </Select>
 

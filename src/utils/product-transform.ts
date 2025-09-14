@@ -30,12 +30,12 @@ export const transformProductFromDB = (dbProduct: any): Product => {
   const twoMonthsAgo = new Date();
   twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
   const isNew = createdAt > twoMonthsAgo;
-
+  
   return {
     ...dbProduct,
     size_stocks: dbProduct.size_stocks ? (dbProduct.size_stocks as Record<string, number>) : {},
     variations: dbProduct.variations ? (dbProduct.variations as ProductVariation[]) : [],
-    isNew: isNew,
+    isNew: dbProduct.is_new ? isNew : false,
     colors,
     sizes: dbProduct.sizes || [],
     images,
