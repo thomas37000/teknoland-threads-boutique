@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Package, Users, Tag, Filter, Mail, Heart, Calculator } from "lucide-react";
 import { products } from "@/data/products";
-import ProductManagement from "@/components/admin/ProductManagement";
+import ProductManagement from "@/components/admin/product/ProductManagement";
 import ClientManagement from "@/components/admin/ClientManagement";
 import AdminNotifications from "@/components/admin/AdminNotifications";
 import CategoryManagement from "@/components/admin/CategoryManagement";

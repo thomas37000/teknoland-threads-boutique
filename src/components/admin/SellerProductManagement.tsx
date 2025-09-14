@@ -5,8 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { Product } from "@/types";
 import { useAuth } from "@/hooks/use-auth";
-import ProductTable from "./ProductTable";
-import ProductDialogs from "./ProductDialogs";
+import ProductTable from "./product/ProductTable";
+import ProductDialogs from "./product/ProductDialogs";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { transformProductsFromDB } from "@/utils/product-transform";

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import PopupAdmin from "./PopupAdmin";
+import PopupAdmin from "../PopupAdmin";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";

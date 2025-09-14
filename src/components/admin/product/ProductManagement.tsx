@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Filter, Search } from "lucide-react";
 import { Product } from "@/types";
-import { AdminProductTable } from "./AdminProductTable";
+import { AdminProductTable } from "../AdminProductTable";
 import ProductDialogs from "./ProductDialogs";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
