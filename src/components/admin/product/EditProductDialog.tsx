@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import PopupAdmin from "../PopupAdmin";
-import { ProductForm } from "./ProducForm";
+import { ProductForm } from "./EditProducDialog";
 
 export function EditProductDialog({ isOpen, onClose, onSubmit, product, setProduct, ...props }) {
   return (

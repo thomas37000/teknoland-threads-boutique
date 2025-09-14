@@ -5,17 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Product } from "@/types";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { X, Plus, Trash2 } from "lucide-react";
 import { DeleteProductDialog } from "./DeleteProductDialog";
+import { EditProductDialog } from "./EditProducDialog";
+
+// import { AddProductDialog } from "./AddProductDialog";
 
 const CATEGORIES = ["T-shirts", "Sweats", "Vinyles", "Double Vinyles", "Stickers"];
 const SIZE_OPTIONS = ["S", "M", "L", "XL"];
@@ -86,10 +89,10 @@ const ProductDialogs = ({
     if (currentProduct) {
       // Try to convert from current format to variations
       const existingVariations: ProductVariation[] = [];
-      
+
       if (currentProduct.size_stocks) {
         const sizeStocksData = currentProduct.size_stocks as any;
-        
+
         // Check if this is vinyl tracks data
         if (sizeStocksData.vinylTracks && Array.isArray(sizeStocksData.vinylTracks)) {
           setEditVinylTracks(sizeStocksData.vinylTracks);
@@ -109,7 +112,7 @@ const ProductDialogs = ({
         setEditVariations([]);
         setEditVinylTracks([]);
       }
-      
+
       // Initialize default vinyl tracks if it's a vinyl category but no tracks exist
       if (["Vinyles", "Double Vinyles"].includes(currentProduct.category)) {
         const sizeStocksData = currentProduct.size_stocks as any;
@@ -182,7 +185,7 @@ const ProductDialogs = ({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, isEdit: boolean) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     // Check if file is an image
     if (!file.type.match('image/(jpeg|png|webp)')) {
       toast({
@@ -192,7 +195,7 @@ const ProductDialogs = ({
       });
       return;
     }
-    
+
     // Check if file size is less than 10MB
     if (file.size > 10 * 1024 * 1024) {
       toast({
@@ -202,7 +205,7 @@ const ProductDialogs = ({
       });
       return;
     }
-    
+
     if (isEdit) {
       setEditImageFile(file);
     } else {
@@ -214,9 +217,9 @@ const ProductDialogs = ({
   const handleMultipleImageChange = (e: React.ChangeEvent<HTMLInputElement>, isEdit: boolean) => {
     const files = e.target.files;
     if (!files) return;
-    
+
     const selectedFiles: File[] = Array.from(files);
-    
+
     // Max 4 images
     if (isEdit && editMultipleImageFiles.length + selectedFiles.length > 4) {
       toast({
@@ -233,7 +236,7 @@ const ProductDialogs = ({
       });
       return;
     }
-    
+
     // Validate each file
     for (const file of selectedFiles) {
       // Check if file is an image
@@ -245,7 +248,7 @@ const ProductDialogs = ({
         });
         return;
       }
-      
+
       // Check if file size is less than 10MB
       if (file.size > 10 * 1024 * 1024) {
         toast({
@@ -256,7 +259,7 @@ const ProductDialogs = ({
         return;
       }
     }
-    
+
     if (isEdit) {
       setEditMultipleImageFiles(prev => [...prev, ...selectedFiles].slice(0, 4));
     } else {
@@ -281,7 +284,7 @@ const ProductDialogs = ({
       stock: 0,
       image: isEdit ? currentProduct?.image : '' // Initialize with main image
     };
-    
+
     if (isEdit) {
       setEditVariations([...editVariations, newVariation]);
     } else {
@@ -302,13 +305,13 @@ const ProductDialogs = ({
   const updateVariation = (index: number, field: keyof ProductVariation, value: string | number, isEdit: boolean = false) => {
     const targetVariations = isEdit ? editVariations : variations;
     const setTargetVariations = isEdit ? setEditVariations : setVariations;
-    
+
     const updatedVariations = [...targetVariations];
     updatedVariations[index] = {
       ...updatedVariations[index],
       [field]: field === 'stock' ? parseInt(value as string) || 0 : value
     };
-    
+
     setTargetVariations(updatedVariations);
   };
 
@@ -316,13 +319,13 @@ const ProductDialogs = ({
   const updateVinylTrack = (index: number, field: keyof VinylTrack, value: string, isEdit: boolean = false) => {
     const targetTracks = isEdit ? editVinylTracks : vinylTracks;
     const setTargetTracks = isEdit ? setEditVinylTracks : setVinylTracks;
-    
+
     const updatedTracks = [...targetTracks];
     updatedTracks[index] = {
       ...updatedTracks[index],
       [field]: value
     };
-    
+
     setTargetTracks(updatedTracks);
   };
 
@@ -332,7 +335,7 @@ const ProductDialogs = ({
       const categoriesWithoutVariations = ["Vinyles", "Double Vinyles", "Stickers"];
       const needsVariations = !categoriesWithoutVariations.includes(newProduct.category || '');
       const isVinyl = ["Vinyles", "Double Vinyles"].includes(newProduct.category || '');
-      
+
       if (needsVariations && variations.length === 0) {
         toast({
           title: "Error",
@@ -346,7 +349,7 @@ const ProductDialogs = ({
       let totalStock = 0;
       let uniqueColors: string[] = [];
       let uniqueSizes: string[] = [];
-      
+
       if (needsVariations) {
         totalStock = variations.reduce((sum, variation) => sum + variation.stock, 0);
         uniqueColors = [...new Set(variations.map(v => v.color))];
@@ -354,64 +357,64 @@ const ProductDialogs = ({
       } else {
         totalStock = Number(newProduct.stock) || 0;
       }
-      
+
       // Prepare product data for Supabase
       let imageUrl = '';
       let additionalImages: string[] = [];
-      
+
       // Upload main image if selected
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
         const filePath = fileName;
-        
+
         // Upload the image to storage
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('products')
           .upload(filePath, imageFile);
-          
+
         if (uploadError) {
           throw uploadError;
         }
-        
+
         // Get public URL of the uploaded image
         const { data: urlData } = supabase.storage
           .from('products')
           .getPublicUrl(filePath);
-          
+
         imageUrl = urlData.publicUrl;
       }
-      
+
       // Upload additional images if selected
       if (multipleImageFiles.length > 0) {
         for (const file of multipleImageFiles) {
           const fileExt = file.name.split('.').pop();
           const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
           const filePath = fileName;
-          
+
           // Upload the image to storage
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('products')
             .upload(filePath, file);
-            
+
           if (uploadError) {
             throw uploadError;
           }
-          
+
           // Get public URL of the uploaded image
           const { data: urlData } = supabase.storage
             .from('products')
             .getPublicUrl(filePath);
-            
+
           additionalImages.push(urlData.publicUrl);
         }
       }
 
       // Create size_stocks object for backward compatibility
       let sizeStocksToSave = {};
-      
+
       if (needsVariations) {
-        const sizeStocks: {[size: string]: number} = {};
+        const sizeStocks: { [size: string]: number } = {};
         variations.forEach(variation => {
           sizeStocks[variation.size] = (sizeStocks[variation.size] || 0) + variation.stock;
         });
@@ -438,17 +441,17 @@ const ProductDialogs = ({
           is_new: true
         }])
         .select();
-      
+
       if (insertError) {
         throw insertError;
       }
-      
+
       // Show success message
       toast({
         title: "Success",
         description: "Product added successfully",
       });
-      
+
       // Reset form and close dialog
       setNewProduct({
         name: '',
@@ -467,10 +470,10 @@ const ProductDialogs = ({
       setVariations([]);
       setVinylTracks([]);
       setIsAddDialogOpen(false);
-      
+
       // Call the original handler to update UI
       handleAddProduct();
-      
+
     } catch (error) {
       console.error("Error adding product:", error);
       toast({
@@ -484,12 +487,12 @@ const ProductDialogs = ({
   // Handle edit product with image upload
   const handleEditWithImage = async () => {
     if (!currentProduct) return;
-    
+
     try {
-     const categoriesWithoutVariations = ["Vinyles", "Double Vinyles", "Stickers"];
-     const needsVariations = !categoriesWithoutVariations.includes(currentProduct.category);
-     const isVinyl = ["Vinyles", "Double Vinyles"].includes(currentProduct.category);
-     
+      const categoriesWithoutVariations = ["Vinyles", "Double Vinyles", "Stickers"];
+      const needsVariations = !categoriesWithoutVariations.includes(currentProduct.category);
+      const isVinyl = ["Vinyles", "Double Vinyles"].includes(currentProduct.category);
+
       if (needsVariations && editVariations.length === 0) {
         toast({
           title: "Error",
@@ -503,7 +506,7 @@ const ProductDialogs = ({
       let totalStock = 0;
       let uniqueColors: string[] = [];
       let uniqueSizes: string[] = [];
-      
+
       if (needsVariations) {
         totalStock = editVariations.reduce((sum, variation) => sum + variation.stock, 0);
         uniqueColors = [...new Set(editVariations.map(v => v.color))];
@@ -514,9 +517,9 @@ const ProductDialogs = ({
 
       // Prepare size_stocks
       let sizeStocksToSave = {};
-      
+
       if (needsVariations) {
-        const sizeStocks: {[size: string]: number} = {};
+        const sizeStocks: { [size: string]: number } = {};
         editVariations.forEach(variation => {
           sizeStocks[variation.size] = (sizeStocks[variation.size] || 0) + variation.stock;
         });
@@ -524,69 +527,69 @@ const ProductDialogs = ({
       } else if (isVinyl) {
         sizeStocksToSave = JSON.parse(JSON.stringify({ vinylTracks: editVinylTracks }));
       }
-      
+
       // Prepare product data for update
       let imageUrl = currentProduct.image;
       let additionalImages = currentProduct.images || [];
-      
+
       // Upload new main image if selected
       if (editImageFile) {
         const fileExt = editImageFile.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
         const filePath = fileName;
-        
+
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('products')
           .upload(filePath, editImageFile);
-          
+
         if (uploadError) {
           throw uploadError;
         }
-        
+
         // Get public URL
         const { data: urlData } = supabase.storage
           .from('products')
           .getPublicUrl(filePath);
-          
+
         imageUrl = urlData.publicUrl;
       }
-      
+
       // Upload new additional images if selected
       if (editMultipleImageFiles.length > 0) {
         const newImages: string[] = [];
-        
+
         for (const file of editMultipleImageFiles) {
           const fileExt = file.name.split('.').pop();
           const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
           const filePath = fileName;
-          
+
           // Upload the image to storage
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('products')
             .upload(filePath, file);
-            
+
           if (uploadError) {
             throw uploadError;
           }
-          
+
           // Get public URL of the uploaded image
           const { data: urlData } = supabase.storage
             .from('products')
             .getPublicUrl(filePath);
-            
+
           newImages.push(urlData.publicUrl);
         }
-        
+
         // Replace existing additional images
         additionalImages = newImages;
       }
 
       // Create size_stocks object for backward compatibility
-      const sizeStocks: {[size: string]: number} = {};
+      const sizeStocks: { [size: string]: number } = {};
       editVariations.forEach(variation => {
         sizeStocks[variation.size] = (sizeStocks[variation.size] || 0) + variation.stock;
       });
-      
+
       // Update the product in the Supabase database
       const { data: updatedData, error: updateError } = await supabase
         .from('products')
@@ -604,7 +607,7 @@ const ProductDialogs = ({
         })
         .eq('id', currentProduct.id)
         .select();
-      
+
       if (updateError) {
         console.error("Update error:", updateError);
         toast({
@@ -614,21 +617,21 @@ const ProductDialogs = ({
         });
         return;
       }
-      
+
       // Show success message
       toast({
-        title: "Success", 
+        title: "Success",
         description: "Product updated successfully"
       });
-      
+
       // Reset form and close dialog
       setEditImageFile(null);
       setEditMultipleImageFiles([]);
       setIsEditDialogOpen(false);
-      
+
       // Call the original handler to update UI
       handleEditProduct();
-      
+
     } catch (error) {
       console.error("Error updating product:", error);
       toast({
@@ -638,10 +641,19 @@ const ProductDialogs = ({
       });
     }
   };
-  
+
   return (
     <>
-      {/* Add Product Dialog */}
+      {/* TODO REFACTOR Add Product Dialog  */}
+
+      {/* <AddProductDialog 
+        isOpen={isAddDialogOpen} 
+        onClose={() => setIsAddDialogOpen(false)} 
+        onSubmit={handleAddWithImage} 
+        product={newProduct} 
+        setProduct={undefined}
+      /> */}
+
       <PopupAdmin
         isOpen={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
@@ -662,7 +674,7 @@ const ProductDialogs = ({
               className="col-span-3"
             />
           </div>
-          
+
           {/* Category Dropdown */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="category" className="text-right">
@@ -688,7 +700,7 @@ const ProductDialogs = ({
               </Select>
             </div>
           </div>
-          
+
           {/* Price */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="price" className="text-right">
@@ -704,7 +716,7 @@ const ProductDialogs = ({
               className="col-span-3"
             />
           </div>
-          
+
           {/* Main Image Upload */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="image" className="text-right">
@@ -723,7 +735,7 @@ const ProductDialogs = ({
               </p>
             </div>
           </div>
-          
+
           {/* Additional Images Upload */}
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="additional-images" className="text-right">
@@ -741,13 +753,13 @@ const ProductDialogs = ({
               <p className="text-xs text-muted-foreground mt-1">
                 Upload up to 4 additional images. JPG, PNG, or WebP. Max 10MB each.
               </p>
-              
+
               {multipleImageFiles.length > 0 && (
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   {multipleImageFiles.map((file, index) => (
                     <div key={index} className="relative border rounded p-2">
-                      <img 
-                        src={URL.createObjectURL(file)} 
+                      <img
+                        src={URL.createObjectURL(file)}
                         alt={`Preview ${index}`}
                         className="h-20 w-full object-contain"
                       />
@@ -765,203 +777,203 @@ const ProductDialogs = ({
               )}
             </div>
           </div>
-          
+
           {/* Product Variations */}
-          { showVariations && (
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label className="text-right pt-2">
-              Variations
-            </Label>
-            <div className="col-span-3 space-y-4">
-              {variations.map((variation, index) => (
-                <div key={index} className="border rounded-lg p-4 space-y-3 bg-muted/20">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Variation {index + 1}</h4>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeVariation(index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+          {showVariations && (
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label className="text-right pt-2">
+                Variations
+              </Label>
+              <div className="col-span-3 space-y-4">
+                {variations.map((variation, index) => (
+                  <div key={index} className="border rounded-lg p-4 space-y-3 bg-muted/20">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium">Variation {index + 1}</h4>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeVariation(index)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-3">
+                      <div>
+                        <Label className="text-sm">Image</Label>
+                        <div className="space-y-2">
+                          <Select
+                            value={variation.image || ''}
+                            onValueChange={(value) => updateVariation(index, 'image', value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choisir image" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {imageFile && (
+                                <SelectItem value={URL.createObjectURL(imageFile)}>
+                                  Image principale
+                                </SelectItem>
+                              )}
+                              {multipleImageFiles.map((file, imgIndex) => (
+                                <SelectItem key={imgIndex} value={URL.createObjectURL(file)}>
+                                  Image {imgIndex + 1}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {variation.image && (
+                            <img
+                              src={variation.image}
+                              alt={`Variation ${index + 1}`}
+                              className="w-12 h-12 object-cover rounded border"
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm">Couleur</Label>
+                        <Select
+                          value={variation.color}
+                          onValueChange={(value) => updateVariation(index, 'color', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {COLOR_OPTIONS.map(color => (
+                              <SelectItem key={color} value={color}>{color}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm">Taille</Label>
+                        <Select
+                          value={variation.size}
+                          onValueChange={(value) => updateVariation(index, 'size', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {SIZE_OPTIONS.map(size => (
+                              <SelectItem key={size} value={size}>{size}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm">Stock</Label>
+                        <Input
+                          type="number"
+                          min="0"
+                          value={variation.stock}
+                          onChange={(e) => updateVariation(index, 'stock', e.target.value)}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  
-                   <div className="grid grid-cols-4 gap-3">
-                     <div>
-                       <Label className="text-sm">Image</Label>
-                       <div className="space-y-2">
-                         <Select
-                           value={variation.image || ''}
-                           onValueChange={(value) => updateVariation(index, 'image', value)}
-                         >
-                           <SelectTrigger>
-                             <SelectValue placeholder="Choisir image" />
-                           </SelectTrigger>
-                           <SelectContent>
-                             {imageFile && (
-                               <SelectItem value={URL.createObjectURL(imageFile)}>
-                                 Image principale
-                               </SelectItem>
-                             )}
-                             {multipleImageFiles.map((file, imgIndex) => (
-                               <SelectItem key={imgIndex} value={URL.createObjectURL(file)}>
-                                 Image {imgIndex + 1}
-                               </SelectItem>
-                             ))}
-                           </SelectContent>
-                         </Select>
-                         {variation.image && (
-                           <img 
-                             src={variation.image} 
-                             alt={`Variation ${index + 1}`}
-                             className="w-12 h-12 object-cover rounded border"
-                           />
-                         )}
-                       </div>
-                     </div>
-                     
-                     <div>
-                       <Label className="text-sm">Couleur</Label>
-                       <Select
-                         value={variation.color}
-                         onValueChange={(value) => updateVariation(index, 'color', value)}
-                       >
-                         <SelectTrigger>
-                           <SelectValue />
-                         </SelectTrigger>
-                         <SelectContent>
-                           {COLOR_OPTIONS.map(color => (
-                             <SelectItem key={color} value={color}>{color}</SelectItem>
-                           ))}
-                         </SelectContent>
-                       </Select>
-                     </div>
-                     
-                     <div>
-                       <Label className="text-sm">Taille</Label>
-                       <Select
-                         value={variation.size}
-                         onValueChange={(value) => updateVariation(index, 'size', value)}
-                       >
-                         <SelectTrigger>
-                           <SelectValue />
-                         </SelectTrigger>
-                         <SelectContent>
-                           {SIZE_OPTIONS.map(size => (
-                             <SelectItem key={size} value={size}>{size}</SelectItem>
-                           ))}
-                         </SelectContent>
-                       </Select>
-                     </div>
-                     
-                     <div>
-                       <Label className="text-sm">Stock</Label>
-                       <Input
-                         type="number"
-                         min="0"
-                         value={variation.stock}
-                         onChange={(e) => updateVariation(index, 'stock', e.target.value)}
-                       />
-                     </div>
-                   </div>
-                </div>
-              ))}
-              
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => addVariation()}
-                className="w-full"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Ajouter une variation
-              </Button>
-              
-              {variations.length > 0 && (
-                <div className="text-sm text-muted-foreground">
-                  Stock total: {variations.reduce((sum, v) => sum + v.stock, 0)} unités
-                </div>
-              )}
+                ))}
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => addVariation()}
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Ajouter une variation
+                </Button>
+
+                {variations.length > 0 && (
+                  <div className="text-sm text-muted-foreground">
+                    Stock total: {variations.reduce((sum, v) => sum + v.stock, 0)} unités
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
           )}
-          
+
           {/* Vinyl Tracks */}
-          { showVinylTracks && (
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label className="text-right pt-2">
-              Pistes
-            </Label>
-            <div className="col-span-3 space-y-4">
-              {vinylTracks.map((track, index) => (
-                <div key={track.id} className="border rounded-lg p-4 space-y-3 bg-muted/20">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Piste {track.id}</h4>
+          {showVinylTracks && (
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label className="text-right pt-2">
+                Pistes
+              </Label>
+              <div className="col-span-3 space-y-4">
+                {vinylTracks.map((track, index) => (
+                  <div key={track.id} className="border rounded-lg p-4 space-y-3 bg-muted/20">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium">Piste {track.id}</h4>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-3">
+                      <div>
+                        <Label className="text-sm">Nom de la piste</Label>
+                        <Input
+                          value={track.name}
+                          onChange={(e) => updateVinylTrack(index, 'name', e.target.value)}
+                          placeholder="Titre de la chanson"
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-sm">Durée (MM:SS)</Label>
+                        <Input
+                          value={track.duration}
+                          onChange={(e) => updateVinylTrack(index, 'duration', e.target.value)}
+                          placeholder="3:45"
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-sm">Artiste</Label>
+                        <Input
+                          value={track.artist}
+                          onChange={(e) => updateVinylTrack(index, 'artist', e.target.value)}
+                          placeholder="Nom de l'artiste"
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-sm">Année</Label>
+                        <Input
+                          value={track.year}
+                          onChange={(e) => updateVinylTrack(index, 'year', e.target.value)}
+                          placeholder="2024"
+                        />
+                      </div>
+                    </div>
                   </div>
-                  
-                   <div className="grid grid-cols-4 gap-3">
-                     <div>
-                       <Label className="text-sm">Nom de la piste</Label>
-                       <Input
-                         value={track.name}
-                         onChange={(e) => updateVinylTrack(index, 'name', e.target.value)}
-                         placeholder="Titre de la chanson"
-                       />
-                     </div>
-                     
-                     <div>
-                       <Label className="text-sm">Durée (MM:SS)</Label>
-                       <Input
-                         value={track.duration}
-                         onChange={(e) => updateVinylTrack(index, 'duration', e.target.value)}
-                         placeholder="3:45"
-                       />
-                     </div>
-                     
-                     <div>
-                       <Label className="text-sm">Artiste</Label>
-                       <Input
-                         value={track.artist}
-                         onChange={(e) => updateVinylTrack(index, 'artist', e.target.value)}
-                         placeholder="Nom de l'artiste"
-                       />
-                     </div>
-                     
-                     <div>
-                       <Label className="text-sm">Année</Label>
-                       <Input
-                         value={track.year}
-                         onChange={(e) => updateVinylTrack(index, 'year', e.target.value)}
-                         placeholder="2024"
-                       />
-                     </div>
-                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
           )}
-          
+
           {/* Simple Stock for Stickers */}
-          { showSimpleStock && (
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="stock" className="text-right">
-              Stock
-            </Label>
-            <Input
-              id="stock"
-              type="number"
-              min="0"
-              value={newProduct.stock || ""}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, stock: parseInt(e.target.value) || 0 })
-              }
-              className="col-span-3"
-            />
-          </div>
+          {showSimpleStock && (
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="stock" className="text-right">
+                Stock
+              </Label>
+              <Input
+                id="stock"
+                type="number"
+                min="0"
+                value={newProduct.stock || ""}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, stock: parseInt(e.target.value) || 0 })
+                }
+                className="col-span-3"
+              />
+            </div>
           )}
-          
+
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="description" className="text-right">
               Description
@@ -985,411 +997,26 @@ const ProductDialogs = ({
       </PopupAdmin>
 
       {/* Edit Product Dialog */}
-      <PopupAdmin
+      <EditProductDialog
         isOpen={isEditDialogOpen}
         onClose={() => setIsEditDialogOpen(false)}
-        title="Edit Product"
-        maxWidth="max-w-2xl"
-      >
-        <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="edit-name" className="text-right">
-              Name
-            </Label>
-            <Input
-              id="edit-name"
-              value={currentProduct?.name || ""}
-              onChange={(e) =>
-                setCurrentProduct(
-                  currentProduct
-                    ? { ...currentProduct, name: e.target.value }
-                    : null
-                )
-              }
-              className="col-span-3"
-            />
-          </div>
-          
-          {/* Category Dropdown */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="edit-category" className="text-right">
-              Category
-            </Label>
-            <div className="col-span-3">
-              <Select
-                value={currentProduct?.category || ""}
-                onValueChange={(value) =>
-                  setCurrentProduct(
-                    currentProduct
-                      ? { ...currentProduct, category: value }
-                      : null
-                  )
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          {/* Price */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="edit-price" className="text-right">
-              Price
-            </Label>
-            <Input
-              id="edit-price"
-              type="number"
-              value={currentProduct?.price || ""}
-              onChange={(e) =>
-                setCurrentProduct(
-                  currentProduct
-                    ? { ...currentProduct, price: parseFloat(e.target.value) }
-                    : null
-                )
-              }
-              className="col-span-3"
-            />
-          </div>
-          
-          {/* Main Image Upload */}
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label htmlFor="edit-image" className="text-right">
-              Main Image
-            </Label>
-            <div className="col-span-3 space-y-2">
-              {currentProduct?.image && (
-                <div className="mb-2">
-                  <img 
-                    src={currentProduct.image} 
-                    alt={currentProduct.name} 
-                    className="h-20 w-auto object-contain rounded"
-                  />
-                </div>
-              )}
-              <Input
-                id="edit-image"
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                onChange={(e) => handleImageChange(e, true)}
-              />
-              <p className="text-xs text-muted-foreground">
-                JPG, PNG, or WebP. Max 10MB.
-              </p>
-              <div className="text-xs text-muted-foreground">
-                Site pour comprésser vos fichiers si suppérier à 10MB: https://compresspng.com/fr/
-              </div>
-            </div>
-          </div>
-          
-          {/* Additional Images Upload */}
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label htmlFor="edit-additional-images" className="text-right">
-              Additional Images
-            </Label>
-            <div className="col-span-3">
-              {/* Show existing additional images */}
-              {currentProduct?.images && currentProduct.images.length > 0 && (
-                <div className="grid grid-cols-2 gap-2 mb-2">
-                  {currentProduct.images.map((img, index) => (
-                    <div key={index} className="relative border rounded p-2">
-                      <img 
-                        src={img} 
-                        alt={`Image ${index}`}
-                        className="h-20 w-full object-contain"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-              
-              <Input
-                id="edit-additional-images"
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                onChange={(e) => handleMultipleImageChange(e, true)}
-                className="col-span-3"
-                disabled={editMultipleImageFiles.length >= 4}
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Upload up to 4 new additional images. Will replace existing images. JPG, PNG, or WebP. Max 10MB each.
-              </p>
-              
-              {editMultipleImageFiles.length > 0 && (
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  {editMultipleImageFiles.map((file, index) => (
-                    <div key={index} className="relative border rounded p-2">
-                      <img 
-                        src={URL.createObjectURL(file)} 
-                        alt={`Preview ${index}`}
-                        className="h-20 w-full object-contain"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index, true)}
-                        className="absolute top-1 right-1 bg-white rounded-full p-1"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                      <p className="text-xs truncate">{file.name}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {/* Product Variations */}
-          { currentProduct && !["Vinyles", "Double Vinyles", "Stickers"].includes(currentProduct.category) && (
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label className="text-right pt-2">
-              Variations
-            </Label>
-            <div className="col-span-3 space-y-4">
-              {editVariations.map((variation, index) => (
-                <div key={index} className="border rounded-lg p-4 space-y-3 bg-muted/20">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Variation {index + 1}</h4>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeVariation(index, true)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  
-                   <div className="grid grid-cols-4 gap-3">
-                     <div>
-                       <Label className="text-sm">Image</Label>
-                       <div className="space-y-2">
-                         <Select
-                           value={variation.image || ''}
-                           onValueChange={(value) => updateVariation(index, 'image', value, true)}
-                         >
-                           <SelectTrigger>
-                             <SelectValue placeholder="Choisir image" />
-                           </SelectTrigger>
-                           <SelectContent>
-                             {currentProduct?.image && (
-                               <SelectItem value={currentProduct.image}>
-                                 Image principale
-                               </SelectItem>
-                             )}
-                             {editImageFile && (
-                               <SelectItem value={URL.createObjectURL(editImageFile)}>
-                                 Nouvelle image principale
-                               </SelectItem>
-                             )}
-                             {currentProduct?.images?.map((img, imgIndex) => (
-                               <SelectItem key={imgIndex} value={img}>
-                                 Image {imgIndex + 1}
-                               </SelectItem>
-                             ))}
-                             {editMultipleImageFiles.map((file, imgIndex) => (
-                               <SelectItem key={`new-${imgIndex}`} value={URL.createObjectURL(file)}>
-                                 Nouvelle image {imgIndex + 1}
-                               </SelectItem>
-                             ))}
-                           </SelectContent>
-                         </Select>
-                         {variation.image && (
-                           <img 
-                             src={variation.image} 
-                             alt={`Variation ${index + 1}`}
-                             className="w-12 h-12 object-cover rounded border"
-                           />
-                         )}
-                       </div>
-                     </div>
-                     
-                     <div>
-                       <Label className="text-sm">Couleur</Label>
-                       <Select
-                         value={variation.color}
-                         onValueChange={(value) => updateVariation(index, 'color', value, true)}
-                       >
-                         <SelectTrigger>
-                           <SelectValue />
-                         </SelectTrigger>
-                         <SelectContent>
-                           {COLOR_OPTIONS.map(color => (
-                             <SelectItem key={color} value={color}>{color}</SelectItem>
-                           ))}
-                         </SelectContent>
-                       </Select>
-                     </div>
-                     
-                     <div>
-                       <Label className="text-sm">Taille</Label>
-                       <Select
-                         value={variation.size}
-                         onValueChange={(value) => updateVariation(index, 'size', value, true)}
-                       >
-                         <SelectTrigger>
-                           <SelectValue />
-                         </SelectTrigger>
-                         <SelectContent>
-                           {SIZE_OPTIONS.map(size => (
-                             <SelectItem key={size} value={size}>{size}</SelectItem>
-                           ))}
-                         </SelectContent>
-                       </Select>
-                     </div>
-                     
-                     <div>
-                       <Label className="text-sm">Stock</Label>
-                       <Input
-                         type="number"
-                         min="0"
-                         value={variation.stock}
-                         onChange={(e) => updateVariation(index, 'stock', e.target.value, true)}
-                       />
-                     </div>
-                   </div>
-                </div>
-              ))}
-              
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => addVariation(true)}
-                className="w-full"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Ajouter une variation
-              </Button>
-              
-              {editVariations.length > 0 && (
-                <div className="text-sm text-muted-foreground">
-                  Stock total: {editVariations.reduce((sum, v) => sum + v.stock, 0)} unités
-                </div>
-              )}
-            </div>
-          </div>
-          )}
-          
-          {/* Vinyl Tracks for Edit */}
-          { currentProduct && ["Vinyles", "Double Vinyles"].includes(currentProduct.category) && (
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label className="text-right pt-2">
-              Pistes
-            </Label>
-            <div className="col-span-3 space-y-4">
-              {editVinylTracks.map((track, index) => (
-                <div key={track.id} className="border rounded-lg p-4 space-y-3 bg-muted/20">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Piste {track.id}</h4>
-                  </div>
-                  
-                   <div className="grid grid-cols-4 gap-3">
-                     <div>
-                       <Label className="text-sm">Nom de la piste</Label>
-                       <Input
-                         value={track.name}
-                         onChange={(e) => updateVinylTrack(index, 'name', e.target.value, true)}
-                         placeholder="Titre de la chanson"
-                       />
-                     </div>
-                     
-                     <div>
-                       <Label className="text-sm">Durée (MM:SS)</Label>
-                       <Input
-                         value={track.duration}
-                         onChange={(e) => updateVinylTrack(index, 'duration', e.target.value, true)}
-                         placeholder="3:45"
-                       />
-                     </div>
-                     
-                     <div>
-                       <Label className="text-sm">Artiste</Label>
-                       <Input
-                         value={track.artist}
-                         onChange={(e) => updateVinylTrack(index, 'artist', e.target.value, true)}
-                         placeholder="Nom de l'artiste"
-                       />
-                     </div>
-                     
-                     <div>
-                       <Label className="text-sm">Année</Label>
-                       <Input
-                         value={track.year}
-                         onChange={(e) => updateVinylTrack(index, 'year', e.target.value, true)}
-                         placeholder="2024"
-                       />
-                     </div>
-                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          )}
-          
-          {/* Simple Stock for Stickers Edit */}
-          { currentProduct && ["Stickers"].includes(currentProduct.category) && (
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="edit-stock" className="text-right">
-              Stock
-            </Label>
-            <Input
-              id="edit-stock"
-              type="number"
-              min="0"
-              value={currentProduct.stock || ""}
-              onChange={(e) =>
-                setCurrentProduct(
-                  currentProduct
-                    ? { ...currentProduct, stock: parseInt(e.target.value) || 0 }
-                    : null
-                )
-              }
-              className="col-span-3"
-            />
-          </div>
-          )}
-          
-          {/* Description */}
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="edit-description" className="text-right">
-              Description
-            </Label>
-            <Input
-              id="edit-description"
-              value={currentProduct?.description || ""}
-              onChange={(e) =>
-                setCurrentProduct(
-                  currentProduct
-                    ? { ...currentProduct, description: e.target.value }
-                    : null
-                )
-              }
-              className="col-span-3"
-            />
-          </div>
-        </div>
-        <div className="flex gap-2 mt-6">
-          <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="flex-1">
-            Cancel
-          </Button>
-          <Button onClick={handleEditWithImage} className="flex-1">Save Changes</Button>
-        </div>
-      </PopupAdmin>
+        onConfirm={handleEditWithImage}
+        currentProduct={currentProduct}
+        setCurrentProduct={setCurrentProduct}
+        editVariations={editVariations}
+        editMultipleImageFiles={editMultipleImageFiles}
+        CATEGORIES={CATEGORIES}
+        COLOR_OPTIONS={COLOR_OPTIONS}
+        SIZE_OPTIONS={SIZE_OPTIONS}
+      />
 
       {/* Delete Product Dialog */}
-      <DeleteProductDialog 
+      <DeleteProductDialog
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
-        onConfirm={handleDeleteProduct} 
-        currentProduct={currentProduct}      />
+        onConfirm={handleDeleteProduct}
+        currentProduct={currentProduct} 
+      />
     </>
   );
 };
