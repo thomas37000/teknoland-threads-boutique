@@ -15,6 +15,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { X, Plus, Trash2 } from "lucide-react";
+import { DeleteProductDialog } from "./DeleteProductDialog";
 
 const CATEGORIES = ["T-shirts", "Sweats", "Vinyles", "Double Vinyles", "Stickers"];
 const SIZE_OPTIONS = ["S", "M", "L", "XL"];
@@ -1384,23 +1385,11 @@ const ProductDialogs = ({
       </PopupAdmin>
 
       {/* Delete Product Dialog */}
-      <PopupAdmin
+      <DeleteProductDialog 
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
-        title="Delete Product"
-      >
-        <p className="text-gray-600 mb-6">
-          Are you sure you want to delete "{currentProduct?.name}"? This action cannot be undone.
-        </p>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} className="flex-1">
-            Cancel
-          </Button>
-          <Button variant="destructive" onClick={handleDeleteProduct} className="flex-1">
-            Delete
-          </Button>
-        </div>
-      </PopupAdmin>
+        onConfirm={handleDeleteProduct} 
+        currentProduct={currentProduct}      />
     </>
   );
 };
