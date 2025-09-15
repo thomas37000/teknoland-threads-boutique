@@ -48,6 +48,7 @@ export function AddProductDialog({
           <Label htmlFor="name" className="text-right">
             Nom
           </Label>
+          <div className="col-span-3">
           <Input
             id="name"
             value={newProduct?.name || ""}
@@ -55,7 +56,12 @@ export function AddProductDialog({
               setNewProduct({ ...newProduct, name: e.target.value })
             }
             className="col-span-3"
+            placeholder="Le nom du produit doit être unique" 
           />
+          <p className="text-xs text-muted-foreground mt-1">
+              Si vous avez un tshirt et un sweat qui ont le même logo modifiez le nom, ex: tshirt Tekno Attacks et sweat Tekno Attacks au lieu de juste Tekno Attacks
+          </p>
+          </div>
         </div>
 
         {/* Category Dropdown */}
@@ -84,7 +90,6 @@ export function AddProductDialog({
           </div>
         </div>
 
-        {/* Price */}
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="price" className="text-right">
             Prix
@@ -100,7 +105,6 @@ export function AddProductDialog({
           />
         </div>
 
-        {/* Main Image Upload */}
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="image" className="text-right">
             Image principale
@@ -119,7 +123,6 @@ export function AddProductDialog({
           </div>
         </div>
 
-        {/* Additional Images Upload */}
         <div className="grid grid-cols-4 items-start gap-4">
           <Label htmlFor="additional-images" className="text-right">
             Images supplémentaires (4 max)
@@ -161,7 +164,6 @@ export function AddProductDialog({
           </div>
         </div>
 
-        {/* Product Variations */}
         {showVariations && (
           <div className="grid grid-cols-4 items-start gap-4">
             <Label className="text-right pt-2">
@@ -338,7 +340,7 @@ export function AddProductDialog({
           </div>
         )}
 
-        {/* Simple Stock for Stickers */}
+        {/* Stickers */}
         {showSimpleStock && (
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="stock" className="text-right">

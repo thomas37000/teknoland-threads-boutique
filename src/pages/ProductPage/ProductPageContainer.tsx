@@ -12,7 +12,7 @@ import ProductDetails from "./components/ProductDetails";
 import { transformProductFromDB } from "@/utils/product-transform";
 
 const ProductPageContainer = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState<string>("");
@@ -29,13 +29,13 @@ const ProductPageContainer = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
-      if (!id) return;
+      if (!slug) return;
 
       try {
         const { data, error } = await supabase
           .from('products')
           .select('*')
-          .eq('id', id)
+          .eq('slug', slug)
           .single();
 
         if (error) {
@@ -77,7 +77,7 @@ const ProductPageContainer = () => {
     };
 
     fetchProduct();
-  }, [id, toast]);
+  }, [slug, toast]);
 
   // Update image when color changes
   useEffect(() => {
