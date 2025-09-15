@@ -340,62 +340,83 @@ export function EditProductDialog({
         {/* VinylTracksEditor.tsx */}
         {/* Vinyl Tracks for Edit */}
         {currentProduct && ["Vinyles", "Double Vinyles"].includes(currentProduct.category) && (
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label className="text-right pt-2">
-              Pistes
-            </Label>
-            <div className="col-span-3 space-y-4">
-              {editVinylTracks.map((track, index) => (
-                <div key={track.id} className="border rounded-lg p-4 space-y-3 bg-muted/20">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Piste {track.id}</h4>
-                  </div>
-
-                  <div className="grid grid-cols-4 gap-3">
-                    <div>
-                      <Label className="text-sm">Nom de la piste</Label>
-                      <Input
-                        value={track.name}
-                        onChange={(e) => updateVinylTrack(index, 'name', e.target.value, true)}
-                        placeholder="Titre de la chanson"
-                      />
-                    </div>
-
-                    <div>
-                      <Label className="text-sm">Durée (MM:SS)</Label>
-                      <Input
-                        value={track.duration}
-                        onChange={(e) => updateVinylTrack(index, 'duration', e.target.value, true)}
-                        placeholder="3:45"
-                      />
-                    </div>
-
-                    <div>
-                      <Label className="text-sm">Artiste</Label>
-                      <Input
-                        value={track.artist}
-                        onChange={(e) => updateVinylTrack(index, 'artist', e.target.value, true)}
-                        placeholder="Nom de l'artiste"
-                      />
-                    </div>
-
-                    <div>
-                      <Label className="text-sm">Année</Label>
-                      <Input
-                        value={track.year}
-                        onChange={(e) => updateVinylTrack(index, 'year', e.target.value, true)}
-                        placeholder="2024"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
+          <>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="edit-stock" className="text-right">
+                Stock
+              </Label>
+              <Input
+                id="edit-stock"
+                type="number"
+                min="0"
+                value={currentProduct.stock || ""}
+                onChange={(e) =>
+                  setCurrentProduct(
+                    currentProduct
+                      ? { ...currentProduct, stock: parseInt(e.target.value) || 0 }
+                      : null
+                  )
+                }
+                className="col-span-3"
+              />
             </div>
-          </div>
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label className="text-right pt-2">
+                Pistes
+              </Label>
+              <div className="col-span-3 space-y-4">
+                {editVinylTracks.map((track, index) => (
+                  <div key={track.id} className="border rounded-lg p-4 space-y-3 bg-muted/20">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium">Piste {track.id}</h4>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-3">
+                      <div>
+                        <Label className="text-sm">Nom de la piste</Label>
+                        <Input
+                          value={track.name}
+                          onChange={(e) => updateVinylTrack(index, 'name', e.target.value, true)}
+                          placeholder="Titre de la chanson"
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-sm">Durée (MM:SS)</Label>
+                        <Input
+                          value={track.duration}
+                          onChange={(e) => updateVinylTrack(index, 'duration', e.target.value, true)}
+                          placeholder="3:45"
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-sm">Artiste</Label>
+                        <Input
+                          value={track.artist}
+                          onChange={(e) => updateVinylTrack(index, 'artist', e.target.value, true)}
+                          placeholder="Nom de l'artiste"
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-sm">Année</Label>
+                        <Input
+                          value={track.year}
+                          onChange={(e) => updateVinylTrack(index, 'year', e.target.value, true)}
+                          placeholder="2024"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         )}
 
-         {/* Simple Stock for Stickers Edit */}
-          { currentProduct && ["Stickers"].includes(currentProduct.category) && (
+        {/* Simple Stock for Stickers Edit */}
+        {currentProduct && ["Stickers"].includes(currentProduct.category) && (
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="edit-stock" className="text-right">
               Stock
@@ -415,7 +436,7 @@ export function EditProductDialog({
               className="col-span-3"
             />
           </div>
-          )}
+        )}
 
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="edit-description" className="text-right">

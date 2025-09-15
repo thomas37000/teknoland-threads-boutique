@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Idea } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 interface IdeasDialogsProps {
   isAddDialogOpen: boolean;
@@ -18,7 +19,7 @@ interface IdeasDialogsProps {
   newIdea: Partial<Idea>;
   setNewIdea: (Idea: Partial<Idea>) => void;
   currentIdea: Idea | null;
-  setCurrentIdea: (Idea: Idea| null) => void;
+  setCurrentIdea: (Idea: Idea | null) => void;
   handleAddIdea: () => void;
   handleEditIdea: () => void;
   handleDeleteIdea: () => void;
@@ -45,11 +46,13 @@ const handleAddIdeaWithSupabase = async (newIdea: Partial<Idea>, handleAddIdea: 
 
     if (error) throw error;
 
+    // Show success message
     toast({
       title: "Idée ajoutée",
       description: "L'idée a été ajoutée avec succès."
     });
 
+    // close Add dialog
     setIsAddDialogOpen(false);
     handleAddIdea();
   } catch (error) {
@@ -89,6 +92,7 @@ const handleEditIdeaWithSupabase = async (currentIdea: Idea | null, handleEditId
       description: "L'idée a été modifiée avec succès."
     });
 
+    // close Edit dialog
     setIsEditDialogOpen(false);
     handleEditIdea();
   } catch (error) {
@@ -116,6 +120,12 @@ const IdeasDialogs = ({
   handleEditIdea,
   handleDeleteIdea,
 }: IdeasDialogsProps) => {
+  useEffect(() => {  // Reset Add form onClose
+    if (!isAddDialogOpen) {
+      setNewIdea({ desc: "", priority: "medium", cat_ideas: "Shop" });
+    }
+  }, [isAddDialogOpen]);
+
   return (
     <>
       {/* Add Idea Dialog */}
@@ -167,7 +177,7 @@ const IdeasDialogs = ({
             <Select
               value={newIdea.cat_ideas || "Shop"}
               onValueChange={(value) =>
-                setNewIdea({ ...newIdea, cat_ideas: value as 'Shop' | 'Label' | 'Graphisme' | 'Dev' | 'Primitik' | 'Supabase' |'Youtube' })
+                setNewIdea({ ...newIdea, cat_ideas: value as 'Shop' | 'Label' | 'Graphisme' | 'Dev' | 'Primitik' | 'Supabase' | 'Youtube' })
               }
             >
               <SelectTrigger className="col-span-3">
@@ -252,7 +262,7 @@ const IdeasDialogs = ({
             <Select
               value={currentIdea?.cat_ideas || "Shop"}
               onValueChange={(value) =>
-                setCurrentIdea({ ...currentIdea, cat_ideas: value as 'Shop' | 'Label' | 'Graphisme' | 'Dev' | 'Primitik' | 'Supabase' |'Youtube' })
+                setCurrentIdea({ ...currentIdea, cat_ideas: value as 'Shop' | 'Label' | 'Graphisme' | 'Dev' | 'Primitik' | 'Supabase' | 'Youtube' })
               }
             >
               <SelectTrigger className="col-span-3">
