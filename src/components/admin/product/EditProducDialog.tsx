@@ -47,13 +47,13 @@ export function EditProductDialog({
     <PopupAdmin
       isOpen={isOpen}
       onClose={onClose}
-      title="Edit Product"
+      title="Modifiez un produit"
       maxWidth="max-w-2xl"
     >
       <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="edit-name" className="text-right">
-            Name
+            Nom
           </Label>
           <Input
             id="edit-name"
@@ -71,7 +71,7 @@ export function EditProductDialog({
         {/* Category Dropdown */}
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="edit-category" className="text-right">
-            Category
+            Categorie
           </Label>
           <div className="col-span-3">
             <Select
@@ -101,7 +101,7 @@ export function EditProductDialog({
         {/* Price */}
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="edit-price" className="text-right">
-            Price
+            Prix
           </Label>
           <Input
             id="edit-price"
@@ -121,7 +121,7 @@ export function EditProductDialog({
         {/* Main Image Upload */}
         <div className="grid grid-cols-4 items-start gap-4">
           <Label htmlFor="edit-image" className="text-right">
-            Main Image
+            Image principale
           </Label>
           <div className="col-span-3 space-y-2">
             {currentProduct?.image && (
@@ -151,7 +151,7 @@ export function EditProductDialog({
         {/* Additional Images Upload */}
         <div className="grid grid-cols-4 items-start gap-4">
           <Label htmlFor="edit-additional-images" className="text-right">
-            Additional Images
+           Images supplémentaires (4 max)
           </Label>
           <div className="col-span-3">
             {/* Show existing additional images */}
@@ -457,9 +457,9 @@ export function EditProductDialog({
         </div>
         <div className="flex gap-2 mt-6">
           <Button variant="outline" onClick={onClose} className="flex-1">
-            Cancel
+            Annulez
           </Button>
-          <Button onClick={onConfirm} className="flex-1">Save Changes</Button>
+          <Button onClick={onConfirm} className="flex-1">Sauvegardez</Button>
         </div>
       </div>
     </PopupAdmin>

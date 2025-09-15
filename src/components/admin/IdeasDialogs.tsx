@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import PopupAdmin from "./PopupAdmin";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -7,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Idea } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { useEffect } from "react";
 
 interface IdeasDialogsProps {
   isAddDialogOpen: boolean;
