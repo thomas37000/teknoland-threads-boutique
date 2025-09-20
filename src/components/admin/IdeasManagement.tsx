@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search } from "lucide-react";
 import { Idea } from "@/types";
 import IdeasTable from "./IdeasTable";
@@ -15,7 +16,10 @@ interface IdeasManagementProps {
 
 const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
   const [ideas, setIdeas] = useState<Idea[]>(initialIdeas);
+  const [filteredIdeas, setFilteredIdeas] = useState<Idea[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [isLoading, setIsLoading] = useState(true);
 
   // Dialog states
@@ -72,11 +76,23 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
     if (searchQuery) {
       const lowerQuery = searchQuery.toLowerCase();
       result = result.filter(
-        Ideas => 
-          Ideas.desc.toLowerCase().includes(lowerQuery)
+        idea => 
+          idea.desc.toLowerCase().includes(lowerQuery)
       );
     }
-  }, [ideas, searchQuery]);
+
+    // Apply category filter
+    if (categoryFilter !== "all") {
+      result = result.filter(idea => idea.cat_ideas === categoryFilter);
+    }
+
+    // Apply priority filter
+    if (priorityFilter !== "all") {
+      result = result.filter(idea => idea.priority === priorityFilter);
+    }
+
+    setFilteredIdeas(result);
+  }, [ideas, searchQuery, categoryFilter, priorityFilter]);
   
   const handleAddIdeas = async () => {
     // The actual adding to Supabase is now handled in IdeasDialogs.tsx
@@ -178,6 +194,32 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
             className="pl-8"
           />
         </div>
+        
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Filtrer par catégorie" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toutes les catégories</SelectItem>
+            <SelectItem value="Shop">Shop</SelectItem>
+            <SelectItem value="UI/UX">UI/UX</SelectItem>
+            <SelectItem value="Backend">Backend</SelectItem>
+            <SelectItem value="Marketing">Marketing</SelectItem>
+            <SelectItem value="Autre">Autre</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Filtrer par priorité" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toutes les priorités</SelectItem>
+            <SelectItem value="low">Faible</SelectItem>
+            <SelectItem value="medium">Moyenne</SelectItem>
+            <SelectItem value="high">Élevée</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
           
       {isLoading ? (
@@ -186,7 +228,7 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
         </div>
       ) : (
         <IdeasTable 
-          ideas={ideas} 
+          ideas={filteredIdeas} 
           openEditDialog={openEditDialog}
           openDeleteDialog={openDeleteDialog}
         />

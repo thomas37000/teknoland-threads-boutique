@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { useCart } from "@/hooks/use-cart";
 import { supabase } from "@/integrations/supabase/client";
 import { Product } from "@/types";
@@ -23,7 +23,7 @@ const ProductPageContainer = () => {
 
   const topRef = useRef<HTMLDivElement>(null);
   const { addToCart } = useCart();
-  const { toast } = useToast();
+  
 
   // Fetch product detail from Supabase
   useEffect(() => {
@@ -32,19 +32,25 @@ const ProductPageContainer = () => {
       if (!slug) return;
 
       try {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .eq('slug', slug)
-          .single();
-
-        if (error) {
-          console.error("Error fetching product:", error);
-          throw error;
+        // Use direct fetch to avoid type issues
+        const response = await fetch(
+          `https://thwkmsuqkevfgqwlayqv.supabase.co/rest/v1/products?slug=eq.${slug}&select=*`,
+          {
+            headers: {
+              'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRod2ttc3Vxa2V2Zmdxd2xheXF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5NTM4MDUsImV4cCI6MjA1OTUyOTgwNX0.uxyLw7U2wPTJIQssjXT_de8C_3nhge7ReJlFR1bj2g4',
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch product');
         }
 
-        if (data) {
-          const transformedProduct = transformProductFromDB(data);
+        if (data && data.length > 0) {
+          const transformedProduct = transformProductFromDB(data[0]);
           setProduct(transformedProduct);
           setCurrentImage(transformedProduct.image);
 
@@ -66,18 +72,14 @@ const ProductPageContainer = () => {
         }
       } catch (error) {
         console.error("Error fetching product:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load product details",
-          variant: "destructive"
-        });
+        toast.error("Failed to load product details");
       } finally {
         setLoading(false);
       }
     };
 
     fetchProduct();
-  }, [slug, toast]);
+  }, [slug]);
 
   // Update image when color changes
   useEffect(() => {
@@ -117,27 +119,18 @@ const ProductPageContainer = () => {
 
     // Validate selections if needed
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-      toast({
-        title: "Please select a size",
-        variant: "destructive",
-      });
+      toast.error("Please select a size");
       return;
     }
 
     if (product.colors && product.colors.length > 0 && !selectedColor) {
-      toast({
-        title: "Please select a color",
-        variant: "destructive",
-      });
+      toast.error("Please select a color");
       return;
     }
 
     addToCart(product, quantity, selectedSize, selectedColor);
 
-    toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart`,
-    });
+    toast.success(`${product.name} has been added to your cart`);
   };
 
   // Function to get all available images

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Package, Users, Tag, Filter, Mail, Heart, Calculator } from "lucide-react";
+import { Package, Users, Tag, Filter, Mail, Heart, Calculator, Image } from "lucide-react";
 import { products } from "@/data/products";
 import ProductManagement from "@/components/admin/product/ProductManagement";
 import ClientManagement from "@/components/admin/ClientManagement";
@@ -13,6 +13,7 @@ import ContactManagement from "@/components/admin/ContactManagement";
 import LovableManagement from "@/components/admin/LovableManagement";
 import IdeasManagement from "@/components/admin/IdeasManagement";
 import DepensesManagement from "@/components/admin/DepensesManagement";
+import ImageManagement from "@/components/admin/ImageManagement";
 import { Idea } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -120,6 +121,10 @@ const AdminPage = () => {
               </Badge>
             )}
           </TabsTrigger>
+          <TabsTrigger value="images" className="flex items-center gap-2">
+            <Image className="h-4 w-4" />
+            Images
+          </TabsTrigger>
           <TabsTrigger value="idees" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Idées
@@ -152,6 +157,10 @@ const AdminPage = () => {
         
         <TabsContent value="clients">
           <ClientManagement />
+        </TabsContent>
+
+        <TabsContent value="images">
+          <ImageManagement />
         </TabsContent>
 
          <TabsContent value="idees">
