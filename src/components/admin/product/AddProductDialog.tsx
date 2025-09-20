@@ -19,7 +19,7 @@ export function AddProductDialog({
   setNewProduct,
   variations,
   showVariations,
-  onAddVariation, // addVariation
+  addVariation,
   removeVariation,
   updateVariation,
   showVinylTracks,
@@ -174,7 +174,7 @@ export function AddProductDialog({
             </Label>
             <div className="col-span-3 space-y-4">
               {variations?.map((variation, index) => (
-                <div key={index} className="border rounded-lg p-4 space-y-3 bg-muted/20">
+                <div key={index.id} className="border rounded-lg p-4 space-y-3 bg-muted/20">
                   <div className="flex items-center justify-between">
                     <h4 className="font-medium">Variation {index + 1}</h4>
                     <Button
@@ -271,7 +271,7 @@ export function AddProductDialog({
               <Button
                 type="button"
                 variant="outline"
-                onClick={onAddVariation}
+                onClick={() => addVariation()}
                 className="w-full"
               >
                 <Plus className="h-4 w-4 mr-2" />
