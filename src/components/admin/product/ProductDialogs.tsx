@@ -67,9 +67,9 @@ const ProductDialogs = ({
   const [editVinylTracks, setEditVinylTracks] = useState<VinylTrack[]>([]);
 
   const categorySelected = newProduct?.category;
-  const showVariations = categorySelected && !["Vinyles", "Double Vinyles", "Stickers"].includes(categorySelected)
-  const showVinylTracks = categorySelected && ["Vinyles", "Double Vinyles"].includes(categorySelected)
-  const showSimpleStock = categorySelected && ["Stickers"].includes(categorySelected)
+  const showVariations = categorySelected && !["Vinyles", "Double Vinyles", "Stickers"].includes(categorySelected);
+  const showVinylTracks = categorySelected && ["Vinyles", "Double Vinyles"].includes(categorySelected);
+  const showSimpleStock = categorySelected && ["Stickers"].includes(categorySelected);
 
   // Setup initial variations and vinyl tracks when a product is loaded
   useEffect(() => {

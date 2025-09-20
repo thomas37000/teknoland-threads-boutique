@@ -1,4 +1,3 @@
-
 import { Product } from "@/types";
 
 export const products: Product[] = [
@@ -17,7 +16,8 @@ export const products: Product[] = [
       "White": "https://images.unsplash.com/photo-1564859228273-274232fdb516?auto=format&fit=crop&w=800&h=600",
       "Black": "https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=800&h=600"
     },
-    stock: 42
+    stock: 42,
+    created_at: '2024-01-01T00:00:00Z'
   },
   {
     id: "12",
@@ -33,7 +33,8 @@ export const products: Product[] = [
       "Light Wash": "https://images.unsplash.com/photo-1607345366928-199ea26cfe3e?auto=format&fit=crop&w=800&h=600",
       "Dark Wash": "https://images.unsplash.com/photo-1543076447-215ad9ba6923?auto=format&fit=crop&w=800&h=600"
     },
-    stock: 38
+    stock: 38,
+    created_at: '2024-01-02T00:00:00Z'
   },
   {
     id: "29",
@@ -49,7 +50,8 @@ export const products: Product[] = [
       "White": "https://images.unsplash.com/photo-1564859228273-274232fdb516?auto=format&fit=crop&w=800&h=600",
       "Black": "https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=800&h=600"
     },
-    stock: 42
+    stock: 42,
+    created_at: '2024-01-03T00:00:00Z'
   },
   {
     id: "30",
@@ -65,7 +67,8 @@ export const products: Product[] = [
       "Light Wash": "https://images.unsplash.com/photo-1607345366928-199ea26cfe3e?auto=format&fit=crop&w=800&h=600",
       "Dark Wash": "https://images.unsplash.com/photo-1543076447-215ad9ba6923?auto=format&fit=crop&w=800&h=600"
     },
-    stock: 38
+    stock: 38,
+    created_at: '2024-01-04T00:00:00Z'
   },
   {
     id: "31",
@@ -81,7 +84,8 @@ export const products: Product[] = [
       "White": "https://images.unsplash.com/photo-1564859228273-274232fdb516?auto=format&fit=crop&w=800&h=600",
       "Black": "https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=800&h=600"
     },
-    stock: 42
+    stock: 42,
+    created_at: '2024-01-05T00:00:00Z'
   },
   {
     id: "32",
@@ -97,7 +101,8 @@ export const products: Product[] = [
       "Light Wash": "https://images.unsplash.com/photo-1607345366928-199ea26cfe3e?auto=format&fit=crop&w=800&h=600",
       "Dark Wash": "https://images.unsplash.com/photo-1543076447-215ad9ba6923?auto=format&fit=crop&w=800&h=600"
     },
-    stock: 38
+    stock: 38,
+    created_at: '2024-01-06T00:00:00Z'
   },
   {
     id: "33",
@@ -113,7 +118,8 @@ export const products: Product[] = [
       "Light Wash": "https://images.unsplash.com/photo-1607345366928-199ea26cfe3e?auto=format&fit=crop&w=800&h=600",
       "Dark Wash": "https://images.unsplash.com/photo-1543076447-215ad9ba6923?auto=format&fit=crop&w=800&h=600"
     },
-    stock: 38
+    stock: 38,
+    created_at: '2024-01-07T00:00:00Z'
   },
   
   // Women's T-shirts - 5 items
@@ -132,7 +138,8 @@ export const products: Product[] = [
       "Teal": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&h=600",
       "White": "https://images.unsplash.com/photo-1503342452485-86b7f54527ef?auto=format&fit=crop&w=800&h=600"
     },
-    stock: 65
+    stock: 65,
+    created_at: '2024-01-08T00:00:00Z'
   },
   {
     id: "15",
@@ -148,7 +155,8 @@ export const products: Product[] = [
       "White": "https://images.unsplash.com/photo-1503342250614-ca440786f637?auto=format&fit=crop&w=800&h=600",
       "Pink": "https://images.unsplash.com/photo-1503342452485-86b7f54527ef?auto=format&fit=crop&w=800&h=600"
     },
-    stock: 27
+    stock: 27,
+    created_at: '2024-01-09T00:00:00Z'
   },
   {
     id: "16",
@@ -165,7 +173,8 @@ export const products: Product[] = [
       "Black": "https://images.unsplash.com/photo-1503342452485-86b7f54527ef?auto=format&fit=crop&w=800&h=600",
       "Gray": "https://images.unsplash.com/photo-1503342394128-c104d54dba01?auto=format&fit=crop&w=800&h=600"
     },
-    stock: 50
+    stock: 50,
+    created_at: '2024-01-10T00:00:00Z'
   },
   {
     id: "17",
@@ -176,7 +185,8 @@ export const products: Product[] = [
     category: "Women's T-Shirts",
     sizes: ["XS", "S", "M", "L"],
     colors: ["Neon Blue", "Neon Pink", "Black"],
-    stock: 33
+    stock: 33,
+    created_at: '2024-01-11T00:00:00Z'
   },
   {
     id: "18",
@@ -187,7 +197,8 @@ export const products: Product[] = [
     category: "Women's T-Shirts",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Black", "White", "Gray", "Navy"],
-    stock: 45
+    stock: 45,
+    created_at: '2024-01-12T00:00:00Z'
   },
   
   // Hoodies - 5 items
@@ -201,7 +212,8 @@ export const products: Product[] = [
     isNew: true,
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Black", "Dark Green", "Navy"],
-    stock: 78
+    stock: 78,
+    created_at: '2024-01-13T00:00:00Z'
   },
   {
     id: "20",
@@ -213,7 +225,8 @@ export const products: Product[] = [
     isNew: true,
     sizes: ["S", "M", "L", "XL"],
     colors: ["Gray", "Blue", "Purple"],
-    stock: 53
+    stock: 53,
+    created_at: '2024-01-14T00:00:00Z'
   },
   {
     id: "22",
@@ -224,7 +237,8 @@ export const products: Product[] = [
     category: "Hoodies",
     sizes: ["S", "M", "L", "XL"],
     colors: ["White", "Light Gray", "Sand"],
-    stock: 61
+    stock: 61,
+    created_at: '2024-01-15T00:00:00Z'
   },
   {
     id: "23",
@@ -236,7 +250,8 @@ export const products: Product[] = [
     isNew: true,
     sizes: ["S/M", "L/XL", "XXL"],
     colors: ["Black", "Charcoal", "Dark Blue"],
-    stock: 47
+    stock: 47,
+    created_at: '2024-01-16T00:00:00Z'
   },
   // Vinyls
   {
@@ -249,7 +264,8 @@ export const products: Product[] = [
     isNew: false,
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Black", "Dark Green", "Navy"],
-    stock: 15
+    stock: 15,
+    created_at: '2024-01-17T00:00:00Z'
   },
   {
     id: "25",
@@ -261,7 +277,8 @@ export const products: Product[] = [
     isNew: false,
     sizes: ["S", "M", "L", "XL"],
     colors: ["Gray", "Blue", "Purple"],
-    stock: 8
+    stock: 8,
+    created_at: '2024-01-18T00:00:00Z'
   },
   {
     id: "26",
@@ -272,7 +289,8 @@ export const products: Product[] = [
     category: "Vinyls",
     sizes: ["M", "L", "XL", "XXL"],
     colors: ["Black", "White", "Red"],
-    stock: 22
+    stock: 22,
+    created_at: '2024-01-19T00:00:00Z'
   },
   {
     id: "27",
@@ -284,7 +302,8 @@ export const products: Product[] = [
     isNew: true,
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Black", "Dark Green", "Navy"],
-    stock: 19
+    stock: 19,
+    created_at: '2024-01-20T00:00:00Z'
   },
   {
     id: "28",
@@ -296,6 +315,7 @@ export const products: Product[] = [
     isNew: false,
     sizes: ["S", "M", "L", "XL"],
     colors: ["Gray", "Blue", "Purple"],
-    stock: 5
+    stock: 5,
+    created_at: '2024-01-21T00:00:00Z'
   }
 ];
