@@ -40,7 +40,7 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
       try {
         const { data, error } = await supabase
           .from('ideas')
-          .select('*');
+          .select('*'); 
         
         if (error) throw error;
         
@@ -201,11 +201,14 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Toutes les catégories</SelectItem>
+            <SelectItem value="Dev">Dev</SelectItem>
+            <SelectItem value="Graphisme">Graphisme</SelectItem>
+            <SelectItem value="Label">Label</SelectItem>
+            <SelectItem value="Primitik">Primitik</SelectItem>
             <SelectItem value="Shop">Shop</SelectItem>
-            <SelectItem value="UI/UX">UI/UX</SelectItem>
-            <SelectItem value="Backend">Backend</SelectItem>
-            <SelectItem value="Marketing">Marketing</SelectItem>
-            <SelectItem value="Autre">Autre</SelectItem>
+             <SelectItem value="Supabase">Supabase</SelectItem>
+            <SelectItem value="Youtube">Youtube</SelectItem>
+            <SelectItem value="Zic">Zic</SelectItem>
           </SelectContent>
         </Select>
 
@@ -215,9 +218,10 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Toutes les priorités</SelectItem>
-            <SelectItem value="low">Faible</SelectItem>
+            <SelectItem value="low">Basse</SelectItem>
             <SelectItem value="medium">Moyenne</SelectItem>
-            <SelectItem value="high">Élevée</SelectItem>
+            <SelectItem value="high">Haute</SelectItem>
+            <SelectItem value="urgent">Urgent</SelectItem>
           </SelectContent>
         </Select>
       </div>
