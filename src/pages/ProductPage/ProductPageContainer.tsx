@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/use-toast";
 import { useCart } from "@/hooks/use-cart";
 import { supabase } from "@/integrations/supabase/client";
 import { Product } from "@/types";
@@ -23,7 +23,7 @@ const ProductPageContainer = () => {
 
   const topRef = useRef<HTMLDivElement>(null);
   const { addToCart } = useCart();
-  
+  const { toast } = useToast();
 
   // Fetch product detail from Supabase
   useEffect(() => {
@@ -32,25 +32,20 @@ const ProductPageContainer = () => {
       if (!slug) return;
 
       try {
-        // Use direct fetch to avoid type issues
-        const response = await fetch(
-          `https://thwkmsuqkevfgqwlayqv.supabase.co/rest/v1/products?slug=eq.${slug}&select=*`,
-          {
-            headers: {
-              'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRod2ttc3Vxa2V2Zmdxd2xheXF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5NTM4MDUsImV4cCI6MjA1OTUyOTgwNX0.uxyLw7U2wPTJIQssjXT_de8C_3nhge7ReJlFR1bj2g4',
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch product');
+        // @ts-expect-error type instantiation too deep
+        const { data, error } = await supabase 
+          .from('products')
+          .select('*')
+          .eq('slug', slug)
+          .single();
+
+        if (error) {
+          console.error("Error fetching product:", error);
+          throw error;
         }
 
-        if (data && data.length > 0) {
-          const transformedProduct = transformProductFromDB(data[0]);
+        if (data) {
+          const transformedProduct = transformProductFromDB(data);;
           setProduct(transformedProduct);
           setCurrentImage(transformedProduct.image);
 
@@ -72,14 +67,18 @@ const ProductPageContainer = () => {
         }
       } catch (error) {
         console.error("Error fetching product:", error);
-        toast.error("Failed to load product details");
+        toast({
+          title: "Error",
+          description: "Failed to load product details",
+          variant: "destructive"
+        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchProduct();
-  }, [slug]);
+  }, [slug, toast]);
 
   // Update image when color changes
   useEffect(() => {
@@ -119,18 +118,27 @@ const ProductPageContainer = () => {
 
     // Validate selections if needed
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-      toast.error("Please select a size");
+        toast({
+        title: "Please select a size",
+        variant: "destructive",
+      });
       return;
     }
 
     if (product.colors && product.colors.length > 0 && !selectedColor) {
-      toast.error("Please select a color");
+      toast({
+        title: "Please select a color",
+        variant: "destructive",
+      });
       return;
     }
 
     addToCart(product, quantity, selectedSize, selectedColor);
 
-    toast.success(`${product.name} has been added to your cart`);
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart`,
+    });
   };
 
   // Function to get all available images
