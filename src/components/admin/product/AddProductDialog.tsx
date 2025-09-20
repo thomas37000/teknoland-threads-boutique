@@ -19,7 +19,7 @@ export function AddProductDialog({
   setNewProduct,
   variations,
   showVariations,
-  addVariation,
+  onAddVariation, // addVariation
   removeVariation,
   updateVariation,
   showVinylTracks,
@@ -105,6 +105,7 @@ export function AddProductDialog({
           />
         </div>
 
+        {/* Main Image Upload */}
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="image" className="text-right">
             Image principale
@@ -123,6 +124,7 @@ export function AddProductDialog({
           </div>
         </div>
 
+         {/* Additional Images Upload */}
         <div className="grid grid-cols-4 items-start gap-4">
           <Label htmlFor="additional-images" className="text-right">
             Images supplémentaires (4 max)
@@ -163,7 +165,8 @@ export function AddProductDialog({
             )}
           </div>
         </div>
-
+        
+        {/* Variations Tshirts && Sweats */}
         {showVariations && (
           <div className="grid grid-cols-4 items-start gap-4">
             <Label className="text-right pt-2">
@@ -268,7 +271,7 @@ export function AddProductDialog({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => addVariation()}
+                onClick={onAddVariation}
                 className="w-full"
               >
                 <Plus className="h-4 w-4 mr-2" />

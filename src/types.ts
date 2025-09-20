@@ -22,6 +22,7 @@ export interface Product {
   size_stocks?: {[size: string]: number} | null;
   variations?: ProductVariation[];
   seller_id?: string;
+  created_at: string;
 }
 
 // CartItem is now in src/types/cart.ts

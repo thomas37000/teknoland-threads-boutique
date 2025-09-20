@@ -206,7 +206,7 @@ export function EditProductDialog({
         </div>
 
         {/* VariationList.tsx */}
-        {/* Product Variations */}
+        {/* Variations Tshirts && Sweats */}
         {currentProduct && !["Vinyles", "Double Vinyles", "Stickers"].includes(currentProduct.category) && (
           <div className="grid grid-cols-4 items-start gap-4">
             <Label className="text-right pt-2">

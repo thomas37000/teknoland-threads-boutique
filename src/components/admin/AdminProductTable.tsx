@@ -70,6 +70,7 @@ export const AdminProductTable = ({
             <TableHead>Catégorie</TableHead>
             {showSeller && <TableHead>Vendeur</TableHead>}
             <TableHead>Stock</TableHead>
+            <TableHead>Date de crétion</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -89,8 +90,8 @@ export const AdminProductTable = ({
                     {product.id.substring(0, 8)}...
                   </TableCell>
                   <TableCell>
-                    <img 
-                      src={product.image} 
+                    <img
+                      src={product.image}
                       alt={product.name}
                       className="w-12 h-12 object-cover rounded"
                     />
@@ -109,13 +110,25 @@ export const AdminProductTable = ({
                       </Badge>
                     </TableCell>
                   )}
+
+                  {/* Colonne Stock */}
                   <TableCell>
-                    <Badge 
+                    <Badge
                       variant={calculateTotalStock(product) > 0 ? "default" : "destructive"}
                     >
                       {calculateTotalStock(product)}
                     </Badge>
                   </TableCell>
+                   {/* Colonne Date de création */}
+                   <TableCell className="font-medium">
+                    {new Date(product.created_at).toLocaleDateString("fr-FR", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </TableCell>
+
+                  {/* Colonne Actions */}
                   <TableCell>
                     <div className="flex gap-2">
                       {(!product.seller_id || product.seller_id === user?.id) && (
