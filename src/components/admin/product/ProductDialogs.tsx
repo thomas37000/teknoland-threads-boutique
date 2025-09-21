@@ -568,15 +568,9 @@ const ProductDialogs = ({
           newImages.push(urlData.publicUrl);
         }
 
-        // Replace existing additional images
-        additionalImages = newImages;
-      }
-
-      // Create size_stocks object for backward compatibility
-      const sizeStocks: { [size: string]: number } = {};
-      editVariations.forEach(variation => {
-        sizeStocks[variation.size] = (sizeStocks[variation.size] || 0) + variation.stock;
-      });
+      // Replace existing additional images
+      additionalImages = newImages;
+    }
 
       // Update the product in the Supabase database
       const { data: updatedData, error: updateError } = await supabase
@@ -591,7 +585,7 @@ const ProductDialogs = ({
           stock: totalStock,
           sizes: uniqueSizes,
           colors: uniqueColors,
-          size_stocks: JSON.parse(JSON.stringify({ variations: editVariations, sizeStocks }))
+          size_stocks: sizeStocksToSave
         })
         .eq('id', currentProduct.id)
         .select();
