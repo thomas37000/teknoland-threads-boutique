@@ -230,6 +230,48 @@ const ProductDetails = ({
       <div className="prose prose-gray max-w-none">
         <p>{product.description}</p>
       </div>
+
+      {/* Vinyl Tracks Section */}
+      {(product.category === "Vinyles" || product.category === "Double Vinyles") && product.size_stocks && (
+        <div className="bg-gray-50 rounded-lg p-4">
+          <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+            🎵 Liste des titres
+          </h3>
+          {(() => {
+            const sizeStocks = product.size_stocks as any;
+            const vinylTracks = sizeStocks?.vinylTracks || [];
+            
+            if (vinylTracks.length > 0) {
+              return (
+                <div className="space-y-2">
+                  {vinylTracks.map((track: any, index: number) => (
+                    <div key={track.id || index} className="flex items-center justify-between py-2 px-3 bg-white rounded border">
+                      <div className="flex-1">
+                        <span className="font-medium">{track.name}</span>
+                        {track.artist && (
+                          <span className="text-gray-600 ml-2">- {track.artist}</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 text-sm text-gray-500">
+                        {track.duration && (
+                          <span>{track.duration}</span>
+                        )}
+                        {track.year && (
+                          <span>({track.year})</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            } else {
+              return (
+                <p className="text-gray-500 italic">Aucun titre disponible</p>
+              );
+            }
+          })()}
+        </div>
+      )}
       
       {/* Stock */}
       <div className="text-sm text-tekno-gray">
