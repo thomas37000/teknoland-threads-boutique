@@ -35,8 +35,8 @@ const ImageManagement = () => {
       .replace('url(', '')
       .replace(')', '')
       .replace(/"/g, '');
-    
-    setImageConfigs(prev => prev.map(config => 
+
+    setImageConfigs(prev => prev.map(config =>
       config.id === 'hero-bg' ? { ...config, current_url: currentBg } : config
     ));
   }, []);
@@ -61,8 +61,8 @@ const ImageManagement = () => {
         .getPublicUrl(fileName);
 
       // Update local state
-      setImageConfigs(prev => prev.map(config => 
-        config.id === configId 
+      setImageConfigs(prev => prev.map(config =>
+        config.id === configId
           ? { ...config, current_url: publicUrl }
           : config
       ));
@@ -78,19 +78,24 @@ const ImageManagement = () => {
 
   const handleSaveChanges = async () => {
     setSaving(true);
-    
+
     try {
       const heroConfig = imageConfigs.find(config => config.id === 'hero-bg');
       if (heroConfig && heroConfig.current_url) {
         // Update CSS variable dynamically
         document.documentElement.style.setProperty(
-          '--background-image', 
+          '--background-image',
           `url(${heroConfig.current_url})`
         );
-        
-        // Here you could also save to a config table in Supabase if needed
-        // For now, we're just updating the CSS variable
-        
+
+         // Get public URL of the uploaded image
+        await supabase
+          .from('settings')
+          .upsert({
+            id: '0426c36c-d153-4a16-8962-1fae3c9f6030',
+            hero_bg: heroConfig.current_url
+          });
+
         toast.success("Background image updated successfully");
       }
     } catch (error) {
@@ -111,8 +116,8 @@ const ImageManagement = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Gestion des Images</h2>
-        <Button 
-          onClick={handleSaveChanges} 
+        <Button
+          onClick={handleSaveChanges}
           disabled={saving}
           className="bg-green-600 hover:bg-green-700"
         >
@@ -142,7 +147,7 @@ const ImageManagement = () => {
             <p className="text-sm text-muted-foreground">
               {config.description}
             </p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor={`file-${config.id}`}>Upload New Image</Label>
@@ -164,14 +169,15 @@ const ImageManagement = () => {
                   </p>
                 )}
               </div>
-              
+
               <div>
                 <Label>Current URL</Label>
                 <Input
                   value={config.current_url}
+                  accept="image/jpeg,image/png,image/webp"
                   onChange={(e) => {
-                    setImageConfigs(prev => prev.map(c => 
-                      c.id === config.id 
+                    setImageConfigs(prev => prev.map(c =>
+                      c.id === config.id
                         ? { ...c, current_url: e.target.value }
                         : c
                     ));

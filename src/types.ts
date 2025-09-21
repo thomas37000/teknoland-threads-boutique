@@ -57,3 +57,8 @@ export interface DepenseMois {
   mois: string;
   created_at: string;
 }
+
+export interface Settings {
+  id: string;
+  hero_bg: string;
+}
