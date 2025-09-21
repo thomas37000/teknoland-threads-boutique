@@ -29,15 +29,11 @@ const ImageManagement = () => {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    // Get current background image from CSS variable
-    const currentBg = getComputedStyle(document.documentElement)
-      .getPropertyValue('--background-image')
-      .replace('url(', '')
-      .replace(')', '')
-      .replace(/"/g, '');
-
+    // Get current background image from localStorage
+    const storedBgImage = localStorage.getItem('hero-bg-image') || '';
+    
     setImageConfigs(prev => prev.map(config =>
-      config.id === 'hero-bg' ? { ...config, current_url: currentBg } : config
+      config.id === 'hero-bg' ? { ...config, current_url: storedBgImage } : config
     ));
   }, []);
 
@@ -67,6 +63,15 @@ const ImageManagement = () => {
           : config
       ));
 
+      // Update CSS variable immediately and store in localStorage
+      if (configId === 'hero-bg') {
+        document.documentElement.style.setProperty(
+          '--background-image',
+          `url(${publicUrl})`
+        );
+        localStorage.setItem('hero-bg-image', publicUrl);
+      }
+
       toast.success("Image uploaded successfully");
     } catch (error) {
       console.error("Upload error:", error);
@@ -88,13 +93,8 @@ const ImageManagement = () => {
           `url(${heroConfig.current_url})`
         );
 
-         // Get public URL of the uploaded image
-        await supabase
-          .from('settings')
-          .upsert({
-            id: '0426c36c-d153-4a16-8962-1fae3c9f6030',
-            hero_bg: heroConfig.current_url
-          });
+        // Store in localStorage for persistence
+        localStorage.setItem('hero-bg-image', heroConfig.current_url);
 
         toast.success("Background image updated successfully");
       }
@@ -174,7 +174,6 @@ const ImageManagement = () => {
                 <Label>Current URL</Label>
                 <Input
                   value={config.current_url}
-                  accept="image/jpeg,image/png,image/webp"
                   onChange={(e) => {
                     setImageConfigs(prev => prev.map(c =>
                       c.id === config.id

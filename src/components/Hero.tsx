@@ -18,27 +18,16 @@ const Hero = () => {
     const fetchSettings = async () => {
       setLoading(true);
       try {
-        //@ts-ignore
-        const { data, error } = await supabase
-          .from('settings')
-          .select()
-          .single();
-
-        if (error) {
-          console.error("Error fetching product:", error);
-          throw error;
-        }
-
-        if (data) {
-          console.log("settings ", data);
-
+        // Get background image from localStorage or use default
+        const storedBgImage = localStorage.getItem('hero-bg-image');
+        if (storedBgImage) {
           document.documentElement.style.setProperty(
             '--background-image',
-            `url(${data})`
+            `url(${storedBgImage})`
           );
         }
       } catch (error) {
-        console.error("Error fetching setting:", error);
+        console.error("Error loading background image:", error);
       } finally {
         setLoading(false);
       }
