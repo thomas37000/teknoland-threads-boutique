@@ -407,7 +407,10 @@ const ProductDialogs = ({
         });
         sizeStocksToSave = JSON.parse(JSON.stringify({ variations, sizeStocks }));
       } else if (isVinyl) {
-        sizeStocksToSave = JSON.parse(JSON.stringify({ vinylTracks }));
+        sizeStocksToSave = JSON.parse(JSON.stringify({ 
+          vinylTracks,
+          streamingUrl: (newProduct as any).streamingUrl || null
+        }));
       }
 
       // Insert the product into the Supabase database
@@ -513,7 +516,10 @@ const ProductDialogs = ({
         });
         sizeStocksToSave = JSON.parse(JSON.stringify({ variations: editVariations, sizeStocks }));
       } else if (isVinyl) {
-        sizeStocksToSave = JSON.parse(JSON.stringify({ vinylTracks: editVinylTracks }));
+        sizeStocksToSave = JSON.parse(JSON.stringify({ 
+          vinylTracks: editVinylTracks,
+          streamingUrl: currentProduct.size_stocks?.streamingUrl || null
+        }));
       }
 
       // Prepare product data for update

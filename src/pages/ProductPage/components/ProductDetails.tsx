@@ -233,10 +233,37 @@ const ProductDetails = ({
 
       {/* Vinyl Tracks Section */}
       {(product.category === "Vinyles" || product.category === "Double Vinyles") && product.size_stocks && (
-        <div className="bg-gray-50 rounded-lg p-4">
+        <div className="bg-gray-50 rounded-lg p-4 space-y-4">
           <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
             🎵 Liste des titres
           </h3>
+          
+          {/* Streaming Link */}
+          {(() => {
+            const sizeStocks = product.size_stocks as any;
+            const streamingUrl = sizeStocks?.streamingUrl;
+            
+            if (streamingUrl) {
+              return (
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm font-medium text-gray-700">🎧 Écouter en ligne:</span>
+                  </div>
+                  <a 
+                    href={streamingUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+                  >
+                    🎵 Écouter sur la plateforme
+                  </a>
+                </div>
+              );
+            }
+            return null;
+          })()}
+          
+          {/* Track List */}
           {(() => {
             const sizeStocks = product.size_stocks as any;
             const vinylTracks = sizeStocks?.vinylTracks || [];

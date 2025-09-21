@@ -289,10 +289,43 @@ export function AddProductDialog({
 
         {/* Vinyl Tracks */}
         {showVinylTracks && (
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label className="text-right pt-2">
-              Pistes
-            </Label>
+          <>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="vinyl-stock" className="text-right">
+                Stock
+              </Label>
+              <Input
+                id="vinyl-stock"
+                type="number"
+                min="0"
+                value={newProduct.stock || ""}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, stock: parseInt(e.target.value) || 0 })
+                }
+                className="col-span-3"
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="streaming-url" className="text-right">
+                Lien Streaming
+              </Label>
+              <Input
+                id="streaming-url"
+                type="url"
+                value={newProduct.streamingUrl || ""}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, streamingUrl: e.target.value })
+                }
+                placeholder="https://soundcloud.com/... ou https://open.spotify.com/..."
+                className="col-span-3"
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label className="text-right pt-2">
+                Pistes
+              </Label>
             <div className="col-span-3 space-y-4">
               {vinylTracks.map((track, index) => (
                 <div key={track.id} className="border rounded-lg p-4 space-y-3 bg-muted/20">
@@ -341,6 +374,7 @@ export function AddProductDialog({
               ))}
             </div>
           </div>
+        </>
         )}
 
         {/* Stickers */}

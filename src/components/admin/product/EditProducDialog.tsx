@@ -412,6 +412,34 @@ export function EditProductDialog({
                 ))}
               </div>
             </div>
+            
+            {/* Streaming URL for Vinyles */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="edit-streaming-url" className="text-right">
+                Lien Streaming
+              </Label>
+              <Input
+                id="edit-streaming-url"
+                type="url"
+                value={(currentProduct?.size_stocks as any)?.streamingUrl || ""}
+                onChange={(e) => {
+                  const currentSizeStocks = (currentProduct?.size_stocks as any) || {};
+                  setCurrentProduct(
+                    currentProduct
+                      ? { 
+                          ...currentProduct, 
+                          size_stocks: { 
+                            ...currentSizeStocks, 
+                            streamingUrl: e.target.value 
+                          } 
+                        }
+                      : null
+                  );
+                }}
+                placeholder="https://soundcloud.com/... ou https://open.spotify.com/..."
+                className="col-span-3"
+              />
+            </div>
           </>
         )}
 
