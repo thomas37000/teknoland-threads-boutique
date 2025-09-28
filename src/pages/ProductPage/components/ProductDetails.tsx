@@ -154,24 +154,36 @@ const ProductDetails = ({
     }
   };
 
-  // Function to get stock for selected size
-  const getStockForSize = (size: string | undefined) => {
-    if (!size) return product.stock;
+  // Function to get stock for selected size and color
+  const getStockForSizeAndColor = (size: string | undefined, color: string | undefined) => {
+    if (!size && !color) return product.stock;
     
-    let sizeStock = 0;
+    let stock = 0;
     
     if (product.variations && product.variations.length > 0) {
       // Nouveau format avec variations
-      sizeStock = product.variations
-        .filter(variation => variation.size === size)
-        .reduce((total, variation) => total + (variation.stock || 0), 0);
-    } else if (product.size_stocks) {
-      // Ancien format avec size_stocks
+      let filteredVariations = product.variations;
+      
+      // Filtrer par taille si sélectionnée
+      if (size) {
+        filteredVariations = filteredVariations.filter(variation => variation.size === size);
+      }
+      
+      // Filtrer par couleur si sélectionnée
+      if (color) {
+        filteredVariations = filteredVariations.filter(variation => variation.color === color);
+      }
+      
+      stock = filteredVariations.reduce((total, variation) => total + (variation.stock || 0), 0);
+    } else if (product.size_stocks && size) {
+      // Ancien format avec size_stocks (ne gère que les tailles)
       const stockData = (product.size_stocks as any).sizeStocks || product.size_stocks;
-      sizeStock = stockData[size] || 0;
+      stock = stockData[size] || 0;
+    } else {
+      stock = product.stock;
     }
     
-    return sizeStock;
+    return stock;
   };
 
   // Function to get color display name in French
@@ -325,9 +337,12 @@ const ProductDetails = ({
         {product.stock > 0 ? (
           <div className="space-y-1">
             <span>{t('product.inStock')} ({product.stock} {t('product.available')} au total)</span>
-            {currentSize && (
+            {(currentSize || currentColor) && (
               <div className="text-tekno-blue font-medium">
-                Taille {currentSize}: {getStockForSize(currentSize)} en stock
+                {currentSize && currentColor && `Taille ${currentSize}, couleur ${getColorName(currentColor)}: `}
+                {currentSize && !currentColor && `Taille ${currentSize}: `}
+                {!currentSize && currentColor && `Couleur ${getColorName(currentColor)}: `}
+                {getStockForSizeAndColor(currentSize, currentColor)} en stock
               </div>
             )}
           </div>
@@ -342,19 +357,8 @@ const ProductDetails = ({
           <h3 className="font-medium mb-2">{t('product.size')}</h3>
           <div className="flex flex-wrap gap-2">
             {product.sizes.map((size) => {
-              // Calculer le stock pour cette taille en utilisant les variations
-              let sizeStock = 0;
-              
-              if (product.variations && product.variations.length > 0) {
-                // Nouveau format avec variations
-                sizeStock = product.variations
-                  .filter(variation => variation.size === size)
-                  .reduce((total, variation) => total + (variation.stock || 0), 0);
-              } else if (product.size_stocks) {
-                // Ancien format avec size_stocks
-                const stockData = (product.size_stocks as any).sizeStocks || product.size_stocks;
-                sizeStock = stockData[size] || 0;
-              }
+              // Calculer le stock pour cette taille en utilisant les variations et la couleur sélectionnée
+              let sizeStock = getStockForSizeAndColor(size, currentColor);
               
               const isAvailable = sizeStock > 0;
               
@@ -384,14 +388,21 @@ const ProductDetails = ({
           <h3 className="font-medium mb-2">{t('product.color')}</h3>
           <div className="flex flex-wrap gap-3">
             {product.colors.map((color) => {
+              // Calculer le stock pour cette couleur en utilisant les variations et la taille sélectionnée
+              const colorStock = getStockForSizeAndColor(currentSize, color);
+              const isAvailable = colorStock > 0;
+              
               return (
                 <div key={color} className="flex flex-col items-center gap-1">
                   <button
                     onClick={() => handleColorChange(color)}
-                    className={`h-8 w-8 rounded-full border-2 transition-all duration-200 cursor-pointer hover:scale-110 ${
+                    disabled={!isAvailable}
+                    className={`h-8 w-8 rounded-full border-2 transition-all duration-200 hover:scale-110 ${
                       currentColor === color 
                         ? "ring-2 ring-offset-2 ring-tekno-blue" 
-                        : "border-gray-300 hover:border-gray-400"
+                        : isAvailable
+                          ? "border-gray-300 hover:border-gray-400 cursor-pointer"
+                          : "border-gray-300 opacity-50 cursor-not-allowed"
                     }`}
                     style={{ 
                       backgroundColor: getColorCode(color),
@@ -399,7 +410,7 @@ const ProductDetails = ({
                     }}
                     aria-label={`${t('product.selectColor')} ${getColorName(color)}`}
                   />
-                  <span className="text-xs text-gray-600 capitalize">
+                  <span className={`text-xs capitalize ${isAvailable ? 'text-gray-600' : 'text-gray-400'}`}>
                     {getColorName(color)}
                   </span>
                 </div>
