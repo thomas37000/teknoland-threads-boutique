@@ -10,8 +10,6 @@ import { Settings } from "@/types";
 const Hero = () => {
   const { t } = useTranslation();
   const [setting, setSetting] = useState<Settings[]>([]);
-  console.log(setting);
-
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
