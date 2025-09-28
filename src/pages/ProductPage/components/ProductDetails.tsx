@@ -154,6 +154,26 @@ const ProductDetails = ({
     }
   };
 
+  // Function to get stock for selected size
+  const getStockForSize = (size: string | undefined) => {
+    if (!size) return product.stock;
+    
+    let sizeStock = 0;
+    
+    if (product.variations && product.variations.length > 0) {
+      // Nouveau format avec variations
+      sizeStock = product.variations
+        .filter(variation => variation.size === size)
+        .reduce((total, variation) => total + (variation.stock || 0), 0);
+    } else if (product.size_stocks) {
+      // Ancien format avec size_stocks
+      const stockData = (product.size_stocks as any).sizeStocks || product.size_stocks;
+      sizeStock = stockData[size] || 0;
+    }
+    
+    return sizeStock;
+  };
+
   // Function to get color display name in French
   const getColorName = (color: string) => {
     const colorNames: { [key: string]: { fr: string; en: string } } = {
@@ -303,7 +323,14 @@ const ProductDetails = ({
       {/* Stock */}
       <div className="text-sm text-tekno-gray">
         {product.stock > 0 ? (
-          <span>{t('product.inStock')} ({product.stock} {t('product.available')})</span>
+          <div className="space-y-1">
+            <span>{t('product.inStock')} ({product.stock} {t('product.available')} au total)</span>
+            {currentSize && (
+              <div className="text-tekno-blue font-medium">
+                Taille {currentSize}: {getStockForSize(currentSize)} en stock
+              </div>
+            )}
+          </div>
         ) : (
           <span className="text-red-500">{t('product.outOfStock')}</span>
         )}
