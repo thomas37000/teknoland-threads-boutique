@@ -161,16 +161,19 @@ const ProductDetails = ({
     let stock = 0;
     
     if (product.variations && product.variations.length > 0) {
-      // Nouveau format avec variations
+      // Nouveau format avec variations - filtrer par taille ET couleur
       let filteredVariations = product.variations;
       
-      // Filtrer par taille si sélectionnée
-      if (size) {
+      // Filtrer par taille ET couleur simultanément si les deux sont sélectionnés
+      if (size && color) {
+        filteredVariations = filteredVariations.filter(
+          variation => variation.size === size && variation.color === color
+        );
+      } else if (size) {
+        // Seulement par taille
         filteredVariations = filteredVariations.filter(variation => variation.size === size);
-      }
-      
-      // Filtrer par couleur si sélectionnée
-      if (color) {
+      } else if (color) {
+        // Seulement par couleur
         filteredVariations = filteredVariations.filter(variation => variation.color === color);
       }
       
