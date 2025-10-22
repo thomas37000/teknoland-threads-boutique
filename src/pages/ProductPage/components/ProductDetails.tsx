@@ -160,9 +160,20 @@ const ProductDetails = ({
     
     let stock = 0;
     
-    if (product.variations && product.variations.length > 0) {
-      // Nouveau format avec variations - filtrer par taille ET couleur
-      let filteredVariations = product.variations;
+    // Vérifier d'abord product.variations
+    let variations = product.variations;
+    
+    // Si pas de variations au niveau product, chercher dans size_stocks.variations
+    if ((!variations || variations.length === 0) && product.size_stocks) {
+      const sizeStocksData = product.size_stocks as any;
+      if (sizeStocksData.variations && Array.isArray(sizeStocksData.variations)) {
+        variations = sizeStocksData.variations;
+      }
+    }
+    
+    if (variations && variations.length > 0) {
+      // Format avec variations - filtrer par taille ET couleur
+      let filteredVariations = variations;
       
       // Filtrer par taille ET couleur simultanément si les deux sont sélectionnés
       if (size && color) {
@@ -179,7 +190,7 @@ const ProductDetails = ({
       
       stock = filteredVariations.reduce((total, variation) => total + (variation.stock || 0), 0);
     } else if (product.size_stocks && size) {
-      // Ancien format avec size_stocks (ne gère que les tailles)
+      // Ancien format avec size_stocks (ne gère que les tailles uniquement, pas les couleurs)
       const stockData = (product.size_stocks as any).sizeStocks || product.size_stocks;
       stock = stockData[size] || 0;
     } else {
