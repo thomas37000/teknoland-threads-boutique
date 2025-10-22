@@ -83,12 +83,25 @@ const ProductPageContainer = () => {
   // Update image when color changes
   useEffect(() => {
     if (product && selectedColor) {
+      // First check if there's a variation with an image for this color
+      if (product.variations && Array.isArray(product.variations)) {
+        const variation = product.variations.find(
+          (v: any) => v.color === selectedColor && v.image
+        );
+        if (variation?.image) {
+          setCurrentImage(variation.image);
+          return;
+        }
+      }
+      
+      // Then check colorImages mapping
       if (product.colorImages && product.colorImages[selectedColor]) {
         setCurrentImage(product.colorImages[selectedColor]);
-      } else {
-        // If no specific color image, use the main product image
-        setCurrentImage(product.image);
+        return;
       }
+      
+      // Fallback to main product image
+      setCurrentImage(product.image);
     }
   }, [selectedColor, product]);
 

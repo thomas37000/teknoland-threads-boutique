@@ -269,7 +269,7 @@ const ProductDialogs = ({
       color: COLOR_OPTIONS[0],
       size: SIZE_OPTIONS[0],
       stock: 0,
-      image: isEdit ? currentProduct?.image : '' // Initialize with main image
+      image: '' // Don't auto-assign image, user must choose
     };
 
     if (isEdit) {

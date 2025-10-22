@@ -26,11 +26,29 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (existingItem) {
       updateQuantity(product.id, existingItem.quantity + quantity);
     } else {
+      // Find the correct image based on color variation
+      let productImage = product.image;
+      
+      // Check if product has variations with images
+      if (color && product.variations && Array.isArray(product.variations)) {
+        const variation = product.variations.find(
+          (v: any) => v.color === color && v.image
+        );
+        if (variation?.image) {
+          productImage = variation.image;
+        }
+      }
+      
+      // Check colorImages mapping as fallback
+      if (color && product.colorImages && product.colorImages[color]) {
+        productImage = product.colorImages[color];
+      }
+      
       const newItem: CartItem = {
         id: product.id,
         name: product.name,
         price: product.price,
-        image: product.image,
+        image: productImage,
         quantity,
         size,
         color,

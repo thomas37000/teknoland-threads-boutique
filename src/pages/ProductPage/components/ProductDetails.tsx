@@ -86,6 +86,7 @@ const ProductDetails = ({
       setLocalSelectedColor(color);
     }
     
+    // Find the image for this color from variations
     if (onColorChange) {
       onColorChange(color);
     }
