@@ -209,6 +209,9 @@ const ProductPageContainer = () => {
             currentImage={currentImage} 
             setCurrentImage={setCurrentImage}
             images={allImages}
+            variations={product.variations}
+            colorImages={product.colorImages}
+            onColorChange={setSelectedColor}
           />
         </div>
 

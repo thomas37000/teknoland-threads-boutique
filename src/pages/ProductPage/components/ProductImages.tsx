@@ -8,9 +8,12 @@ interface ProductImagesProps {
   currentImage: string;
   setCurrentImage: (image: string) => void;
   images: string[];
+  variations?: any[];
+  colorImages?: Record<string, string>;
+  onColorChange?: (color: string) => void;
 }
 
-const ProductImages = ({ currentImage, setCurrentImage, images }: ProductImagesProps) => {
+const ProductImages = ({ currentImage, setCurrentImage, images, variations, colorImages, onColorChange }: ProductImagesProps) => {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
@@ -18,6 +21,26 @@ const ProductImages = ({ currentImage, setCurrentImage, images }: ProductImagesP
 
   const handleImageClick = (image: string) => {
     setCurrentImage(image);
+    
+    // Find and update the corresponding color
+    if (onColorChange) {
+      // First check variations
+      if (variations && Array.isArray(variations)) {
+        const variation = variations.find((v: any) => v.image === image);
+        if (variation?.color) {
+          onColorChange(variation.color);
+        }
+      }
+      
+      // Then check colorImages mapping
+      if (colorImages) {
+        const colorEntry = Object.entries(colorImages).find(([_, img]) => img === image);
+        if (colorEntry) {
+          onColorChange(colorEntry[0]);
+        }
+      }
+    }
+    
     // Reset zoom when changing image
     setIsZoomed(false);
     setZoomLevel(1);
