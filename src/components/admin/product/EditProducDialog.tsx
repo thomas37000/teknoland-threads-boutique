@@ -87,7 +87,7 @@ export function EditProductDialog({
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper">
                 {CATEGORIES.map((category) => (
                   <SelectItem key={category} value={category}>
                     {category}
@@ -238,7 +238,7 @@ export function EditProductDialog({
                           <SelectTrigger>
                             <SelectValue placeholder="Choisir image" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent position="popper" className="max-h-[300px]">
                             {currentProduct?.image && (
                               <SelectItem value={currentProduct.image}>
                                 Image principale
@@ -280,7 +280,7 @@ export function EditProductDialog({
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent position="popper">
                           {COLOR_OPTIONS.map(color => (
                             <SelectItem key={color} value={color}>{color}</SelectItem>
                           ))}
@@ -297,7 +297,7 @@ export function EditProductDialog({
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent position="popper">
                           {SIZE_OPTIONS.map(size => (
                             <SelectItem key={size} value={size}>{size}</SelectItem>
                           ))}
