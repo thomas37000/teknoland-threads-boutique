@@ -50,23 +50,72 @@ serve(async (req) => {
       quantity: item.quantity,
     }));
 
-    // Calculate if shipping should be added
+    // Calculate subtotal for shipping options
     const subtotal = cartItems.reduce((sum: number, item: any) => sum + (item.product.price * item.quantity), 0);
-    const needsShipping = subtotal <= 50;
-
-    if (needsShipping) {
-      line_items.push({
-        price_data: {
-          currency: "eur",
-          product_data: {
-            name: "Frais de livraison",
-            description: "Livraison standard",
+    
+    // Define shipping options
+    const shipping_options = [
+      {
+        shipping_rate_data: {
+          type: "fixed_amount",
+          fixed_amount: {
+            amount: subtotal > 50 ? 0 : 499, // Gratuit au-dessus de 50€
+            currency: "eur",
           },
-          unit_amount: 499, // 4.99 EUR in cents
+          display_name: "La Poste - Standard",
+          delivery_estimate: {
+            minimum: {
+              unit: "business_day",
+              value: 3,
+            },
+            maximum: {
+              unit: "business_day",
+              value: 5,
+            },
+          },
         },
-        quantity: 1,
-      });
-    }
+      },
+      {
+        shipping_rate_data: {
+          type: "fixed_amount",
+          fixed_amount: {
+            amount: 399, // 3.99 EUR
+            currency: "eur",
+          },
+          display_name: "Mondial Relay - Point relais",
+          delivery_estimate: {
+            minimum: {
+              unit: "business_day",
+              value: 3,
+            },
+            maximum: {
+              unit: "business_day",
+              value: 6,
+            },
+          },
+        },
+      },
+      {
+        shipping_rate_data: {
+          type: "fixed_amount",
+          fixed_amount: {
+            amount: 999, // 9.99 EUR
+            currency: "eur",
+          },
+          display_name: "Chronopost - Express",
+          delivery_estimate: {
+            minimum: {
+              unit: "business_day",
+              value: 1,
+            },
+            maximum: {
+              unit: "business_day",
+              value: 2,
+            },
+          },
+        },
+      },
+    ];
 
     // Create simplified metadata with only essential information
     const simplifiedCartItems = cartItems.map((item: any) => ({
@@ -83,6 +132,10 @@ serve(async (req) => {
       payment_method_types: ["card"],
       line_items,
       mode: "payment",
+      shipping_options,
+      shipping_address_collection: {
+        allowed_countries: ["FR", "BE", "LU", "CH", "MC"],
+      },
       success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/cart`,
       metadata: {
