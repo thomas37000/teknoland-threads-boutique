@@ -171,18 +171,21 @@ export type Database = {
       }
       ideas: {
         Row: {
+          cat_ideas: string | null
           created_at: string
           desc: string | null
           id: number
           priority: string
         }
         Insert: {
+          cat_ideas?: string | null
           created_at?: string
           desc?: string | null
           id?: number
           priority?: string
         }
         Update: {
+          cat_ideas?: string | null
           created_at?: string
           desc?: string | null
           id?: number
@@ -292,6 +295,7 @@ export type Database = {
           seller_id: string | null
           size_stocks: Json | null
           sizes: string[] | null
+          slug: string | null
           stock: number
           variations: Json | null
         }
@@ -309,6 +313,7 @@ export type Database = {
           seller_id?: string | null
           size_stocks?: Json | null
           sizes?: string[] | null
+          slug?: string | null
           stock?: number
           variations?: Json | null
         }
@@ -326,6 +331,7 @@ export type Database = {
           seller_id?: string | null
           size_stocks?: Json | null
           sizes?: string[] | null
+          slug?: string | null
           stock?: number
           variations?: Json | null
         }
@@ -393,6 +399,24 @@ export type Database = {
         }
         Relationships: []
       }
+      settings: {
+        Row: {
+          created_at: string
+          hero_bg: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          hero_bg?: string | null
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          hero_bg?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       shop_filters: {
         Row: {
           created_at: string
@@ -431,10 +455,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_strict_slug: { Args: { input: string }; Returns: string }
+      get_current_user_role: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never
