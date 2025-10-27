@@ -211,6 +211,39 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscriptions: {
+        Row: {
+          confirmation_token: string
+          confirmed: boolean
+          confirmed_at: string | null
+          created_at: string
+          email: string
+          id: string
+          unsubscribed: boolean
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          confirmation_token: string
+          confirmed?: boolean
+          confirmed_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          unsubscribed?: boolean
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          confirmation_token?: string
+          confirmed?: boolean
+          confirmed_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          unsubscribed?: boolean
+          unsubscribed_at?: string | null
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           color: string | null

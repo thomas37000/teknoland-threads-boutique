@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import Hero from "@/components/Hero";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import CategorySection from "@/components/CategorySection";
+import Newsletter from "@/components/Newsletter";
 // React Helmet provides a solution by allowing developers to update the head section as the content changes. 
 // This ensures that each "page" in the SPA has the correct title and meta tags, 
 // improving the user experience and making the pages more shareable on social media
@@ -43,28 +44,7 @@ const Index = () => {
         <CategorySection />
 
         {/* Newsletter Section */}
-        <section className="py-16 bg-tekno-blue text-white">
-          <div className="tekno-container text-center">
-            <h2 className="text-3xl font-bold mb-4">{t('home.newsletterTitle')}</h2>
-            <p className="text-lg max-w-2xl mx-auto mb-8">
-              {t('home.newsletterDesc')}
-            </p>
-            <form className="flex flex-col sm:flex-row max-w-md mx-auto" aria-label="Newsletter">
-              <input 
-                type="email" 
-                placeholder={t('home.emailPlaceholder')}
-                className="px-4 py-3 rounded-l-md w-full text-tekno-black focus:outline-none"
-                aria-label={t('home.emailPlaceholder')}
-              />
-              <button 
-                type="submit"
-                className="mt-2 sm:mt-0 px-6 py-3 bg-tekno-black text-white font-medium rounded-r-md sm:rounded-l-none rounded-l-md hover:bg-opacity-80 transition-colors"
-              >
-                {t('home.subscribe')}
-              </button>
-            </form>
-          </div>
-        </section>
+        <Newsletter />
         
         {/* Brand Features */}
         <section className="py-16">

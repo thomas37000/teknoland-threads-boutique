@@ -160,6 +160,31 @@
     "cancel": "Cancel",
     "goToLogin": "Go to Login"
   },
+  "newsletter": {
+    "title": "Stay Updated",
+    "description": "Subscribe to our newsletter and receive exclusive access to our latest collections, special offers and streetwear news.",
+    "placeholder": "Your email address",
+    "subscribe": "Subscribe",
+    "subscribing": "Subscribing...",
+    "subscribed": "Subscribed!",
+    "successTitle": "Check your inbox",
+    "successDescription": "A confirmation email has been sent to you. Click the link to complete your subscription.",
+    "error": "Error",
+    "errorEmailRequired": "Please enter a valid email address",
+    "errorGeneric": "An error occurred. Please try again.",
+    "gdprNotice": "By subscribing, you agree to receive our emails. You can unsubscribe at any time.",
+    "benefits": "✨ New arrivals • 🎁 Exclusive offers • 🎵 Vinyl releases"
+  },
+  "newsletterConfirm": {
+    "loading": "Confirming...",
+    "loadingDescription": "Please wait while we confirm your subscription.",
+    "success": "Subscription confirmed!",
+    "successDescription": "Thank you for confirming your newsletter subscription. You will soon receive our updates.",
+    "error": "Confirmation error",
+    "errorDescription": "The confirmation link is invalid or has expired. Please subscribe again.",
+    "shopNow": "Shop Now",
+    "backHome": "Back to Home"
+  },
   "admin": {
     "moni": {
       "title": "Expense Management - Moni",

@@ -21,6 +21,7 @@ import ProfilePage from "./pages/ProfilePage";
 import AuthPage from "./pages/AuthPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import VendorStorePage from "./pages/VendorStorePage";
+import NewsletterConfirmPage from "./pages/NewsletterConfirmPage";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -84,6 +85,7 @@ const App = () => {
                           } 
                         />
                         <Route path="/auth" element={<AuthPage />} />
+                        <Route path="/newsletter/confirm" element={<NewsletterConfirmPage />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </main>

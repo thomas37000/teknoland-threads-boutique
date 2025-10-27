@@ -105,6 +105,31 @@
     "size": "Taille",
     "color": "Couleur"
   },
+  "newsletter": {
+    "title": "Restez informé",
+    "description": "Inscrivez-vous à notre newsletter et recevez en exclusivité nos dernières collections, offres spéciales et actualités streetwear.",
+    "placeholder": "Votre adresse e-mail",
+    "subscribe": "S'inscrire",
+    "subscribing": "Inscription...",
+    "subscribed": "Inscrit !",
+    "successTitle": "Vérifiez votre boîte mail",
+    "successDescription": "Un email de confirmation vous a été envoyé. Cliquez sur le lien pour finaliser votre inscription.",
+    "error": "Erreur",
+    "errorEmailRequired": "Veuillez entrer une adresse e-mail valide",
+    "errorGeneric": "Une erreur est survenue. Veuillez réessayer.",
+    "gdprNotice": "En vous inscrivant, vous acceptez de recevoir nos emails. Vous pouvez vous désinscrire à tout moment.",
+    "benefits": "✨ Nouveautés • 🎁 Offres exclusives • 🎵 Sorties vinyles"
+  },
+  "newsletterConfirm": {
+    "loading": "Confirmation en cours...",
+    "loadingDescription": "Veuillez patienter pendant que nous confirmons votre inscription.",
+    "success": "Inscription confirmée !",
+    "successDescription": "Merci de confirmer votre inscription à notre newsletter. Vous recevrez bientôt nos actualités.",
+    "error": "Erreur de confirmation",
+    "errorDescription": "Le lien de confirmation est invalide ou a expiré. Veuillez vous réinscrire.",
+    "shopNow": "Découvrir la boutique",
+    "backHome": "Retour à l'accueil"
+  },
   "auth": {
     "login": "Connexion",
     "signup": "Inscription",
