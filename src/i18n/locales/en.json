@@ -154,7 +154,11 @@
     "clear": "Clear Cart",
     "size": "Size",
     "color": "Color",
-    "remove": "Remove"
+    "remove": "Remove",
+    "loginRequired": "Login Required",
+    "loginRequiredDescription": "You need to be logged in to complete your order. Please log in or create an account.",
+    "cancel": "Cancel",
+    "goToLogin": "Go to Login"
   },
   "admin": {
     "moni": {

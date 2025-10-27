@@ -1,6 +1,7 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useCart } from "@/hooks/use-cart";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { createCheckoutSession } from "@/utils/cart-checkout";
@@ -9,17 +10,41 @@ import CartSummary from "@/components/cart/CartSummary";
 import CartEmptyState from "@/components/cart/CartEmptyState";
 import CartHeader from "@/components/cart/CartHeader";
 import { useTranslation } from "react-i18next";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useNavigate } from "react-router-dom";
 
 const CartPage = () => {
   const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCart();
+  const { user } = useAuth();
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   const handleCheckout = async () => {
+    // Check if user is logged in
+    if (!user) {
+      setShowLoginDialog(true);
+      return;
+    }
+
     try {
       await createCheckoutSession(items);
     } catch (error) {
       console.error("Checkout error:", error);
     }
+  };
+
+  const handleLoginRedirect = () => {
+    navigate("/auth");
   };
 
   if (items.length === 0) {
@@ -78,6 +103,23 @@ const CartPage = () => {
             />
           </div>
         </div>
+
+        <AlertDialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("cart.loginRequired")}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("cart.loginRequiredDescription")}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t("cart.cancel")}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleLoginRedirect}>
+                {t("cart.goToLogin")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

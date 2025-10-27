@@ -98,6 +98,10 @@
     "summary": "Résumé de la commande",
     "shippingFree": "Gratuite",
     "clear": "Vider le panier",
+    "loginRequired": "Connexion requise",
+    "loginRequiredDescription": "Vous devez être connecté pour finaliser votre commande. Veuillez vous connecter ou créer un compte.",
+    "cancel": "Annuler",
+    "goToLogin": "Se connecter",
     "size": "Taille",
     "color": "Couleur"
   },

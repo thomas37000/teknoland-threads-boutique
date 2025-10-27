@@ -32,7 +32,6 @@ const ProductPageContainer = () => {
       if (!slug) return;
 
       try {
-        // @ts-expect-error type instantiation too deep
         const { data, error } = await supabase 
           .from('products')
           .select('*')
