@@ -63,6 +63,8 @@ export const AddEditArtisteDialog = ({
     setLoading(true);
 
     try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      
       const stylesArray = styles
         .split(",")
         .map((s) => s.trim())
@@ -76,26 +78,17 @@ export const AddEditArtisteDialog = ({
       if (country) fields.Country = country;
       if (genre) fields.Genre = genre;
 
-      const url = artiste
-        ? `${import.meta.env.VITE_AIRTABLE_URL}/Artistes/${artiste.id}`
-        : `${import.meta.env.VITE_AIRTABLE_URL}/Artistes`;
-
-      const method = artiste ? "PATCH" : "POST";
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          Authorization: `Bearer ${import.meta.env.VITE_AIRTABLE_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ fields }),
+      const { data, error } = await supabase.functions.invoke('airtable-proxy', {
+        body: {
+          method: artiste ? 'PATCH' : 'POST',
+          table: 'Artistes',
+          recordId: artiste?.id,
+          fields
+        }
       });
 
-      if (!response.ok) {
-        throw new Error(
-          `Erreur ${artiste ? "de modification" : "de création"} de l'artiste`
-        );
-      }
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
 
       toast({
         title: "Succès",
@@ -217,19 +210,18 @@ export const DeleteArtisteDialog = ({
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_AIRTABLE_URL}/Artistes/${artiste.id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${import.meta.env.VITE_AIRTABLE_KEY}`,
-          },
+      const { supabase } = await import("@/integrations/supabase/client");
+      
+      const { data, error } = await supabase.functions.invoke('airtable-proxy', {
+        body: {
+          method: 'DELETE',
+          table: 'Artistes',
+          recordId: artiste.id
         }
-      );
+      });
 
-      if (!response.ok) {
-        throw new Error("Erreur de suppression de l'artiste");
-      }
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
 
       toast({
         title: "Succès",

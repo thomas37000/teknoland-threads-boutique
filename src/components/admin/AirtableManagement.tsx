@@ -21,17 +21,20 @@ const AirtableManagement = () => {
     const fetchArtistes = async () => {
         try {
             setLoading(true);
-            const res = await fetch(`${import.meta.env.VITE_AIRTABLE_URL}/Artistes`, {
-                headers: {
-                    Authorization: `Bearer ${import.meta.env.VITE_AIRTABLE_KEY}`,
-                },
+            const { supabase } = await import("@/integrations/supabase/client");
+            
+            const { data, error } = await supabase.functions.invoke('airtable-proxy', {
+                body: {
+                    method: 'GET',
+                    table: 'Artistes'
+                }
             });
 
-            if (!res.ok) throw new Error("Erreur de chargement des artistes");
+            if (error) throw error;
+            if (data.error) throw new Error(data.error);
 
-            const data = await res.json();
             setArtistes(data.records);
-            console.log(data.records[0].fields)
+            console.log('Artistes loaded:', data.records);
         } catch (error) {
             console.error(error);
             toast({
