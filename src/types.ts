@@ -18,8 +18,8 @@ export interface Product {
   isNew?: boolean;
   sizes?: string[];
   colors?: string[];
-  colorImages?: {[color: string]: string};
-  size_stocks?: {[size: string]: number} | null;
+  colorImages?: { [color: string]: string };
+  size_stocks?: { [size: string]: number } | null;
   variations?: ProductVariation[];
   seller_id?: string;
   created_at: string;
@@ -61,4 +61,16 @@ export interface DepenseMois {
 export interface Settings {
   id: string;
   hero_bg: string;
+}
+
+export interface ArtisteFields {
+  Actif: string;
+  Name?: string;
+  styles?: string[];
+}
+
+export interface Artistes {
+  id: string;
+  fields: ArtisteFields;
+  createdTime: string;
 }

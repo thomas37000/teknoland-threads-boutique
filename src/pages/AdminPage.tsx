@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Package, Users, Tag, Filter, Mail, Heart, Calculator, Image } from "lucide-react";
+import { Package, Users, Tag, Filter, Mail, Heart, Calculator, Image, Music } from "lucide-react";
 import { products } from "@/data/products";
 import ProductManagement from "@/components/admin/product/ProductManagement";
 import ClientManagement from "@/components/admin/ClientManagement";
@@ -16,6 +16,7 @@ import DepensesManagement from "@/components/admin/DepensesManagement";
 import ImageManagement from "@/components/admin/ImageManagement";
 import { Idea } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
+import AirtableManagement from "@/components/admin/AirtableManagement";
 
 const AdminPage = () => {
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
@@ -129,6 +130,10 @@ const AdminPage = () => {
             <Users className="h-4 w-4" />
             Idées
           </TabsTrigger>
+          <TabsTrigger value="artistes" className="flex items-center gap-2">
+            <Music className="h-4 w-4" />
+            Artistes
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="products">
@@ -165,6 +170,10 @@ const AdminPage = () => {
 
          <TabsContent value="idees">
           <IdeasManagement initialIdeas={[]} />
+        </TabsContent>
+
+         <TabsContent value="artistes">
+          <AirtableManagement />
         </TabsContent>
       </Tabs>
     </div>
