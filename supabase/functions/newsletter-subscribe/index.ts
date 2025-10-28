@@ -148,8 +148,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (emailError) {
       console.error("Email error:", emailError);
+      const errorMessage = emailError.message || "Failed to send confirmation email";
       return new Response(
-        JSON.stringify({ error: "Failed to send confirmation email" }),
+        JSON.stringify({ 
+          error: errorMessage,
+          details: "Please verify your domain in Resend if you're seeing validation errors."
+        }),
         {
           status: 500,
           headers: { "Content-Type": "application/json", ...corsHeaders },
