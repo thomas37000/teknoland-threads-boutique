@@ -15,18 +15,11 @@ import { Edit, Trash2 } from "lucide-react";
 interface AirtableTableProps {
   artistes: Artistes[];
   onEdit: (artiste: Artistes) => void;
-  onDelete: (id: string) => void;
+  onDelete: (artiste: Artistes) => void;
 }
 
-const AirtableTable = ({ artistes }: AirtableTableProps) => {
+const AirtableTable = ({ artistes, onEdit, onDelete }: AirtableTableProps) => {
 
-  function onDelete(Name: string): void {
-    throw new Error("Function not implemented.");
-  }
-
-   function onEdit(Name: string): void {
-    throw new Error("Function not implemented.");
-  }
 
   return (
     <div className="rounded-md border">
@@ -56,14 +49,14 @@ const AirtableTable = ({ artistes }: AirtableTableProps) => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => onEdit(artiste.id)}
+                    onClick={() => onEdit(artiste)}
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => onDelete(artiste.id)}
+                    onClick={() => onDelete(artiste)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
