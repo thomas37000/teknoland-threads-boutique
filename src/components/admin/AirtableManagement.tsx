@@ -23,7 +23,7 @@ const AirtableManagement = () => {
     const [selectedArtiste, setSelectedArtiste] = useState<Artistes | null>(null);
     const [nameFilter, setNameFilter] = useState("");
     const [actifFilter, setActifFilter] = useState("all");
-    const followerSteps = [0, 500, 1000, 5000, 10000, 15000];
+    const followerSteps = [0, 250, 500, 1000, 5000, 10000, 15000];
     const [followerStepIndex, setFollowerStepIndex] = useState([0]);
     const { toast } = useToast();
 
@@ -163,7 +163,7 @@ const AirtableManagement = () => {
                 <CardContent>
                     <div className="space-y-4 mb-4">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
+                            <div className="w-64">
                                 <label className="text-sm font-medium mb-2 block">Rechercher par nom</label>
                                 <Input
                                     placeholder="Nom de l'artiste..."
@@ -171,7 +171,7 @@ const AirtableManagement = () => {
                                     onChange={(e) => setNameFilter(e.target.value)}
                                 />
                             </div>
-                            <div>
+                            <div className="w-64">
                                 <label className="text-sm font-medium mb-2 block">Statut</label>
                                 <Select value={actifFilter} onValueChange={setActifFilter}>
                                     <SelectTrigger>
@@ -179,8 +179,9 @@ const AirtableManagement = () => {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="all">Tous</SelectItem>
-                                        <SelectItem value="Oui">Actif</SelectItem>
-                                        <SelectItem value="Non">Inactif</SelectItem>
+                                        <SelectItem value="Compose">Compose</SelectItem>
+                                        <SelectItem value="En pause">En pause</SelectItem>
+                                        <SelectItem value="Ne compose plus">Ne compose plus</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
