@@ -39,8 +39,7 @@ export const AddEditArtisteDialog = ({
 }: AddEditDialogProps) => {
   const [name, setName] = useState("");
   const [styles, setStyles] = useState("");
-  const [country, setCountry] = useState("");
-  const [genre, setGenre] = useState("");
+
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -48,13 +47,9 @@ export const AddEditArtisteDialog = ({
     if (artiste) {
       setName(artiste.fields.Name || "");
       setStyles(artiste.fields.styles?.join(", ") || "");
-      setCountry("");
-      setGenre("");
     } else {
       setName("");
       setStyles("");
-      setCountry("");
-      setGenre("");
     }
   }, [artiste, open]);
 
@@ -74,9 +69,6 @@ export const AddEditArtisteDialog = ({
         Name: name,
         styles: stylesArray,
       };
-
-      if (country) fields.Country = country;
-      if (genre) fields.Genre = genre;
 
       const { data, error } = await supabase.functions.invoke('airtable-proxy', {
         body: {
@@ -148,24 +140,6 @@ export const AddEditArtisteDialog = ({
                 value={styles}
                 onChange={(e) => setStyles(e.target.value)}
                 placeholder="Techno, House, Trance"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="country">Pays</Label>
-              <Input
-                id="country"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                placeholder="France"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="genre">Genre</Label>
-              <Input
-                id="genre"
-                value={genre}
-                onChange={(e) => setGenre(e.target.value)}
-                placeholder="Electronic"
               />
             </div>
           </div>
