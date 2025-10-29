@@ -27,11 +27,18 @@ const AirtableManagement = () => {
     const [followerStepIndex, setFollowerStepIndex] = useState([0]);
     const { toast } = useToast();
 
+    // On calcule dynamiquement la valeur sélectionnée
+    const selectedFollowers = followerSteps[followerStepIndex[0]];
+    // On filtre les artistes selon le nombre d'abonnés
+    const filteredArtistesFollowers = artistes.filter(
+        (a) => a.fields.Followers >= selectedFollowers
+    );
+
     const fetchArtistes = async () => {
         try {
             setLoading(true);
             const { supabase } = await import("@/integrations/supabase/client");
-            
+
             const { data, error } = await supabase.functions.invoke('airtable-proxy', {
                 body: {
                     method: 'GET',
@@ -43,7 +50,7 @@ const AirtableManagement = () => {
             if (data.error) throw new Error(data.error);
 
             setArtistes(data.records);
-            console.log('Artistes loaded:', data.records);
+            // console.log('Artistes loaded:', data.records);
         } catch (error) {
             console.error(error);
             toast({
@@ -91,7 +98,7 @@ const AirtableManagement = () => {
         try {
             setSyncing(true);
             const { supabase } = await import("@/integrations/supabase/client");
-            
+
             toast({
                 title: "Synchronisation en cours",
                 description: "La synchronisation des followers peut prendre quelques minutes...",
@@ -143,7 +150,7 @@ const AirtableManagement = () => {
             <Card>
                 <CardHeader>
                     <div className="flex justify-between items-center">
-                        <CardTitle>Artistes Teknoland</CardTitle>
+                        <CardTitle>Artistes Teknoland Production</CardTitle>
                         <div className="flex gap-2">
                             <Button 
                                 onClick={handleSyncFollowers} 
@@ -187,7 +194,7 @@ const AirtableManagement = () => {
                             </div>
                             <div>
                                 <label className="text-sm font-medium mb-2 block">
-                                    Nombre minimum d'abonnés: {followerSteps[followerStepIndex[0]].toLocaleString()}
+                                    Nombre d'abonnés : <span className="font-semibold">{followerSteps[followerStepIndex[0]].toLocaleString()}</span> - Nombre d'artistes :  <span className="font-semibold">{filteredArtistes.length}</span>
                                 </label>
                                 <Slider
                                     value={followerStepIndex}
@@ -195,7 +202,7 @@ const AirtableManagement = () => {
                                     min={0}
                                     max={followerSteps.length - 1}
                                     step={1}
-                                    className="mt-2"
+                                    className="mt-6"
                                 />
                             </div>
                         </div>

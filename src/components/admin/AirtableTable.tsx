@@ -20,7 +20,6 @@ interface AirtableTableProps {
 
 const AirtableTable = ({ artistes, onEdit, onDelete }: AirtableTableProps) => {
 
-
   return (
     <div className="rounded-md border">
       <Table>
@@ -34,7 +33,7 @@ const AirtableTable = ({ artistes, onEdit, onDelete }: AirtableTableProps) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {artistes && artistes?.map((artiste) => (
+          {artistes && artistes?.sort((a,b) => a.fields.Name - b.fields.Name).map((artiste) => (
             <TableRow key={artiste.id}>
               <TableCell className="font-semibold">{artiste.fields.Name}</TableCell>
               <TableCell>
@@ -42,7 +41,19 @@ const AirtableTable = ({ artistes, onEdit, onDelete }: AirtableTableProps) => {
                   ? artiste.fields.styles.join(", ")
                   : " "}
               </TableCell>
-              <TableCell>{artiste.fields.Actif}</TableCell>
+              <TableCell
+                className={`
+                  font-semibold
+                  ${artiste.fields.Actif === "Compose"
+                    ? "text-green-600"
+                    : artiste.fields.Actif === "En pause"
+                      ? "text-yellow-500"
+                      : "text-red-500"}
+                `}
+              >
+                {artiste.fields.Actif}
+              </TableCell>
+
               <TableCell>
                 {artiste.fields.Followers !== undefined 
                   ? artiste.fields.Followers.toLocaleString() 
