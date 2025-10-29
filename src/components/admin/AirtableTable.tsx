@@ -36,7 +36,7 @@ const AirtableTable = ({ artistes, onEdit, onDelete }: AirtableTableProps) => {
         <TableBody>
           {artistes && artistes?.map((artiste) => (
             <TableRow key={artiste.id}>
-              <TableCell>{artiste.fields.Name}</TableCell>
+              <TableCell className="font-semibold">{artiste.fields.Name}</TableCell>
               <TableCell>
                 {artiste.fields.styles && artiste.fields.styles.length > 0
                   ? artiste.fields.styles.join(", ")
