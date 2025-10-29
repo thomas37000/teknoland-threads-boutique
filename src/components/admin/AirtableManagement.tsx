@@ -22,10 +22,9 @@ const AirtableManagement = () => {
     const [selectedArtiste, setSelectedArtiste] = useState<Artistes | null>(null);
     const [nameFilter, setNameFilter] = useState("");
     const [actifFilter, setActifFilter] = useState("all");
-    const [minFollowers, setMinFollowers] = useState([0]);
+    const followerSteps = [0, 500, 1000, 5000, 10000, 15000];
+    const [followerStepIndex, setFollowerStepIndex] = useState([0]);
     const { toast } = useToast();
-
-    const maxFollowers = Math.max(...artistes.map(a => a.fields.Followers ?? 0), 10000);
 
     const fetchArtistes = async () => {
         try {
@@ -82,7 +81,8 @@ const AirtableManagement = () => {
     const filteredArtistes = artistes.filter((artiste) => {
         const matchesName = artiste.fields.Name?.toLowerCase().includes(nameFilter.toLowerCase()) ?? true;
         const matchesActif = actifFilter === "all" || artiste.fields.Actif === actifFilter;
-        const matchesFollowers = (artiste.fields.Followers ?? 0) >= minFollowers[0];
+        const minFollowerValue = followerSteps[followerStepIndex[0]];
+        const matchesFollowers = (artiste.fields.Followers ?? 0) >= minFollowerValue;
         return matchesName && matchesActif && matchesFollowers;
     });
 
@@ -182,14 +182,14 @@ const AirtableManagement = () => {
                             </div>
                             <div>
                                 <label className="text-sm font-medium mb-2 block">
-                                    Nombre minimum d'abonnés: {minFollowers[0].toLocaleString()}
+                                    Nombre minimum d'abonnés: {followerSteps[followerStepIndex[0]].toLocaleString()}
                                 </label>
                                 <Slider
-                                    value={minFollowers}
-                                    onValueChange={setMinFollowers}
+                                    value={followerStepIndex}
+                                    onValueChange={setFollowerStepIndex}
                                     min={0}
-                                    max={maxFollowers}
-                                    step={100}
+                                    max={followerSteps.length - 1}
+                                    step={1}
                                     className="mt-2"
                                 />
                             </div>
