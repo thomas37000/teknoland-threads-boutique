@@ -67,6 +67,8 @@ export interface ArtisteFields {
   Actif: string;
   Name?: string;
   styles?: string[];
+  Soundcloud_url?: string;
+  Followers?: number;
 }
 
 export interface Artistes {

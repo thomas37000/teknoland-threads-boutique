@@ -43,7 +43,11 @@ const AirtableTable = ({ artistes, onEdit, onDelete }: AirtableTableProps) => {
                   : " "}
               </TableCell>
               <TableCell>{artiste.fields.Actif}</TableCell>
-              <TableCell></TableCell>
+              <TableCell>
+                {artiste.fields.Followers !== undefined 
+                  ? artiste.fields.Followers.toLocaleString() 
+                  : "-"}
+              </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
                   <Button

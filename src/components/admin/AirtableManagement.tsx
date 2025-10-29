@@ -3,7 +3,7 @@ import { Artistes } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, RefreshCw } from "lucide-react";
 import AirtableTable from "./AirtableTable";
 import {
   AddEditArtisteDialog,
@@ -13,6 +13,7 @@ import {
 const AirtableManagement = () => {
     const [artistes, setArtistes] = useState<Artistes[]>([]);
     const [loading, setLoading] = useState(true);
+    const [syncing, setSyncing] = useState(false);
     const [addEditOpen, setAddEditOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [selectedArtiste, setSelectedArtiste] = useState<Artistes | null>(null);
@@ -70,6 +71,43 @@ const AirtableManagement = () => {
         fetchArtistes();
     };
 
+    const handleSyncFollowers = async () => {
+        try {
+            setSyncing(true);
+            const { supabase } = await import("@/integrations/supabase/client");
+            
+            toast({
+                title: "Synchronisation en cours",
+                description: "La synchronisation des followers peut prendre quelques minutes...",
+            });
+
+            const { data, error } = await supabase.functions.invoke('airtable-proxy', {
+                body: {
+                    action: 'sync-followers'
+                }
+            });
+
+            if (error) throw error;
+            if (data.error) throw new Error(data.error);
+
+            toast({
+                title: "Succès",
+                description: `${data.updated} artistes mis à jour, ${data.skipped} ignorés`,
+            });
+
+            fetchArtistes();
+        } catch (error) {
+            console.error(error);
+            toast({
+                title: "Erreur",
+                description: error instanceof Error ? error.message : "Impossible de synchroniser les followers",
+                variant: "destructive",
+            });
+        } finally {
+            setSyncing(false);
+        }
+    };
+
     if (loading) {
         return (
             <Card>
@@ -87,10 +125,20 @@ const AirtableManagement = () => {
                 <CardHeader>
                     <div className="flex justify-between items-center">
                         <CardTitle>Artistes Teknoland</CardTitle>
-                        <Button onClick={handleAdd}>
-                            <Plus className="h-4 w-4 mr-2" />
-                            Ajouter un artiste
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button 
+                                onClick={handleSyncFollowers} 
+                                variant="outline"
+                                disabled={syncing}
+                            >
+                                <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
+                                Sync Followers
+                            </Button>
+                            <Button onClick={handleAdd}>
+                                <Plus className="h-4 w-4 mr-2" />
+                                Ajouter un artiste
+                            </Button>
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent>
