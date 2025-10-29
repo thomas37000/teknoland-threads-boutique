@@ -3,6 +3,8 @@ import { Artistes } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, RefreshCw } from "lucide-react";
 import AirtableTable from "./AirtableTable";
 import {
@@ -17,6 +19,9 @@ const AirtableManagement = () => {
     const [addEditOpen, setAddEditOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [selectedArtiste, setSelectedArtiste] = useState<Artistes | null>(null);
+    const [nameFilter, setNameFilter] = useState("");
+    const [actifFilter, setActifFilter] = useState("all");
+    const [minFollowers, setMinFollowers] = useState("");
     const { toast } = useToast();
 
     const fetchArtistes = async () => {
@@ -70,6 +75,13 @@ const AirtableManagement = () => {
     const handleSuccess = () => {
         fetchArtistes();
     };
+
+    const filteredArtistes = artistes.filter((artiste) => {
+        const matchesName = artiste.fields.Name?.toLowerCase().includes(nameFilter.toLowerCase()) ?? true;
+        const matchesActif = actifFilter === "all" || artiste.fields.Actif === actifFilter;
+        const matchesFollowers = minFollowers === "" || (artiste.fields.Followers ?? 0) >= parseInt(minFollowers);
+        return matchesName && matchesActif && matchesFollowers;
+    });
 
     const handleSyncFollowers = async () => {
         try {
@@ -142,8 +154,42 @@ const AirtableManagement = () => {
                     </div>
                 </CardHeader>
                 <CardContent>
+                    <div className="space-y-4 mb-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="text-sm font-medium mb-2 block">Rechercher par nom</label>
+                                <Input
+                                    placeholder="Nom de l'artiste..."
+                                    value={nameFilter}
+                                    onChange={(e) => setNameFilter(e.target.value)}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium mb-2 block">Statut</label>
+                                <Select value={actifFilter} onValueChange={setActifFilter}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Tous" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Tous</SelectItem>
+                                        <SelectItem value="Oui">Actif</SelectItem>
+                                        <SelectItem value="Non">Inactif</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium mb-2 block">Nombre minimum d'abonnés</label>
+                                <Input
+                                    type="number"
+                                    placeholder="0"
+                                    value={minFollowers}
+                                    onChange={(e) => setMinFollowers(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    </div>
                     <AirtableTable
-                        artistes={artistes}
+                        artistes={filteredArtistes}
                         onEdit={handleEdit}
                         onDelete={handleDeleteClick}
                     />
