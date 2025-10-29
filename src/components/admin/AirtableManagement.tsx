@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { Plus, RefreshCw } from "lucide-react";
 import AirtableTable from "./AirtableTable";
 import {
@@ -21,8 +22,10 @@ const AirtableManagement = () => {
     const [selectedArtiste, setSelectedArtiste] = useState<Artistes | null>(null);
     const [nameFilter, setNameFilter] = useState("");
     const [actifFilter, setActifFilter] = useState("all");
-    const [minFollowers, setMinFollowers] = useState("");
+    const [minFollowers, setMinFollowers] = useState([0]);
     const { toast } = useToast();
+
+    const maxFollowers = Math.max(...artistes.map(a => a.fields.Followers ?? 0), 10000);
 
     const fetchArtistes = async () => {
         try {
@@ -79,7 +82,7 @@ const AirtableManagement = () => {
     const filteredArtistes = artistes.filter((artiste) => {
         const matchesName = artiste.fields.Name?.toLowerCase().includes(nameFilter.toLowerCase()) ?? true;
         const matchesActif = actifFilter === "all" || artiste.fields.Actif === actifFilter;
-        const matchesFollowers = minFollowers === "" || (artiste.fields.Followers ?? 0) >= parseInt(minFollowers);
+        const matchesFollowers = (artiste.fields.Followers ?? 0) >= minFollowers[0];
         return matchesName && matchesActif && matchesFollowers;
     });
 
@@ -178,12 +181,16 @@ const AirtableManagement = () => {
                                 </Select>
                             </div>
                             <div>
-                                <label className="text-sm font-medium mb-2 block">Nombre minimum d'abonnés</label>
-                                <Input
-                                    type="number"
-                                    placeholder="0"
+                                <label className="text-sm font-medium mb-2 block">
+                                    Nombre minimum d'abonnés: {minFollowers[0].toLocaleString()}
+                                </label>
+                                <Slider
                                     value={minFollowers}
-                                    onChange={(e) => setMinFollowers(e.target.value)}
+                                    onValueChange={setMinFollowers}
+                                    min={0}
+                                    max={maxFollowers}
+                                    step={100}
+                                    className="mt-2"
                                 />
                             </div>
                         </div>
