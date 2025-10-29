@@ -33,7 +33,7 @@ const AirtableTable = ({ artistes, onEdit, onDelete }: AirtableTableProps) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {artistes && artistes?.sort((a,b) => a.fields.Name - b.fields.Name).map((artiste) => (
+          {artistes && artistes?.sort((a, b) => a.fields.Name.localeCompare(b.fields.Name)).map((artiste) => (
             <TableRow key={artiste.id}>
               <TableCell className="font-semibold">{artiste.fields.Name}</TableCell>
               <TableCell>
