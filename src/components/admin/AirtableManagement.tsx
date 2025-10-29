@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Plus, RefreshCw } from "lucide-react";
 import AirtableTable from "./AirtableTable";
+import TableSkeleton from "@/components/skeletons/TableSkeleton";
 import {
   AddEditArtisteDialog,
   DeleteArtisteDialog,
@@ -126,8 +127,11 @@ const AirtableManagement = () => {
     if (loading) {
         return (
             <Card>
-                <CardContent className="p-6">
-                    <div className="text-center">Chargement des artistes...</div>
+                <CardHeader>
+                    <CardTitle>Artistes Teknoland</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <TableSkeleton rows={10} columns={6} />
                 </CardContent>
             </Card>
         );
