@@ -5,6 +5,102 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+async function getLiveFollowers(airtableUrl: string, airtableKey: string) {
+  const SOUNDCLOUD_CLIENT_ID = Deno.env.get('SOUNDCLOUD_CLIENT_ID');
+  
+  if (!SOUNDCLOUD_CLIENT_ID) {
+    console.error('Missing SoundCloud credentials');
+    return new Response(
+      JSON.stringify({ error: 'SoundCloud credentials not configured' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  try {
+    // Fetch all artists from Airtable
+    console.log('Fetching artists from Airtable for live followers...');
+    const artistsResponse = await fetch(`${airtableUrl}/Artistes`, {
+      headers: {
+        'Authorization': `Bearer ${airtableKey}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!artistsResponse.ok) {
+      throw new Error(`Failed to fetch artists: ${artistsResponse.statusText}`);
+    }
+
+    const artistsData = await artistsResponse.json();
+    const artists = artistsData.records || [];
+    console.log(`Found ${artists.length} artists`);
+
+    const artistsWithLiveFollowers = [];
+
+    // Get live followers for each artist
+    for (const artist of artists) {
+      const soundcloudUrl = artist.fields.Soundcloud_url;
+      
+      if (!soundcloudUrl) {
+        artistsWithLiveFollowers.push({
+          ...artist,
+          liveFollowers: artist.fields.Followers || 0
+        });
+        continue;
+      }
+
+      try {
+        // Resolve SoundCloud URL to get user info
+        const resolveUrl = `https://api.soundcloud.com/resolve?url=${encodeURIComponent(soundcloudUrl)}&client_id=${SOUNDCLOUD_CLIENT_ID}`;
+        
+        const scResponse = await fetch(resolveUrl);
+        
+        if (!scResponse.ok) {
+          console.error(`SoundCloud API error for ${artist.fields.Name}: ${scResponse.statusText}`);
+          artistsWithLiveFollowers.push({
+            ...artist,
+            liveFollowers: artist.fields.Followers || 0
+          });
+          continue;
+        }
+
+        const scData = await scResponse.json();
+        const followers = scData.followers_count || 0;
+
+        artistsWithLiveFollowers.push({
+          ...artist,
+          liveFollowers: followers
+        });
+        
+        // Add a small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+      } catch (error) {
+        console.error(`Error processing ${artist.fields.Name}:`, error);
+        artistsWithLiveFollowers.push({
+          ...artist,
+          liveFollowers: artist.fields.Followers || 0
+        });
+      }
+    }
+
+    console.log(`Live followers fetched for ${artistsWithLiveFollowers.length} artists`);
+    
+    return new Response(
+      JSON.stringify({ 
+        records: artistsWithLiveFollowers
+      }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
+  } catch (error) {
+    console.error('Error in getLiveFollowers:', error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+}
+
 async function syncSoundCloudFollowers(airtableUrl: string, airtableKey: string) {
   const SOUNDCLOUD_CLIENT_ID = Deno.env.get('SOUNDCLOUD_CLIENT_ID');
   
@@ -136,6 +232,11 @@ serve(async (req) => {
     }
 
     const { method, table, recordId, fields, action } = await req.json();
+
+    // Handle get-live-followers action
+    if (action === 'get-live-followers') {
+      return await getLiveFollowers(AIRTABLE_URL, AIRTABLE_KEY);
+    }
 
     // Handle sync-followers action
     if (action === 'sync-followers') {

@@ -41,8 +41,7 @@ const AirtableManagement = () => {
 
             const { data, error } = await supabase.functions.invoke('airtable-proxy', {
                 body: {
-                    method: 'GET',
-                    table: 'Artistes'
+                    action: 'get-live-followers'
                 }
             });
 
@@ -50,7 +49,6 @@ const AirtableManagement = () => {
             if (data.error) throw new Error(data.error);
 
             setArtistes(data.records);
-            // console.log('Artistes loaded:', data.records);
         } catch (error) {
             console.error(error);
             toast({
@@ -90,7 +88,7 @@ const AirtableManagement = () => {
         const matchesName = artiste.fields.Name?.toLowerCase().includes(nameFilter.toLowerCase()) ?? true;
         const matchesActif = actifFilter === "all" || artiste.fields.Actif === actifFilter;
         const minFollowerValue = followerSteps[followerStepIndex[0]];
-        const matchesFollowers = (artiste.fields.Followers ?? 0) >= minFollowerValue;
+        const matchesFollowers = ((artiste as any).liveFollowers ?? artiste.fields.Followers ?? 0) >= minFollowerValue;
         return matchesName && matchesActif && matchesFollowers;
     });
 

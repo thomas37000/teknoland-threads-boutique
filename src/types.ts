@@ -75,4 +75,5 @@ export interface Artistes {
   id: string;
   fields: ArtisteFields;
   createdTime: string;
+  liveFollowers?: number;
 }

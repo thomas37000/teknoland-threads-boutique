@@ -55,9 +55,7 @@ const AirtableTable = ({ artistes, onEdit, onDelete }: AirtableTableProps) => {
               </TableCell>
 
               <TableCell>
-                {artiste.fields.Followers !== undefined 
-                  ? artiste.fields.Followers.toLocaleString() 
-                  : "-"}
+                {(artiste.liveFollowers ?? artiste.fields.Followers ?? 0).toLocaleString()}
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
