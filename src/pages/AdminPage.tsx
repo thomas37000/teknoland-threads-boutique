@@ -1,8 +1,5 @@
 
 import React, { useState, useEffect } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Package, Users, Tag, Filter, Mail, Heart, Calculator, Image, Music } from "lucide-react";
 import { products } from "@/data/products";
 import ProductManagement from "@/components/admin/product/ProductManagement";
 import ClientManagement from "@/components/admin/ClientManagement";
@@ -14,9 +11,10 @@ import LovableManagement from "@/components/admin/LovableManagement";
 import IdeasManagement from "@/components/admin/IdeasManagement";
 import DepensesManagement from "@/components/admin/DepensesManagement";
 import ImageManagement from "@/components/admin/ImageManagement";
-import { Idea } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import AirtableManagement from "@/components/admin/AirtableManagement";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
 const AdminPage = () => {
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
@@ -74,109 +72,38 @@ const AdminPage = () => {
   };
 
   return (
-    <div className="tekno-container py-12">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-      <AdminNotifications />
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="mb-6">
-          <TabsTrigger value="products" className="flex items-center gap-2 relative">
-            <Package className="h-4 w-4" />
-            Produits
-            {newProductsCount > 0 && (
-              <Badge variant="destructive" className="ml-1 min-w-[20px] h-5 px-1.5 py-0 text-xs">
-                {newProductsCount}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="categories" className="flex items-center gap-2">
-            <Tag className="h-4 w-4" />
-            Catégories
-          </TabsTrigger>
-          <TabsTrigger value="filters" className="flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            Filtres
-          </TabsTrigger>
-          <TabsTrigger value="contacts" className="flex items-center gap-2 relative">
-            <Mail className="h-4 w-4" />
-            Messages
-            {unreadMessagesCount > 0 && (
-              <Badge variant="destructive" className="ml-1 min-w-[20px] h-5 px-1.5 py-0 text-xs">
-                {unreadMessagesCount}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="lovable" className="flex items-center gap-2">
-            <Heart className="h-4 w-4" />
-            Lovable
-          </TabsTrigger>
-          <TabsTrigger value="moni" className="flex items-center gap-2">
-            <Calculator className="h-4 w-4" />
-            Moni
-          </TabsTrigger>
-          <TabsTrigger value="clients" className="flex items-center gap-2 relative">
-            <Users className="h-4 w-4" />
-            Users
-            {newUsersCount > 0 && (
-              <Badge variant="destructive" className="ml-1 min-w-[20px] h-5 px-1.5 py-0 text-xs">
-                {newUsersCount}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="images" className="flex items-center gap-2">
-            <Image className="h-4 w-4" />
-            Images
-          </TabsTrigger>
-          <TabsTrigger value="idees" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Idées
-          </TabsTrigger>
-          <TabsTrigger value="artistes" className="flex items-center gap-2">
-            <Music className="h-4 w-4" />
-            Artistes
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="products">
-          <ProductManagement initialProducts={products} />
-        </TabsContent>
-        
-        <TabsContent value="categories">
-          <CategoryManagement />
-        </TabsContent>
-        
-        <TabsContent value="filters">
-          <FilterManagement />
-        </TabsContent>
-        
-        <TabsContent value="contacts">
-          <ContactManagement />
-        </TabsContent>
-        
-        <TabsContent value="lovable">
-          <LovableManagement />
-        </TabsContent>
-        
-        <TabsContent value="moni">
-          <DepensesManagement />
-        </TabsContent>
-        
-        <TabsContent value="clients">
-          <ClientManagement />
-        </TabsContent>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AdminSidebar
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          newProductsCount={newProductsCount}
+          unreadMessagesCount={unreadMessagesCount}
+          newUsersCount={newUsersCount}
+        />
 
-        <TabsContent value="images">
-          <ImageManagement />
-        </TabsContent>
+        <main className="flex-1 overflow-auto">
+          <div className="tekno-container py-12">
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+              <SidebarTrigger />
+            </div>
+            <AdminNotifications />
 
-         <TabsContent value="idees">
-          <IdeasManagement initialIdeas={[]} />
-        </TabsContent>
-
-         <TabsContent value="artistes">
-          <AirtableManagement />
-        </TabsContent>
-      </Tabs>
-    </div>
+            {activeTab === "products" && <ProductManagement initialProducts={products} />}
+            {activeTab === "categories" && <CategoryManagement />}
+            {activeTab === "filters" && <FilterManagement />}
+            {activeTab === "contacts" && <ContactManagement />}
+            {activeTab === "lovable" && <LovableManagement />}
+            {activeTab === "moni" && <DepensesManagement />}
+            {activeTab === "clients" && <ClientManagement />}
+            {activeTab === "images" && <ImageManagement />}
+            {activeTab === "idees" && <IdeasManagement initialIdeas={[]} />}
+            {activeTab === "artistes" && <AirtableManagement />}
+          </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
 
