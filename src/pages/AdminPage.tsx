@@ -73,7 +73,7 @@ const AdminPage = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="flex w-full">
         <AdminSidebar
           activeTab={activeTab}
           onTabChange={handleTabChange}
