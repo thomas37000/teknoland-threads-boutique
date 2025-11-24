@@ -126,7 +126,16 @@ const ProductCard = ({ product }: ProductCardProps) => {
             </div>
           )}
 
-          <p className="font-bold">{product.price.toFixed(2)} €</p>
+          <div className="flex items-center gap-2">
+            {product.sold_price && product.sold_price > 0 ? (
+              <>
+                <p className="font-bold line-through text-gray-400">{product.price.toFixed(2)} €</p>
+                <p className="font-bold text-red-600">{product.sold_price.toFixed(2)} €</p>
+              </>
+            ) : (
+              <p className="font-bold">{product.price.toFixed(2)} €</p>
+            )}
+          </div>
         </div>
         <Button
           className="w-full mt-3 bg-tekno-black text-white hover:bg-tekno-blue transition-colors"
