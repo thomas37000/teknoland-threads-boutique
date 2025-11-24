@@ -254,7 +254,14 @@ const ProductDetails = ({
       <div>
         <h1 className="text-3xl font-bold tracking-tight">{product.name}</h1>
         <div className="mt-3 flex items-center flex-wrap gap-3">
-          <span className="text-2xl font-bold">{product.price.toFixed(2)} €</span>
+          {product.sold_price && product.sold_price > 0 ? (
+            <>
+              <span className="text-2xl font-bold line-through text-gray-400">{product.price.toFixed(2)} €</span>
+              <span className="text-2xl font-bold text-red-600">{product.sold_price.toFixed(2)} €</span>
+            </>
+          ) : (
+            <span className="text-2xl font-bold">{product.price.toFixed(2)} €</span>
+          )}
           {product.isNew && (
             <span className="rounded-full bg-tekno-blue px-3 py-1 text-xs text-white">
               {t('product.newProduct')}

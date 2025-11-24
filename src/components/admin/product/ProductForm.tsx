@@ -35,6 +35,15 @@ export function ProductForm({
         onChange={(val) => setProduct({ ...product, price: val })}
       />
 
+      {/* Sold Price */}
+      <ProductField
+        id={`${mode}-sold-price`}
+        label="Sold Price (optional)"
+        type="number"
+        value={product.sold_price || ""}
+        onChange={(val) => setProduct({ ...product, sold_price: val })}
+      />
+
       {/* ImageUpload.tsx */}
       {/* VariationList.tsx */}
       {/* VinylTracksEditor.tsx */}
