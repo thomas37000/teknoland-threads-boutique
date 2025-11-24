@@ -126,15 +126,19 @@ export function EditProductDialog({
           <Input
             id="edit-sold-price"
             type="number"
-            value={currentProduct?.sold_price || ""}
-            onChange={(e) =>
+            value={currentProduct?.sold_price ?? ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              const numValue = value ? parseFloat(value) : null;
+              // Si la valeur est 0 ou vide, on met null pour supprimer la promo
               setCurrentProduct(
                 currentProduct
-                  ? { ...currentProduct, sold_price: e.target.value ? parseFloat(e.target.value) : null }
+                  ? { ...currentProduct, sold_price: numValue && numValue > 0 ? numValue : null }
                   : null
-              )
-            }
+              );
+            }}
             className="col-span-3"
+            placeholder="Laisser vide ou mettre 0 pour supprimer la promo"
           />
         </div>
 
