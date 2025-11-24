@@ -126,11 +126,16 @@ const ProductCard = ({ product }: ProductCardProps) => {
             </div>
           )}
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-end gap-1">
             {product.sold_price && product.sold_price > 0 ? (
               <>
-                <p className="font-bold line-through text-gray-400">{product.price.toFixed(2)} €</p>
-                <p className="font-bold text-red-600">{product.sold_price.toFixed(2)} €</p>
+                <div className="flex items-center gap-2">
+                  <p className="font-bold line-through text-gray-400">{product.price.toFixed(2)} €</p>
+                  <p className="font-bold text-red-600">{product.sold_price.toFixed(2)} €</p>
+                </div>
+                <span className="text-xs font-bold px-2 py-0.5 rounded" style={{ backgroundColor: 'red', color: 'white' }}>
+                  -{Math.round(((product.price - product.sold_price) / product.price) * 100)}%
+                </span>
               </>
             ) : (
               <p className="font-bold">{product.price.toFixed(2)} €</p>
