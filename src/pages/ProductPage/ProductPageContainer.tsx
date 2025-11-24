@@ -10,6 +10,14 @@ import { ArrowUp } from "lucide-react";
 import ProductImages from "./components/ProductImages";
 import ProductDetails from "./components/ProductDetails";
 import { transformProductFromDB } from "@/utils/product-transform";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 const ProductPageContainer = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -201,6 +209,27 @@ const ProductPageContainer = () => {
 
   return (
     <div className="tekno-container py-12" ref={topRef}>
+      {/* Breadcrumb Navigation */}
+      <Breadcrumb className="mb-6">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Accueil</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/shop">Boutique</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{product.category}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <div className="flex flex-col md:flex-row gap-8">
         {/* Product Image Section */}
         <div className="w-full md:w-1/2">
