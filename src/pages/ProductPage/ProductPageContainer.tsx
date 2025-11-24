@@ -225,7 +225,13 @@ const ProductPageContainer = () => {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{product.category}</BreadcrumbPage>
+            <BreadcrumbLink asChild>
+              <Link to={`/shop/${product.category.toLowerCase()}`}>{product.category}</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{product.name}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
