@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useParams } from "react-router-dom";
 import { Product } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import ShopHeader from "@/components/shop/ShopHeader";
@@ -15,6 +15,7 @@ import { transformProductsFromDB } from "@/utils/product-transform";
 
 const ShopPage = () => {
   const [searchParams] = useSearchParams();
+  const { category: categoryParam } = useParams<{ category?: string }>();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
@@ -29,13 +30,17 @@ const ShopPage = () => {
 
   const topRef = useRef<HTMLDivElement>(null);
 
-  // Get category from URL parameters
+  // Get category from URL parameters (either from path or query string)
   useEffect(() => {
-    const categoryParam = searchParams.get("category");
-    if (categoryParam) {
-      setSelectedCategory(categoryParam.toLowerCase());
+    const categoryFromQuery = searchParams.get("category");
+    const categoryFromPath = categoryParam;
+    
+    if (categoryFromPath) {
+      setSelectedCategory(categoryFromPath.toLowerCase());
+    } else if (categoryFromQuery) {
+      setSelectedCategory(categoryFromQuery.toLowerCase());
     }
-  }, [searchParams]);
+  }, [searchParams, categoryParam]);
 
   useEffect(() => {
     getProducts();
