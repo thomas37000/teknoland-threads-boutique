@@ -118,6 +118,26 @@ export function EditProductDialog({
           />
         </div>
 
+        {/* Sold Price */}
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label htmlFor="edit-sold-price" className="text-right">
+            Prix soldé (optionnel)
+          </Label>
+          <Input
+            id="edit-sold-price"
+            type="number"
+            value={currentProduct?.sold_price || ""}
+            onChange={(e) =>
+              setCurrentProduct(
+                currentProduct
+                  ? { ...currentProduct, sold_price: e.target.value ? parseFloat(e.target.value) : null }
+                  : null
+              )
+            }
+            className="col-span-3"
+          />
+        </div>
+
         {/* Main Image Upload */}
         <div className="grid grid-cols-4 items-start gap-4">
           <Label htmlFor="edit-image" className="text-right">
