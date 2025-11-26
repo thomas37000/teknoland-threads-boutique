@@ -241,6 +241,8 @@ const ProductDetails = ({
   const currentColor = selectedColor || localSelectedColor;
   const currentQuantity = quantity || localQuantity;
 
+  const isSoldPrice = product.sold_price && product.sold_price > 0;
+  
   return (
     <div className="space-y-6">
       {/* Product not available message */}
@@ -254,7 +256,7 @@ const ProductDetails = ({
       <div>
         <h1 className="text-3xl font-bold tracking-tight">{product.name}</h1>
         <div className="mt-3 flex items-center flex-wrap gap-3">
-          {product.sold_price && product.sold_price > 0 ? (
+          {isSoldPrice ? (
             <>
               <span className="text-2xl font-bold line-through text-gray-400">{product.price.toFixed(2)} €</span>
               <span className="text-2xl font-bold text-red-600">{product.sold_price.toFixed(2)} €</span>
@@ -280,6 +282,11 @@ const ProductDetails = ({
           </Link>
         </div>
       </div>
+
+      {/* Affichage du pourcentage de réduction */}
+      {isSoldPrice && <span className="text-xs font-bold px-2 py-0.5 rounded" style={{ backgroundColor: 'red', color: 'white' }}>
+        -{Math.round(((product.price - product.sold_price) / product.price) * 100)}%
+      </span>}
       
       <div className="prose prose-gray max-w-none">
         <p>{product.description}</p>

@@ -7,12 +7,12 @@ import { Tables } from "@/integrations/supabase/types";
 
 interface CategoryFilterProps {
   selectedCategory: string;
-  onCategoryChange: (category: string) => void;
+  // onCategoryChange: (category: string) => void;
 }
 
 type Category = Tables<"categories">;
 
-const CategoryFilter = ({ selectedCategory, onCategoryChange }: CategoryFilterProps) => {
+const CategoryFilter = ({ selectedCategory }: CategoryFilterProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);

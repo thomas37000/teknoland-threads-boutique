@@ -133,9 +133,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
                   <p className="font-bold line-through text-gray-400">{product.price.toFixed(2)} €</p>
                   <p className="font-bold text-red-600">{product.sold_price.toFixed(2)} €</p>
                 </div>
-                <span className="text-xs font-bold px-2 py-0.5 rounded" style={{ backgroundColor: 'red', color: 'white' }}>
-                  -{Math.round(((product.price - product.sold_price) / product.price) * 100)}%
-                </span>
               </>
             ) : (
               <p className="font-bold">{product.price.toFixed(2)} €</p>
