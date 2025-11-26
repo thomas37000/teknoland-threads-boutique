@@ -2,10 +2,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { CartProvider } from "@/hooks/use-cart";
 import { FavoritesProvider } from "@/hooks/use-favorites";
-import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { AuthProvider } from "@/hooks/use-auth";
 import { Client } from "@/types";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
@@ -37,7 +37,8 @@ import { HelmetProvider } from "react-helmet-async";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const { isAdmin } = useAuth();
+  const location = useLocation();
+  const isAdminPage = location.pathname === '/admin';
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -83,7 +84,7 @@ const AppContent = () => {
         </Routes>
       </main>
       <FavoritesSlider />
-      {!isAdmin && <Footer />}
+      {!isAdminPage && <Footer />}
       <CookieConsent />
     </div>
   );
