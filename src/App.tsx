@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { CartProvider } from "@/hooks/use-cart";
 import { FavoritesProvider } from "@/hooks/use-favorites";
-import { AuthProvider } from "@/hooks/use-auth";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { Client } from "@/types";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
@@ -36,6 +36,59 @@ import { HelmetProvider } from "react-helmet-async";
 
 const queryClient = new QueryClient();
 
+const AppContent = () => {
+  const { isAdmin } = useAuth();
+  
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/shop" element={<ShopPage />} />
+          <Route path="/shop/:category" element={<ShopPage />} />
+          <Route path="/product/:category/:slug" element={<ProductPage />} />
+          <Route path="/vendor/:vendorId" element={<VendorStorePage />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/payment-success" element={<PaymentSuccessPage />} />
+          <Route 
+            path="/admin" 
+            element={
+              <AdminRoute>
+                <AdminPage />
+              </AdminRoute>
+            } 
+          />
+          <Route 
+            path="/seller" 
+            element={
+              <ProtectedRoute>
+                <SellerPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/newsletter/confirm" element={<NewsletterConfirmPage />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      <FavoritesSlider />
+      {!isAdmin && <Footer />}
+      <CookieConsent />
+    </div>
+  );
+};
+
 const App = () => {
   return (
     <HelmetProvider>
@@ -48,52 +101,7 @@ const App = () => {
             <CartProvider>
               <FavoritesProvider>
                 <BrowserRouter>
-                  <div className="min-h-screen flex flex-col">
-                    <Navbar />
-                    <main className="flex-grow">
-                      <Routes>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/shop" element={<ShopPage />} />
-                        <Route path="/shop/:category" element={<ShopPage />} />
-                        <Route path="/product/:category/:slug" element={<ProductPage />} />
-                        <Route path="/vendor/:vendorId" element={<VendorStorePage />} />
-                        <Route path="/cart" element={<CartPage />} />
-                        <Route path="/about" element={<AboutPage />} />
-                        <Route path="/contact" element={<ContactPage />} />
-                        <Route path="/payment-success" element={<PaymentSuccessPage />} />
-                        <Route 
-                          path="/admin" 
-                          element={
-                            <AdminRoute>
-                              <AdminPage />
-                            </AdminRoute>
-                          } 
-                        />
-                        <Route 
-                          path="/seller" 
-                          element={
-                            <ProtectedRoute>
-                              <SellerPage />
-                            </ProtectedRoute>
-                          } 
-                        />
-                        <Route 
-                          path="/profile" 
-                          element={
-                            <ProtectedRoute>
-                              <ProfilePage />
-                            </ProtectedRoute>
-                          } 
-                        />
-                        <Route path="/auth" element={<AuthPage />} />
-                        <Route path="/newsletter/confirm" element={<NewsletterConfirmPage />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </main>
-                    <FavoritesSlider />
-                    <Footer />
-                    <CookieConsent />
-                  </div>
+                  <AppContent />
                 </BrowserRouter>
               </FavoritesProvider>
             </CartProvider>
