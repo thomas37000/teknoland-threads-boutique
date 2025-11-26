@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 
@@ -13,6 +14,7 @@ type Category = Tables<"categories">;
 
 const CategoryFilter = ({ selectedCategory, onCategoryChange }: CategoryFilterProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -50,6 +52,14 @@ const CategoryFilter = ({ selectedCategory, onCategoryChange }: CategoryFilterPr
     ...categories.map(cat => ({ key: cat.slug, label: cat.name }))
   ];
 
+  const handleCategoryClick = (categoryKey: string) => {
+    if (categoryKey === "all") {
+      navigate('/shop');
+    } else {
+      navigate(`/shop/${categoryKey}`);
+    }
+  };
+
   return (
     <div className="mb-6">
       <h3 className="text-sm font-medium mb-3">{t('shop.filterByCategory')}</h3>
@@ -62,7 +72,7 @@ const CategoryFilter = ({ selectedCategory, onCategoryChange }: CategoryFilterPr
                 ? "bg-tekno-black text-white border-tekno-black"
                 : "border-gray-300 hover:border-tekno-black"
             }`}
-            onClick={() => onCategoryChange(category.key)}
+            onClick={() => handleCategoryClick(category.key)}
           >
             {category.label}
           </button>
