@@ -90,7 +90,10 @@ const ShopPage = () => {
     let result = [...products];
 
     // Apply category filter
-    if (selectedCategory !== "all") {
+    if (selectedCategory === "promos") {
+      // Filter only products with sold_price (sale products)
+      result = result.filter(p => p.sold_price != null);
+    } else if (selectedCategory !== "all") {
       result = result.filter(p =>
         p.category.toLowerCase().includes(selectedCategory)
       );
