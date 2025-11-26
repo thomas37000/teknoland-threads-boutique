@@ -49,6 +49,7 @@ const CategoryFilter = ({ selectedCategory }: CategoryFilterProps) => {
 
   const allCategories = [
     { key: "all", label: t('shop.allProducts') },
+    { key: "promos", label: t('shop.promos') },
     ...categories.map(cat => ({ key: cat.slug, label: cat.name }))
   ];
 
