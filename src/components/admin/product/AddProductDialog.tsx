@@ -105,6 +105,29 @@ export function AddProductDialog({
           />
         </div>
 
+        {/* Sold Price */}
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label htmlFor="sold-price" className="text-right">
+            Prix soldé (optionnel)
+          </Label>
+          <Input
+            id="sold-price"
+            type="number"
+            value={newProduct?.sold_price ?? ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              const numValue = value ? parseFloat(value) : null;
+              // Si la valeur est 0 ou vide, on met null pour supprimer la promo
+              setNewProduct({ 
+                ...newProduct, 
+                sold_price: numValue && numValue > 0 ? numValue : null 
+              });
+            }}
+            className="col-span-3"
+            placeholder="Laisser vide ou mettre 0 pour supprimer la promo"
+          />
+        </div>
+
         {/* Main Image Upload */}
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="image" className="text-right">
