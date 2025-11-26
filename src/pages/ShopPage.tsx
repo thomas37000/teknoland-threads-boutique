@@ -232,7 +232,6 @@ const ShopPage = () => {
             {/* Filters */}
             <CategoryFilter
               selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
             />
 
             <ColorFilter

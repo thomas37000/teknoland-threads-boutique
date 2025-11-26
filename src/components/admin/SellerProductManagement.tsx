@@ -233,7 +233,12 @@ const SellerProductManagement = () => { // Page Admin VENDEUR
         setNewProduct={setNewProduct}
         handleAddProduct={handleAddProduct}
         handleEditProduct={handleEditProduct}
-        handleDeleteProduct={() => {}}
+        handleDeleteProduct={() => {
+          if (selectedProduct) {
+            handleDeleteProduct(selectedProduct.id);
+            setIsDeleteDialogOpen(false);
+          }
+        }}
       />
     </div>
   );
