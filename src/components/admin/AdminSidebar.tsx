@@ -53,12 +53,10 @@ export function AdminSidebar({
   };
 
   return (
-    <Sidebar className={isCollapsed ? "w-14" : "w-60"} collapsible="icon">
-      <SidebarTrigger className="m-2 self-end" />
-
+    <Sidebar className={isCollapsed ? "w-14 bg-gray-100" : "w-44 bg-gray-100"} collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Administration</SidebarGroupLabel>
+          <SidebarGroupLabel className="m-6">Administration</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => {
@@ -85,6 +83,7 @@ export function AdminSidebar({
                 );
               })}
             </SidebarMenu>
+            <SidebarTrigger className="m-2 self-start" />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

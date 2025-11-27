@@ -13,7 +13,7 @@ import DepensesManagement from "@/components/admin/DepensesManagement";
 import ImageManagement from "@/components/admin/ImageManagement";
 import { supabase } from "@/integrations/supabase/client";
 import AirtableManagement from "@/components/admin/AirtableManagement";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
 const AdminPage = () => {
@@ -86,7 +86,6 @@ const AdminPage = () => {
           <div className="tekno-container py-12">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-              <SidebarTrigger />
             </div>
             <AdminNotifications />
 
