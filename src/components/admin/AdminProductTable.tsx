@@ -56,15 +56,6 @@ export const AdminProductTable = ({
     );
   }
 
-  const slugify = (str: string) => {
-    return str
-      .toLowerCase()
-      .normalize("NFD") // enlever accents
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-") // remplacer tout ce qui n’est pas alphanum par un -
-      .replace(/^-+|-+$/g, ""); // enlever - au début/fin
-  };
-
   return (
     <div className="space-y-4">
       <Table>
@@ -146,7 +137,7 @@ export const AdminProductTable = ({
                         size="sm"
                         asChild
                       >
-                        <Link to={`/product/${product.category}/${slugify(product.name)}`}>
+                        <Link to={`/product/${product.slug}`}>
                           <Eye size={14} />
                         </Link>
                       </Button>
