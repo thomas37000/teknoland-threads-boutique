@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams, useParams } from "react-router-dom";
+import { useSearchParams, useParams, useNavigate } from "react-router-dom";
 import { Product } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import ShopHeader from "@/components/shop/ShopHeader";
@@ -16,6 +16,7 @@ import { transformProductsFromDB } from "@/utils/product-transform";
 const ShopPage = () => {
   const [searchParams] = useSearchParams();
   const { category: categoryParam } = useParams<{ category?: string }>();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
@@ -167,6 +168,7 @@ const ShopPage = () => {
     setSelectedCategory("all");
     setSelectedColor("all");
     setSortOption("newest");
+    navigate('/shop');
   };
 
   // SEO pour la boutique
@@ -235,6 +237,7 @@ const ShopPage = () => {
             {/* Filters */}
             <CategoryFilter
               selectedCategory={selectedCategory}
+              handleResetFilters={handleResetFilters}
             />
 
             <ColorFilter

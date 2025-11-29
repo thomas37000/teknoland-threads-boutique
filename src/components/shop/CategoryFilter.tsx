@@ -7,12 +7,13 @@ import { Tables } from "@/integrations/supabase/types";
 
 interface CategoryFilterProps {
   selectedCategory: string;
+  handleResetFilters: (category: string) => void;
   // onCategoryChange: (category: string) => void;
 }
 
 type Category = Tables<"categories">;
 
-const CategoryFilter = ({ selectedCategory }: CategoryFilterProps) => {
+const CategoryFilter = ({ selectedCategory, handleResetFilters }: CategoryFilterProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -56,6 +57,7 @@ const CategoryFilter = ({ selectedCategory }: CategoryFilterProps) => {
   const handleCategoryClick = (categoryKey: string) => {
     if (categoryKey === "all") {
       navigate('/shop');
+      handleResetFilters("all");
     } else {
       navigate(`/shop/${categoryKey}`);
     }
