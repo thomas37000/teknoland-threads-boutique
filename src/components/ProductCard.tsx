@@ -41,19 +41,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
     fetchSellerInfo();
   }, [product.seller_id]);
 
-  const slugify = (str: string) => {
-    return str
-      .toLowerCase()
-      .normalize("NFD") // enlever accents
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-") // remplacer tout ce qui n’est pas alphanum par un -
-      .replace(/^-+|-+$/g, ""); // enlever - au début/fin
-  };
-
-
   return (
     <div className="group">
-      <Link to={`/product/${product.category}/${slugify(product.name)}`} className="block overflow-hidden rounded-md">
+      <Link to={`/product/${product.slug}`} className="block overflow-hidden rounded-md">
         <div className="aspect-square overflow-hidden bg-gray-100 relative">
           <img
             src={product.image}
@@ -85,7 +75,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
       <div className="mt-4">
         <div className="flex justify-between items-start  ">
-          <Link to={`/product/${product.id}`}>
+          <Link to={`/product/${product.slug}`}>
             <h3 className="font-medium text-lg">{product.name}</h3>
           </Link>
 
