@@ -74,9 +74,9 @@ export const AdminProductTable = ({
         </TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
             <TableHead>Image</TableHead>
             <TableHead>Nom</TableHead>
+            <TableHead>Slug</TableHead>
             <TableHead>Prix</TableHead>
             <TableHead>Catégorie</TableHead>
             {showSeller && <TableHead>Vendeur</TableHead>}
@@ -97,9 +97,6 @@ export const AdminProductTable = ({
               const seller = sellers.find(s => s.id === product.seller_id);
               return (
                 <TableRow key={product.id}>
-                  <TableCell className="font-mono text-xs max-w-[100px] truncate">
-                    {product.id.substring(0, 8)}...
-                  </TableCell>
                   <TableCell>
                     <img
                       src={product.image}
@@ -108,6 +105,7 @@ export const AdminProductTable = ({
                     />
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
+                  <TableCell className="font-medium">{product.slug}</TableCell>
                   <TableCell>{product.price}€</TableCell>
                   <TableCell>
                     <Badge variant="outline">
