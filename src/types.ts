@@ -24,6 +24,7 @@ export interface Product {
   variations?: ProductVariation[];
   seller_id?: string;
   created_at: string;
+  slug?: string | null;
 }
 
 // CartItem is now in src/types/cart.ts
