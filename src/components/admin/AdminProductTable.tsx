@@ -9,9 +9,10 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Eye } from "lucide-react";
 import { Product } from "@/types";
 import { useAuth } from "@/hooks/use-auth";
+import { Link } from "react-router-dom";
 import {
   Pagination,
   PaginationContent,
@@ -131,6 +132,15 @@ export const AdminProductTable = ({
                   {/* Colonne Actions */}
                   <TableCell>
                     <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                      >
+                        <Link to={`/product/${product.slug}`}>
+                          <Eye size={14} />
+                        </Link>
+                      </Button>
                       {(!product.seller_id || product.seller_id === user?.id) && (
                         <>
                           <Button
