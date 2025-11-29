@@ -493,8 +493,6 @@ export type Database = {
     Functions: {
       generate_strict_slug: { Args: { input: string }; Returns: string }
       get_current_user_role: { Args: never; Returns: string }
-      slugify: { Args: { input: string }; Returns: string }
-      unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
