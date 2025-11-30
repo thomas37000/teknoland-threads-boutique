@@ -421,7 +421,7 @@ const ProductDialogs = ({
           description: newProduct.description || '',
           price: Number(newProduct.price) || 0,
           sold_price: newProduct.sold_price && Number(newProduct.sold_price) > 0 ? Number(newProduct.sold_price) : null,
-          image: imageUrl || 'https://thwkmsuqkevfgqwlayqv.supabase.co/storage/v1/object/public/products/placeholder.png',
+          image: imageUrl || 'https://thwkmsuqkevfgqwlayqv.supabase.co/storage/v1/object/public/products/Placeholder_view_vector.svg.png',
           images: additionalImages.length > 0 ? additionalImages : null,
           category: newProduct.category || CATEGORIES[0],
           stock: totalStock,
