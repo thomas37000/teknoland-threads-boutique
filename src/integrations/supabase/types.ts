@@ -379,6 +379,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "products_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "public_seller_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
@@ -488,11 +495,27 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_seller_profiles: {
+        Row: {
+          brand_name: string | null
+          id: string | null
+        }
+        Insert: {
+          brand_name?: string | null
+          id?: string | null
+        }
+        Update: {
+          brand_name?: string | null
+          id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       generate_strict_slug: { Args: { input: string }; Returns: string }
       get_current_user_role: { Args: never; Returns: string }
+      slugify: { Args: { input: string }; Returns: string }
+      unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
