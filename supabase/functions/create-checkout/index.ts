@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 import Stripe from "https://esm.sh/stripe@12.0.0";
@@ -18,27 +17,77 @@ serve(async (req) => {
   }
 
   try {
+    // Verify authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      console.error("Missing or invalid Authorization header");
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - Authentication required" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 401,
+        }
+      );
+    }
+
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    // Validate JWT and get user
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+
+    if (claimsError || !claimsData?.claims) {
+      console.error("JWT validation failed:", claimsError);
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - Invalid token" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 401,
+        }
+      );
+    }
+
+    const userId = claimsData.claims.sub;
+    console.log("Authenticated user:", userId);
+
     // Get the request body
     const { productId, quantity, size, color } = await req.json();
+
+    // Validate input
+    if (!productId || typeof productId !== "string") {
+      return new Response(
+        JSON.stringify({ error: "Invalid product ID" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        }
+      );
+    }
+
+    const validQuantity = Math.max(1, Math.min(100, parseInt(quantity) || 1));
 
     // Initialize Stripe with the secret key
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2023-10-16",
     });
 
-    // Initialize Supabase client to fetch product details
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+    // Get the product details from Supabase (server-side price validation)
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get the product details from Supabase
-    const { data: product, error } = await supabase
+    const { data: product, error } = await supabaseAdmin
       .from("products")
-      .select("*")
+      .select("id, name, description, price, images, stock")
       .eq("id", productId)
       .single();
 
     if (error || !product) {
+      console.error("Product not found:", productId, error);
       return new Response(
         JSON.stringify({ error: "Product not found" }),
         {
@@ -47,6 +96,22 @@ serve(async (req) => {
         }
       );
     }
+
+    // Validate stock
+    if (product.stock !== null && product.stock < validQuantity) {
+      return new Response(
+        JSON.stringify({ error: "Insufficient stock" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        }
+      );
+    }
+
+    // Calculate price server-side (never trust client-provided prices)
+    const unitAmountCents = Math.round(product.price * 100);
+
+    console.log(`Creating checkout for product ${product.name}, price: ${product.price}€, quantity: ${validQuantity}`);
 
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
@@ -57,12 +122,12 @@ serve(async (req) => {
             currency: "eur",
             product_data: {
               name: product.name,
-              description: product.description,
+              description: product.description || undefined,
               images: product.images ? [product.images[0]] : [],
             },
-            unit_amount: Math.round(product.price * 100), // Stripe uses cents
+            unit_amount: unitAmountCents,
           },
-          quantity: quantity || 1,
+          quantity: validQuantity,
         },
       ],
       mode: "payment",
@@ -70,10 +135,15 @@ serve(async (req) => {
       cancel_url: `${req.headers.get("origin")}/product/${productId}`,
       metadata: {
         productId,
+        userId,
+        quantity: validQuantity.toString(),
+        expected_amount: (unitAmountCents * validQuantity).toString(),
         ...(size && { size }),
         ...(color && { color }),
       },
     });
+
+    console.log("Checkout session created:", session.id);
 
     // Return the session URL
     return new Response(
@@ -84,6 +154,7 @@ serve(async (req) => {
       }
     );
   } catch (error) {
+    console.error("Checkout error:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
