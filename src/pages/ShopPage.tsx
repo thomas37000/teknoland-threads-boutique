@@ -116,6 +116,8 @@ const ShopPage = () => {
       result.sort((a, b) => b.price - a.price);
     } else if (sortOption === "newest") {
       result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    } else if (sortOption === "new-only") {
+      result = result.filter(p => p.isNew);
     } else if (sortOption === "seller") {
       result.sort((a, b) => {
         const sellerA = a.seller_id ? sellersData[a.seller_id] || 'Vendeur' : 'Teknoland';

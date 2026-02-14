@@ -19,6 +19,7 @@ const SortSelect = ({ sortOption, onSortChange }: SortSelectProps) => {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="newest">{t('shop.newest')}</SelectItem>
+          <SelectItem value="new-only">{t('shop.newOnly', { defaultValue: 'Nouveautés' })}</SelectItem>
           <SelectItem value="price-low">{t('shop.priceLow')}</SelectItem>
           <SelectItem value="price-high">{t('shop.priceHigh')}</SelectItem>
           <SelectItem value="seller">{t('shop.seller')}</SelectItem>
