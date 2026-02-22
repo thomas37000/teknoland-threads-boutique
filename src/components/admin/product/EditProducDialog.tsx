@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { X, Plus, Trash2 } from "lucide-react";
@@ -9,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import PopupAdmin from "../PopupAdmin";
 
 export function EditProductDialog({
@@ -43,7 +45,10 @@ export function EditProductDialog({
   setIsEditDialogOpen,
   mode, // "add" ou "edit"
 }: any) {
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
   return (
+    <>
     <PopupAdmin
       isOpen={isOpen}
       onClose={onClose}
@@ -153,7 +158,8 @@ export function EditProductDialog({
                 <img
                   src={currentProduct.image}
                   alt={currentProduct.name}
-                  className="h-20 w-auto object-contain rounded"
+                  className="h-20 w-auto object-contain rounded cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => setPreviewImage(currentProduct.image)}
                 />
               </div>
             )}
@@ -186,7 +192,8 @@ export function EditProductDialog({
                     <img
                       src={img}
                       alt={`Image ${index}`}
-                      className="h-20 w-full object-contain"
+                      className="h-20 w-full object-contain cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => setPreviewImage(img)}
                     />
                   </div>
                 ))}
@@ -515,5 +522,18 @@ export function EditProductDialog({
         </div>
       </div>
     </PopupAdmin>
+
+    <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
+      <DialogContent className="max-w-3xl p-2">
+        {previewImage && (
+          <img
+            src={previewImage}
+            alt="Aperçu"
+            className="w-full h-auto object-contain max-h-[80vh] rounded"
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
