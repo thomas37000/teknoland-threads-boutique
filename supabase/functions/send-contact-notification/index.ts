@@ -14,6 +14,8 @@ interface ContactNotificationRequest {
   email: string;
   subject: string;
   message: string;
+  type?: 'contact' | 'reply';
+  to?: string;
 }
 
 // Validation functions
@@ -95,9 +97,54 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const body = await req.json();
-    const { name, email, subject, message } = body as ContactNotificationRequest;
+    const { name, email, subject, message, type, to } = body as ContactNotificationRequest;
 
-    // Server-side validation
+    // Handle reply from admin
+    if (type === 'reply' && to) {
+      const emailValidation = validateEmail(to);
+      if (!emailValidation.isValid) {
+        return new Response(
+          JSON.stringify({ error: emailValidation.error }),
+          { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+      const messageValidation = validateMessage(message);
+      if (!messageValidation.isValid) {
+        return new Response(
+          JSON.stringify({ error: messageValidation.error }),
+          { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+
+      const sanitizedName = sanitizeForHtml((name || '').trim());
+      const sanitizedMessage = sanitizeForHtml(message.trim());
+
+      const emailResponse = await resend.emails.send({
+        from: "Teknoland <onboarding@resend.dev>",
+        to: [to],
+        subject: subject || "Réponse de Teknoland",
+        html: `
+          <h2>Bonjour ${sanitizedName},</h2>
+          <div style="margin-top: 20px;">
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 5px;">
+              ${sanitizedMessage.replace(/\n/g, '<br>')}
+            </div>
+          </div>
+          <hr style="margin: 20px 0;">
+          <p style="color: #666; font-size: 12px;">
+            Cet email a été envoyé par l'équipe Teknoland.
+          </p>
+        `,
+      });
+
+      console.log("Reply sent successfully:", emailResponse);
+      return new Response(JSON.stringify(emailResponse), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Original contact notification flow
     const nameValidation = validateName(name);
     if (!nameValidation.isValid) {
       return new Response(

@@ -3,9 +3,10 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import PopupAdmin from "./PopupAdmin";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Eye, Mail, Trash2 } from "lucide-react";
+import { Copy, Eye, Mail, Send, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -25,6 +26,32 @@ const ContactManagement = () => {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [replyMessage, setReplyMessage] = useState("");
+  const [sendingReply, setSendingReply] = useState(false);
+
+  const handleSendReply = async () => {
+    if (!selectedContact || !replyMessage.trim()) return;
+    setSendingReply(true);
+    try {
+      const { error } = await supabase.functions.invoke('send-contact-notification', {
+        body: {
+          to: selectedContact.email,
+          subject: `Re: ${getSubjectLabel(selectedContact.subject)}`,
+          name: selectedContact.name,
+          message: replyMessage,
+          type: 'reply',
+        },
+      });
+      if (error) throw error;
+      toast({ title: "Réponse envoyée", description: `Email envoyé à ${selectedContact.email}` });
+      setReplyMessage("");
+    } catch (error) {
+      console.error('Error sending reply:', error);
+      toast({ title: "Erreur", description: "Impossible d'envoyer la réponse", variant: "destructive" });
+    } finally {
+      setSendingReply(false);
+    }
+  };
 
   const fetchContacts = async () => {
     try {
@@ -221,7 +248,7 @@ const ContactManagement = () => {
 
       <PopupAdmin
         isOpen={isDetailDialogOpen}
-        onClose={() => setIsDetailDialogOpen(false)}
+        onClose={() => { setIsDetailDialogOpen(false); setReplyMessage(""); }}
         title={`Message de ${selectedContact?.name}`}
         maxWidth="max-w-2xl"
       >
@@ -243,9 +270,26 @@ const ContactManagement = () => {
             </div>
             <div>
               <strong>Message:</strong>
-              <div className="mt-2 p-4 bg-gray-50 rounded-md">
+              <div className="mt-2 p-4 bg-muted rounded-md">
                 {selectedContact.message}
               </div>
+            </div>
+            <div className="border-t pt-4 space-y-3">
+              <strong className="flex items-center gap-2"><Send className="h-4 w-4" /> Répondre</strong>
+              <Textarea
+                placeholder="Écrivez votre réponse..."
+                value={replyMessage}
+                onChange={(e) => setReplyMessage(e.target.value)}
+                rows={4}
+              />
+              <Button
+                onClick={handleSendReply}
+                disabled={sendingReply || !replyMessage.trim()}
+                className="w-full"
+              >
+                {sendingReply ? "Envoi en cours..." : "Envoyer la réponse"}
+                <Send className="h-4 w-4 ml-2" />
+              </Button>
             </div>
           </div>
         )}
