@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import PopupAdmin from "./PopupAdmin";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Mail, Trash2 } from "lucide-react";
+import { Copy, Eye, Mail, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -177,7 +177,20 @@ const ContactManagement = () => {
                     </Badge>
                   </TableCell>
                   <TableCell className="font-medium">{contact.name}</TableCell>
-                  <TableCell>{contact.email}</TableCell>
+                  <TableCell className="flex items-center gap-1">
+                    {contact.email}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={() => {
+                        navigator.clipboard.writeText(contact.email);
+                        toast({ title: "Email copié", description: contact.email });
+                      }}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </TableCell>
                   <TableCell>{getSubjectLabel(contact.subject)}</TableCell>
                   <TableCell>{new Date(contact.created_at).toLocaleDateString('fr-FR')}</TableCell>
                   <TableCell>
