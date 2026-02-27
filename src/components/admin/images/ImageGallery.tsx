@@ -59,6 +59,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                 onSelect={onSelect}
                 onPreview={onPreview}
                 onDelete={onDelete}
+                onRefresh={onRefresh}
               />
             ))}
           </div>
