@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Eye, Trash2 } from "lucide-react";
+import { Check, Eye, Trash2, FileDown } from "lucide-react";
 import { StorageImage } from "@/hooks/useImageManagement";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface ImageCardProps {
   image: StorageImage;
@@ -10,6 +12,7 @@ interface ImageCardProps {
   onSelect: (url: string) => void;
   onPreview: (url: string) => void;
   onDelete: (name: string) => void;
+  onRefresh: () => void;
 }
 
 const formatFileSize = (bytes: number) => {
@@ -25,11 +28,60 @@ const ImageCard: React.FC<ImageCardProps> = ({
   isCurrentHero,
   onSelect,
   onPreview,
-  onDelete
+  onDelete,
+  onRefresh
 }) => {
+  const [compressing, setCompressing] = useState(false);
+
+  const handleCompressToAvif = async () => {
+    setCompressing(true);
+    try {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error("Impossible de charger l'image"));
+        img.src = image.url;
+      });
+
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Canvas non supporté");
+      ctx.drawImage(img, 0, 0);
+
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob((b) => resolve(b), "image/avif", 0.7)
+      );
+
+      if (!blob || blob.type !== "image/avif") {
+        toast.error("Votre navigateur ne supporte pas la compression AVIF. Essayez Chrome ou Edge.");
+        return;
+      }
+
+      const baseName = image.name.replace(/\.[^.]+$/, "");
+      const avifName = `${baseName}.avif`;
+
+      const { error } = await supabase.storage
+        .from("teknoland-img")
+        .upload(avifName, blob, { contentType: "image/avif", upsert: true });
+
+      if (error) throw error;
+
+      toast.success(`Image compressée en AVIF : ${avifName}`);
+      onRefresh();
+    } catch (err: any) {
+      console.error("Compression AVIF error:", err);
+      toast.error(err.message || "Erreur lors de la compression AVIF");
+    } finally {
+      setCompressing(false);
+    }
+  };
+
   return (
     <div className="relative group">
-      <div className="aspect-square border rounded-md overflow-hidden bg-gray-50">
+      <div className="aspect-square border rounded-md overflow-hidden bg-muted">
         <img
           src={image.url}
           alt={image.name}
@@ -75,6 +127,16 @@ const ImageCard: React.FC<ImageCardProps> = ({
           title="Aperçu"
         >
           <Eye className="h-4 w-4" />
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          className="h-8 w-8 p-0"
+          onClick={handleCompressToAvif}
+          disabled={compressing || image.name.endsWith('.avif')}
+          title="Compresser en AVIF"
+        >
+          <FileDown className="h-4 w-4" />
         </Button>
         <Button
           size="sm"
