@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Eye, Trash2, FileDown } from "lucide-react";
+import { Check, Eye, Trash2, FileDown, ImageDown } from "lucide-react";
 import { StorageImage } from "@/hooks/useImageManagement";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -33,8 +33,10 @@ const ImageCard: React.FC<ImageCardProps> = ({
 }) => {
   const [compressing, setCompressing] = useState(false);
 
-  const handleCompressToAvif = async () => {
+  const compressTo = async (format: "avif" | "webp") => {
     setCompressing(true);
+    const mimeType = format === "avif" ? "image/avif" : "image/webp";
+    const label = format.toUpperCase();
     try {
       const img = new Image();
       img.crossOrigin = "anonymous";
@@ -52,28 +54,28 @@ const ImageCard: React.FC<ImageCardProps> = ({
       ctx.drawImage(img, 0, 0);
 
       const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob((b) => resolve(b), "image/avif", 0.7)
+        canvas.toBlob((b) => resolve(b), mimeType, 0.7)
       );
 
-      if (!blob || blob.type !== "image/avif") {
-        toast.error("Votre navigateur ne supporte pas la compression AVIF. Essayez Chrome ou Edge.");
+      if (!blob || blob.type !== mimeType) {
+        toast.error(`Votre navigateur ne supporte pas la compression ${label}. Essayez Chrome ou Edge.`);
         return;
       }
 
       const baseName = image.name.replace(/\.[^.]+$/, "");
-      const avifName = `${baseName}.avif`;
+      const newName = `${baseName}.${format}`;
 
       const { error } = await supabase.storage
         .from("teknoland-img")
-        .upload(avifName, blob, { contentType: "image/avif", upsert: true });
+        .upload(newName, blob, { contentType: mimeType, upsert: true });
 
       if (error) throw error;
 
-      toast.success(`Image compressée en AVIF : ${avifName}`);
+      toast.success(`Image compressée en ${label} : ${newName}`);
       onRefresh();
     } catch (err: any) {
-      console.error("Compression AVIF error:", err);
-      toast.error(err.message || "Erreur lors de la compression AVIF");
+      console.error(`Compression ${label} error:`, err);
+      toast.error(err.message || `Erreur lors de la compression ${label}`);
     } finally {
       setCompressing(false);
     }
@@ -132,11 +134,21 @@ const ImageCard: React.FC<ImageCardProps> = ({
           size="sm"
           variant="secondary"
           className="h-8 w-8 p-0"
-          onClick={handleCompressToAvif}
+          onClick={() => compressTo("avif")}
           disabled={compressing || image.name.endsWith('.avif')}
           title="Compresser en AVIF"
         >
           <FileDown className="h-4 w-4" />
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          className="h-8 w-8 p-0"
+          onClick={() => compressTo("webp")}
+          disabled={compressing || image.name.endsWith('.webp')}
+          title="Compresser en WebP"
+        >
+          <ImageDown className="h-4 w-4" />
         </Button>
         <Button
           size="sm"
