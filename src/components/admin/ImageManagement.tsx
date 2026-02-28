@@ -4,6 +4,7 @@ import { Save } from "lucide-react";
 import { useImageManagement } from "@/hooks/useImageManagement";
 import ImageUploadForm from "./images/ImageUploadForm";
 import ImageGallery from "./images/ImageGallery";
+import ProductImageGallery from "./images/ProductImageGallery";
 
 const ImageManagement = () => {
   const {
@@ -62,6 +63,8 @@ const ImageManagement = () => {
         onPreview={previewImage}
         onDelete={handleDeleteImage}
       />
+
+      <ProductImageGallery />
     </div>
   );
 };
