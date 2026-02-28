@@ -5,6 +5,7 @@ import { useImageManagement } from "@/hooks/useImageManagement";
 import ImageUploadForm from "./images/ImageUploadForm";
 import ImageGallery from "./images/ImageGallery";
 import ProductImageGallery from "./images/ProductImageGallery";
+import BucketManagement from "./images/BucketManagement";
 
 const ImageManagement = () => {
   const {
@@ -65,6 +66,8 @@ const ImageManagement = () => {
       />
 
       <ProductImageGallery />
+
+      <BucketManagement />
     </div>
   );
 };
