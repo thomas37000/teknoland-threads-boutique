@@ -36,6 +36,19 @@ const Index = () => {
         <meta name="twitter:title" content={title}/>
         <meta name="twitter:description" content={description}/>
         <meta name="twitter:image" content={ogImage}/>
+        {/* JSON-LD Organization */}
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Teknoland Clothes",
+          url: canonicalUrl,
+          logo: ogImage,
+          description: description,
+          sameAs: [
+            "https://www.instagram.com/teknoland",
+            "https://www.facebook.com/teknoland"
+          ]
+        })}</script>
       </Helmet>
       
       <main>
