@@ -10,6 +10,7 @@ import { ArrowUp } from "lucide-react";
 import ProductImages from "./components/ProductImages";
 import ProductDetails from "./components/ProductDetails";
 import { transformProductFromDB } from "@/utils/product-transform";
+import { Helmet } from "react-helmet-async";
 import {
   Breadcrumb,
   BreadcrumbList,
