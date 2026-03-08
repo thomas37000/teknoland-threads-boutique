@@ -89,7 +89,8 @@ const AuthPage = () => {
           />
         </>
       )}
-    </AuthLayout>
+      </AuthLayout>
+    </>
   );
 };
 
