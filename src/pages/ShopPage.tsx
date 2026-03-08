@@ -185,6 +185,9 @@ const ShopPage = () => {
         <title>{shopTitle}</title>
         <meta name="description" content={shopDescription} />
         <link rel="canonical" href={shopCanonical} />
+        <link rel="alternate" hrefLang="fr" href={shopCanonical} />
+        <link rel="alternate" hrefLang="en" href={shopCanonical} />
+        <link rel="alternate" hrefLang="x-default" href={shopCanonical} />
         <meta property="og:title" content={shopTitle} />
         <meta property="og:description" content={shopDescription} />
         <meta property="og:url" content={shopCanonical} />

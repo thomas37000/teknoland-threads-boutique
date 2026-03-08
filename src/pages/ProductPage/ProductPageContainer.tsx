@@ -235,6 +235,9 @@ const ProductPageContainer = () => {
         <title>{productTitle}</title>
         <meta name="description" content={productDescription} />
         <link rel="canonical" href={productCanonical} />
+        <link rel="alternate" hrefLang="fr" href={productCanonical} />
+        <link rel="alternate" hrefLang="en" href={productCanonical} />
+        <link rel="alternate" hrefLang="x-default" href={productCanonical} />
         <meta property="og:title" content={productTitle} />
         <meta property="og:description" content={productDescription} />
         <meta property="og:url" content={productCanonical} />
