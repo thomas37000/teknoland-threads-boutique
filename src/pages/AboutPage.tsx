@@ -14,6 +14,9 @@ const AboutPage = () => {
         <title>{title}</title>
         <meta name="description" content={description} />
         <link rel="canonical" href={canonical} />
+        <link rel="alternate" hrefLang="fr" href={canonical} />
+        <link rel="alternate" hrefLang="en" href={canonical} />
+        <link rel="alternate" hrefLang="x-default" href={canonical} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonical} />

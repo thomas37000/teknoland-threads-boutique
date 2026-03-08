@@ -91,6 +91,9 @@ const ContactPage = () => {
         <title>{contactTitle}</title>
         <meta name="description" content={contactDescription} />
         <link rel="canonical" href={contactCanonical} />
+        <link rel="alternate" hrefLang="fr" href={contactCanonical} />
+        <link rel="alternate" hrefLang="en" href={contactCanonical} />
+        <link rel="alternate" hrefLang="x-default" href={contactCanonical} />
         <meta property="og:title" content={contactTitle} />
         <meta property="og:description" content={contactDescription} />
         <meta property="og:url" content={contactCanonical} />
