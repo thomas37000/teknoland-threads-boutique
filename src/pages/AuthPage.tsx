@@ -11,6 +11,7 @@ import SignupForm from "@/components/auth/SignupForm";
 import ForgotPasswordDialog from "@/components/auth/ForgotPasswordDialog";
 import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
 import VerificationAlert from "@/components/auth/VerificationAlert";
+import { Helmet } from "react-helmet-async";
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -54,7 +55,13 @@ const AuthPage = () => {
   };
 
   return (
-    <AuthLayout>
+    <>
+      <Helmet>
+        <title>Connexion & Inscription – Teknoland</title>
+        <meta name="description" content="Connectez-vous ou créez votre compte Teknoland pour accéder à vos commandes, favoris et offres exclusives." />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+      <AuthLayout>
       {showResetPw ? (
         <ResetPasswordForm onCancel={handleCancelReset} />
       ) : verificationSent ? (
@@ -82,7 +89,8 @@ const AuthPage = () => {
           />
         </>
       )}
-    </AuthLayout>
+      </AuthLayout>
+    </>
   );
 };
 

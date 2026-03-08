@@ -194,6 +194,15 @@ const ShopPage = () => {
         <meta name="twitter:title" content={shopTitle} />
         <meta name="twitter:description" content={shopDescription} />
         <meta name="twitter:image" content={shopOgImage} />
+        {/* JSON-LD BreadcrumbList */}
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Accueil", item: "https://teknoland.lovable.app/" },
+            { "@type": "ListItem", position: 2, name: "Boutique", item: shopCanonical }
+          ]
+        })}</script>
       </Helmet>
 
       <div className="flex justify-between">

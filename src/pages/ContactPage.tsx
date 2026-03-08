@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Helmet } from "react-helmet-async";
 
 const ContactPage = () => {
   const { t } = useTranslation();
@@ -80,8 +81,24 @@ const ContactPage = () => {
     }
   };
 
+  const contactTitle = "Contactez Teknoland – Questions & Support";
+  const contactDescription = "Une question, une suggestion ? Contactez l'équipe Teknoland. Nous répondons sous 24h.";
+  const contactCanonical = "https://teknoland.lovable.app/contact";
+
   return (
     <div>
+      <Helmet>
+        <title>{contactTitle}</title>
+        <meta name="description" content={contactDescription} />
+        <link rel="canonical" href={contactCanonical} />
+        <meta property="og:title" content={contactTitle} />
+        <meta property="og:description" content={contactDescription} />
+        <meta property="og:url" content={contactCanonical} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={contactTitle} />
+        <meta name="twitter:description" content={contactDescription} />
+      </Helmet>
       {/* Hero Section */}
       <section className="bg-tekno-black text-white py-16">
         <div className="tekno-container text-center">
