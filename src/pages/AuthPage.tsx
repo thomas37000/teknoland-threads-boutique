@@ -55,7 +55,13 @@ const AuthPage = () => {
   };
 
   return (
-    <AuthLayout>
+    <>
+      <Helmet>
+        <title>Connexion & Inscription – Teknoland</title>
+        <meta name="description" content="Connectez-vous ou créez votre compte Teknoland pour accéder à vos commandes, favoris et offres exclusives." />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+      <AuthLayout>
       {showResetPw ? (
         <ResetPasswordForm onCancel={handleCancelReset} />
       ) : verificationSent ? (
