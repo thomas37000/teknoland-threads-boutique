@@ -208,8 +208,44 @@ const ProductPageContainer = () => {
 
   const allImages = getAllImages();
 
+  const productTitle = `${product.name} – Teknoland Clothes`;
+  const productDescription = product.description?.slice(0, 155) || `Découvrez ${product.name} sur Teknoland. Mode tech et qualité premium.`;
+  const productCanonical = `https://teknoland.lovable.app/product/${product.slug}`;
+  const productImage = product.image;
+
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    image: product.image,
+    url: productCanonical,
+    brand: { "@type": "Brand", name: "Teknoland" },
+    offers: {
+      "@type": "Offer",
+      price: product.sold_price ?? product.price,
+      priceCurrency: "EUR",
+      availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+    },
+  };
+
   return (
     <div className="tekno-container py-12" ref={topRef}>
+      <Helmet>
+        <title>{productTitle}</title>
+        <meta name="description" content={productDescription} />
+        <link rel="canonical" href={productCanonical} />
+        <meta property="og:title" content={productTitle} />
+        <meta property="og:description" content={productDescription} />
+        <meta property="og:url" content={productCanonical} />
+        <meta property="og:type" content="product" />
+        <meta property="og:image" content={productImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={productTitle} />
+        <meta name="twitter:description" content={productDescription} />
+        <meta name="twitter:image" content={productImage} />
+        <script type="application/ld+json">{JSON.stringify(productJsonLd)}</script>
+      </Helmet>
       {/* Breadcrumb Navigation */}
       <Breadcrumb className="mb-6">
         <BreadcrumbList>

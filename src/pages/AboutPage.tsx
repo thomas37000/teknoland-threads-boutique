@@ -1,10 +1,27 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Helmet } from "react-helmet-async";
 
 const AboutPage = () => {
+  const title = "À propos de Teknoland – Notre histoire & valeurs";
+  const description = "Découvrez l'histoire de Teknoland, notre mission et nos valeurs. Mode tech, innovation et communauté depuis 2023.";
+  const canonical = "https://teknoland.lovable.app/about";
+
   return (
     <div>
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonical} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+      </Helmet>
       {/* Hero Section */}
       <section className="bg-tekno-black text-white py-16 md:py-24">
         <div className="tekno-container text-center">
