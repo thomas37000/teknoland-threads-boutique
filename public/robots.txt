@@ -14,3 +14,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://teknoland.lovable.app/sitemap.xml
+Sitemap: https://thwkmsuqkevfgqwlayqv.supabase.co/functions/v1/sitemap
