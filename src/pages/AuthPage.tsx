@@ -11,6 +11,7 @@ import SignupForm from "@/components/auth/SignupForm";
 import ForgotPasswordDialog from "@/components/auth/ForgotPasswordDialog";
 import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
 import VerificationAlert from "@/components/auth/VerificationAlert";
+import { Helmet } from "react-helmet-async";
 
 const AuthPage = () => {
   const navigate = useNavigate();
