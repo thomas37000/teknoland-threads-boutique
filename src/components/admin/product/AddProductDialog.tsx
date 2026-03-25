@@ -38,6 +38,19 @@ export function AddProductDialog({
   SIZE_OPTIONS,
   mode, // "add" ou "edit"
 }: any) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerMode, setPickerMode] = useState<"main" | "additional">("main");
+
+  const handlePickerSelect = (url: string) => {
+    if (pickerMode === "main") {
+      setNewProduct({ ...newProduct, image: url });
+    }
+  };
+
+  const handlePickerSelectMultiple = (urls: string[]) => {
+    setNewProduct({ ...newProduct, images: urls });
+  };
+
   return (
     <PopupAdmin
       isOpen={isOpen}
