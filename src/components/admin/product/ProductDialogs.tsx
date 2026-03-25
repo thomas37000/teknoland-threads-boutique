@@ -349,13 +349,12 @@ const ProductDialogs = ({
       let imageUrl = '';
       let additionalImages: string[] = [];
 
-      // Upload main image if selected
+      // Upload main image if selected, or use URL from storage picker
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
         const filePath = fileName;
 
-        // Upload the image to storage
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('products')
           .upload(filePath, imageFile);
@@ -364,12 +363,13 @@ const ProductDialogs = ({
           throw uploadError;
         }
 
-        // Get public URL of the uploaded image
         const { data: urlData } = supabase.storage
           .from('products')
           .getPublicUrl(filePath);
 
         imageUrl = urlData.publicUrl;
+      } else if (newProduct.image && typeof newProduct.image === 'string' && newProduct.image.startsWith('http')) {
+        imageUrl = newProduct.image;
       }
 
       // Upload additional images if selected
