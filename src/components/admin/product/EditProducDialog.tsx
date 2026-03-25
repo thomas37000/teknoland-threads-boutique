@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { X, Plus, Trash2 } from "lucide-react";
+import { X, Plus, Trash2, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import PopupAdmin from "../PopupAdmin";
+import StorageImagePicker from "./StorageImagePicker";
 
 export function EditProductDialog({
   isOpen,
@@ -46,6 +47,20 @@ export function EditProductDialog({
   mode, // "add" ou "edit"
 }: any) {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerMode, setPickerMode] = useState<"main" | "additional">("main");
+
+  const handlePickerSelect = (url: string) => {
+    if (pickerMode === "main" && currentProduct) {
+      setCurrentProduct({ ...currentProduct, image: url });
+    }
+  };
+
+  const handlePickerSelectMultiple = (urls: string[]) => {
+    if (currentProduct) {
+      setCurrentProduct({ ...currentProduct, images: urls });
+    }
+  };
 
   return (
     <>
@@ -163,12 +178,24 @@ export function EditProductDialog({
                 />
               </div>
             )}
-            <Input
-              id="edit-image"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(e) => handleImageChange(e, true)}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="edit-image"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => handleImageChange(e, true)}
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => { setPickerMode("main"); setPickerOpen(true); }}
+              >
+                <ImageIcon className="h-4 w-4 mr-1" />
+                Stockage
+              </Button>
+            </div>
             <p className="text-xs text-muted-foreground">
               JPG, PNG, or WebP. Max 10MB.
             </p>
@@ -200,14 +227,25 @@ export function EditProductDialog({
               </div>
             )}
 
-            <Input
-              id="edit-additional-images"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(e) => handleMultipleImageChange(e, true)}
-              className="col-span-3"
-              disabled={editMultipleImageFiles.length >= 4}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="edit-additional-images"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => handleMultipleImageChange(e, true)}
+                className="flex-1"
+                disabled={editMultipleImageFiles.length >= 4}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => { setPickerMode("additional"); setPickerOpen(true); }}
+              >
+                <ImageIcon className="h-4 w-4 mr-1" />
+                Stockage
+              </Button>
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               Upload up to 4 new additional images. Will replace existing images. JPG, PNG, or WebP. Max 10MB each.
             </p>
@@ -534,6 +572,13 @@ export function EditProductDialog({
         )}
       </DialogContent>
     </Dialog>
+    <StorageImagePicker
+      open={pickerOpen}
+      onClose={() => setPickerOpen(false)}
+      onSelect={handlePickerSelect}
+      multiple={pickerMode === "additional"}
+      onSelectMultiple={handlePickerSelectMultiple}
+    />
     </>
   );
 }
