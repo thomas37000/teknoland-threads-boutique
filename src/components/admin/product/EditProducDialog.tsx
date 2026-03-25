@@ -572,6 +572,13 @@ export function EditProductDialog({
         )}
       </DialogContent>
     </Dialog>
+    <StorageImagePicker
+      open={pickerOpen}
+      onClose={() => setPickerOpen(false)}
+      onSelect={handlePickerSelect}
+      multiple={pickerMode === "additional"}
+      onSelectMultiple={handlePickerSelectMultiple}
+    />
     </>
   );
 }
