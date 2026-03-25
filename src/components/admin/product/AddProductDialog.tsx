@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { X, Plus, Trash2 } from "lucide-react";
+import { X, Plus, Trash2, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -10,6 +11,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import PopupAdmin from "../PopupAdmin";
+import StorageImagePicker from "./StorageImagePicker";
 
 export function AddProductDialog({
   isOpen,
