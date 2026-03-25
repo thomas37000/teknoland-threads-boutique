@@ -479,6 +479,13 @@ export function AddProductDialog({
         </Button>
         <Button onClick={onConfirm} className="flex-1">Ajoutez</Button>
       </div>
+      <StorageImagePicker
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={handlePickerSelect}
+        multiple={pickerMode === "additional"}
+        onSelectMultiple={handlePickerSelectMultiple}
+      />
     </PopupAdmin>
   );
 }
