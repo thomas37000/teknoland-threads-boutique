@@ -372,14 +372,13 @@ const ProductDialogs = ({
         imageUrl = newProduct.image;
       }
 
-      // Upload additional images if selected
+      // Upload additional images if selected, or use URLs from storage picker
       if (multipleImageFiles.length > 0) {
         for (const file of multipleImageFiles) {
           const fileExt = file.name.split('.').pop();
           const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
           const filePath = fileName;
 
-          // Upload the image to storage
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('products')
             .upload(filePath, file);
@@ -388,13 +387,14 @@ const ProductDialogs = ({
             throw uploadError;
           }
 
-          // Get public URL of the uploaded image
           const { data: urlData } = supabase.storage
             .from('products')
             .getPublicUrl(filePath);
 
           additionalImages.push(urlData.publicUrl);
         }
+      } else if (newProduct.images && Array.isArray(newProduct.images) && newProduct.images.length > 0) {
+        additionalImages = newProduct.images;
       }
 
       // Create size_stocks object for backward compatibility
