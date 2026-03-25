@@ -47,6 +47,20 @@ export function EditProductDialog({
   mode, // "add" ou "edit"
 }: any) {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerMode, setPickerMode] = useState<"main" | "additional">("main");
+
+  const handlePickerSelect = (url: string) => {
+    if (pickerMode === "main" && currentProduct) {
+      setCurrentProduct({ ...currentProduct, image: url });
+    }
+  };
+
+  const handlePickerSelectMultiple = (urls: string[]) => {
+    if (currentProduct) {
+      setCurrentProduct({ ...currentProduct, images: urls });
+    }
+  };
 
   return (
     <>
@@ -164,12 +178,24 @@ export function EditProductDialog({
                 />
               </div>
             )}
-            <Input
-              id="edit-image"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(e) => handleImageChange(e, true)}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="edit-image"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => handleImageChange(e, true)}
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => { setPickerMode("main"); setPickerOpen(true); }}
+              >
+                <ImageIcon className="h-4 w-4 mr-1" />
+                Stockage
+              </Button>
+            </div>
             <p className="text-xs text-muted-foreground">
               JPG, PNG, or WebP. Max 10MB.
             </p>
