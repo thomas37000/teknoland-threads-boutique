@@ -227,14 +227,25 @@ export function EditProductDialog({
               </div>
             )}
 
-            <Input
-              id="edit-additional-images"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(e) => handleMultipleImageChange(e, true)}
-              className="col-span-3"
-              disabled={editMultipleImageFiles.length >= 4}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="edit-additional-images"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => handleMultipleImageChange(e, true)}
+                className="flex-1"
+                disabled={editMultipleImageFiles.length >= 4}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => { setPickerMode("additional"); setPickerOpen(true); }}
+              >
+                <ImageIcon className="h-4 w-4 mr-1" />
+                Stockage
+              </Button>
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               Upload up to 4 new additional images. Will replace existing images. JPG, PNG, or WebP. Max 10MB each.
             </p>
