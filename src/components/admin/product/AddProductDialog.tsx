@@ -148,17 +148,31 @@ export function AddProductDialog({
           <Label htmlFor="image" className="text-right">
             Image principale
           </Label>
-          <div className="col-span-3">
-            <Input
-              id="image"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(e) => handleImageChange(e, false)}
-              className="col-span-3"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
+          <div className="col-span-3 space-y-2">
+            <div className="flex gap-2">
+              <Input
+                id="image"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => handleImageChange(e, false)}
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => { setPickerMode("main"); setPickerOpen(true); }}
+              >
+                <ImageIcon className="h-4 w-4 mr-1" />
+                Stockage
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
               JPG, PNG, or WebP. Max 10MB.
             </p>
+            {newProduct?.image && typeof newProduct.image === "string" && newProduct.image.startsWith("http") && (
+              <img src={newProduct.image} alt="Aperçu" className="h-16 w-auto object-contain rounded border" />
+            )}
           </div>
         </div>
 
@@ -168,14 +182,25 @@ export function AddProductDialog({
             Images supplémentaires (4 max)
           </Label>
           <div className="col-span-3">
-            <Input
-              id="additional-images"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(e) => handleMultipleImageChange(e, false)}
-              className="col-span-3"
-              disabled={multipleImageFiles?.length >= 4}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="additional-images"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => handleMultipleImageChange(e, false)}
+                className="flex-1"
+                disabled={multipleImageFiles?.length >= 4}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => { setPickerMode("additional"); setPickerOpen(true); }}
+              >
+                <ImageIcon className="h-4 w-4 mr-1" />
+                Stockage
+              </Button>
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               Upload up to 4 additional images. JPG, PNG, or WebP. Max 10MB each.
             </p>
