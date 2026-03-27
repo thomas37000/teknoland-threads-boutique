@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Eye, Trash2, FileDown, ImageDown } from "lucide-react";
+import { Check, Eye, Trash2, FileDown, ImageDown, FolderInput } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { StorageImage } from "@/hooks/useImageManagement";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+const MOVE_BUCKETS = ["products", "sweats", "teknoland-img", "tshirts"] as const;
 
 interface ImageCardProps {
   image: StorageImage;
