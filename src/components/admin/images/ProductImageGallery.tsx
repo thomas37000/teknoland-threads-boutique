@@ -4,11 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { PackageOpen, Eye, Trash2, FileDown, ImageDown, Upload } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { PackageOpen, Eye, Trash2, FileDown, ImageDown, FolderInput } from "lucide-react";
 import { useProductImages } from "@/hooks/useProductImages";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
+
+const MOVE_BUCKETS = ["products", "sweats", "teknoland-img", "tshirts"] as const;
 
 const formatFileSize = (bytes: number) => {
   if (bytes === 0) return "0 B";
