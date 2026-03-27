@@ -30,12 +30,43 @@ const formatFileSize = (bytes: number) => {
 const ImageCard: React.FC<ImageCardProps> = ({
   image,
   isCurrentHero,
+  sourceBucket = "teknoland-img",
   onSelect,
   onPreview,
   onDelete,
   onRefresh
 }) => {
   const [compressing, setCompressing] = useState(false);
+  const [moving, setMoving] = useState(false);
+
+  const moveToB = async (targetBucket: string) => {
+    if (targetBucket === sourceBucket) return;
+    setMoving(true);
+    try {
+      const { data, error: dlError } = await supabase.storage
+        .from(sourceBucket)
+        .download(image.name);
+      if (dlError || !data) throw dlError || new Error("Téléchargement échoué");
+
+      const { error: upError } = await supabase.storage
+        .from(targetBucket)
+        .upload(image.name, data, { upsert: true });
+      if (upError) throw upError;
+
+      const { error: rmError } = await supabase.storage
+        .from(sourceBucket)
+        .remove([image.name]);
+      if (rmError) throw rmError;
+
+      toast.success(`Image déplacée vers ${targetBucket}`);
+      onRefresh();
+    } catch (err: any) {
+      console.error("Move error:", err);
+      toast.error(err.message || "Erreur lors du déplacement");
+    } finally {
+      setMoving(false);
+    }
+  };
 
   const compressTo = async (format: "avif" | "webp") => {
     setCompressing(true);
