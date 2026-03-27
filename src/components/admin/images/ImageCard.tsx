@@ -185,6 +185,26 @@ const ImageCard: React.FC<ImageCardProps> = ({
         >
           <ImageDown className="h-4 w-4" />
         </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="h-8 w-8 p-0"
+              disabled={moving}
+              title="Déplacer vers un bucket"
+            >
+              <FolderInput className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {MOVE_BUCKETS.filter((b) => b !== sourceBucket).map((bucket) => (
+              <DropdownMenuItem key={bucket} onClick={() => moveToB(bucket)}>
+                {bucket}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Button
           size="sm"
           variant="destructive"
