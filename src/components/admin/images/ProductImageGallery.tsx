@@ -4,11 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { PackageOpen, Eye, Trash2, FileDown, ImageDown, Upload } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { PackageOpen, Eye, Trash2, FileDown, ImageDown, FolderInput } from "lucide-react";
 import { useProductImages } from "@/hooks/useProductImages";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
+
+const MOVE_BUCKETS = ["products", "sweats", "teknoland-img", "tshirts"] as const;
 
 const formatFileSize = (bytes: number) => {
   if (bytes === 0) return "0 B";
@@ -96,6 +99,36 @@ interface ProductImageCardProps {
 
 const ProductImageCard: React.FC<ProductImageCardProps> = ({ image, onPreview, onDelete, onRefresh }) => {
   const [compressing, setCompressing] = useState(false);
+  const [moving, setMoving] = useState(false);
+
+  const moveToB = async (targetBucket: string) => {
+    if (targetBucket === "products") return;
+    setMoving(true);
+    try {
+      const { data, error: dlError } = await supabase.storage
+        .from("products")
+        .download(image.name);
+      if (dlError || !data) throw dlError || new Error("Téléchargement échoué");
+
+      const { error: upError } = await supabase.storage
+        .from(targetBucket)
+        .upload(image.name, data, { upsert: true });
+      if (upError) throw upError;
+
+      const { error: rmError } = await supabase.storage
+        .from("products")
+        .remove([image.name]);
+      if (rmError) throw rmError;
+
+      toast.success(`Image déplacée vers ${targetBucket}`);
+      onRefresh();
+    } catch (err: any) {
+      console.error("Move error:", err);
+      toast.error(err.message || "Erreur lors du déplacement");
+    } finally {
+      setMoving(false);
+    }
+  };
 
   const compressTo = async (format: "avif" | "webp") => {
     setCompressing(true);
@@ -191,6 +224,26 @@ const ProductImageCard: React.FC<ProductImageCardProps> = ({ image, onPreview, o
         >
           <ImageDown className="h-4 w-4" />
         </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="h-8 w-8 p-0"
+              disabled={moving}
+              title="Déplacer vers un bucket"
+            >
+              <FolderInput className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {MOVE_BUCKETS.filter((b) => b !== "products").map((bucket) => (
+              <DropdownMenuItem key={bucket} onClick={() => moveToB(bucket)}>
+                {bucket}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Button size="sm" variant="destructive" className="h-8 w-8 p-0" onClick={() => onDelete(image.name)} title="Supprimer">
           <Trash2 className="h-4 w-4" />
         </Button>
