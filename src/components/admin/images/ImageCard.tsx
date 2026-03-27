@@ -12,6 +12,7 @@ const MOVE_BUCKETS = ["products", "sweats", "teknoland-img", "tshirts"] as const
 interface ImageCardProps {
   image: StorageImage;
   isCurrentHero: boolean;
+  sourceBucket?: string;
   onSelect: (url: string) => void;
   onPreview: (url: string) => void;
   onDelete: (name: string) => void;
