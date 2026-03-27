@@ -30,7 +30,7 @@ const formatFileSize = (bytes: number) => {
 const ImageCard: React.FC<ImageCardProps> = ({
   image,
   isCurrentHero,
-  sourceBucket = "teknoland-img",
+  sourceBucket = "products",
   onSelect,
   onPreview,
   onDelete,
