@@ -3,8 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
 import { useImageManagement } from "@/hooks/useImageManagement";
 import ImageUploadForm from "./images/ImageUploadForm";
-import ImageGallery from "./images/ImageGallery";
-import ProductImageGallery from "./images/ProductImageGallery";
+import AllBucketsGallery from "./images/AllBucketsGallery";
 import BucketManagement from "./images/BucketManagement";
 
 const ImageManagement = () => {
@@ -55,17 +54,7 @@ const ImageManagement = () => {
         />
       )}
 
-      <ImageGallery
-        images={storageImages}
-        loading={loading}
-        currentHeroUrl={heroConfig?.current_url || ''}
-        onRefresh={loadStorageImages}
-        onSelect={handleSelectImage}
-        onPreview={previewImage}
-        onDelete={handleDeleteImage}
-      />
-
-      <ProductImageGallery />
+      <AllBucketsGallery />
 
       <BucketManagement />
     </div>
