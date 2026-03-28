@@ -34,6 +34,7 @@ const AllBucketsGallery = () => {
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [uploading, setUploading] = useState(false);
   const [currentPage, setCurrentPage] = useState<Record<string, number>>({});
+  const [searchQuery, setSearchQuery] = useState("");
 
   const loadBucket = useCallback(async (bucket: string) => {
     setLoading((prev) => ({ ...prev, [bucket]: true }));
@@ -100,11 +101,17 @@ const AllBucketsGallery = () => {
 
   const getPage = (bucket: string) => currentPage[bucket] || 1;
   const getBucketImages = (bucket: string) => images[bucket] || [];
-  const getTotalPages = (bucket: string) => Math.ceil(getBucketImages(bucket).length / ITEMS_PER_PAGE);
+  const getFilteredImages = useCallback((bucket: string) => {
+    const all = getBucketImages(bucket);
+    if (!searchQuery.trim()) return all;
+    const q = searchQuery.toLowerCase();
+    return all.filter((img) => img.name.toLowerCase().includes(q));
+  }, [images, searchQuery]);
+  const getTotalPages = (bucket: string) => Math.ceil(getFilteredImages(bucket).length / ITEMS_PER_PAGE);
   const getPaginatedImages = (bucket: string) => {
     const page = getPage(bucket);
-    const all = getBucketImages(bucket);
-    return all.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+    const filtered = getFilteredImages(bucket);
+    return filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
   };
   const setPage = (bucket: string, page: number) => {
     setCurrentPage((prev) => ({ ...prev, [bucket]: page }));
@@ -141,18 +148,30 @@ const AllBucketsGallery = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <Tabs value={activeBucket} onValueChange={(v) => { setActiveBucket(v); }}>
-          <TabsList className="mb-4 flex-wrap">
-            {BUCKETS.map((b) => (
-              <TabsTrigger key={b} value={b} className="capitalize">
-                {b}
-                {images[b] && (
-                  <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0">
-                    {images[b].length}
-                  </Badge>
-                )}
-              </TabsTrigger>
-            ))}
+        <Tabs value={activeBucket} onValueChange={(v) => { setActiveBucket(v); setSearchQuery(""); }}>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+            <TabsList className="flex-wrap">
+              {BUCKETS.map((b) => (
+                <TabsTrigger key={b} value={b} className="capitalize">
+                  {b}
+                  {images[b] && (
+                    <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0">
+                      {images[b].length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            <div className="relative sm:ml-auto w-full sm:w-64">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher un fichier…"
+                value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage({}); }}
+                className="pl-9 h-9"
+              />
+            </div>
+          </div>
           </TabsList>
 
           {BUCKETS.map((bucket) => {
