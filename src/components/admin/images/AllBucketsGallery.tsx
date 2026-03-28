@@ -9,6 +9,14 @@ import { Image as ImageIcon, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ImageCard from "./ImageCard";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface StorageImage {
   name: string;
@@ -18,19 +26,21 @@ interface StorageImage {
 }
 
 const BUCKETS = ["products", "stickers", "sweats", "teknoland-img", "tshirts"] as const;
+const ITEMS_PER_PAGE = 30;
 
 const AllBucketsGallery = () => {
   const [activeBucket, setActiveBucket] = useState<string>(BUCKETS[0]);
   const [images, setImages] = useState<Record<string, StorageImage[]>>({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [uploading, setUploading] = useState(false);
+  const [currentPage, setCurrentPage] = useState<Record<string, number>>({});
 
   const loadBucket = useCallback(async (bucket: string) => {
     setLoading((prev) => ({ ...prev, [bucket]: true }));
     try {
       const { data, error } = await supabase.storage
         .from(bucket)
-        .list("", { limit: 200, sortBy: { column: "created_at", order: "desc" } });
+        .list("", { limit: 1000, sortBy: { column: "created_at", order: "desc" } });
       if (error) throw error;
       const mapped: StorageImage[] = (data || [])
         .filter((f) => !f.name.startsWith("."))
@@ -88,7 +98,18 @@ const AllBucketsGallery = () => {
     if (url) window.open(url, "_blank");
   };
 
-  const bucketImages = images[activeBucket] || [];
+  const getPage = (bucket: string) => currentPage[bucket] || 1;
+  const getBucketImages = (bucket: string) => images[bucket] || [];
+  const getTotalPages = (bucket: string) => Math.ceil(getBucketImages(bucket).length / ITEMS_PER_PAGE);
+  const getPaginatedImages = (bucket: string) => {
+    const page = getPage(bucket);
+    const all = getBucketImages(bucket);
+    return all.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  };
+  const setPage = (bucket: string, page: number) => {
+    setCurrentPage((prev) => ({ ...prev, [bucket]: page }));
+  };
+
   const isLoading = loading[activeBucket] ?? false;
 
   return (
@@ -120,7 +141,7 @@ const AllBucketsGallery = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <Tabs value={activeBucket} onValueChange={setActiveBucket}>
+        <Tabs value={activeBucket} onValueChange={(v) => { setActiveBucket(v); }}>
           <TabsList className="mb-4 flex-wrap">
             {BUCKETS.map((b) => (
               <TabsTrigger key={b} value={b} className="capitalize">
@@ -134,34 +155,71 @@ const AllBucketsGallery = () => {
             ))}
           </TabsList>
 
-          {BUCKETS.map((bucket) => (
-            <TabsContent key={bucket} value={bucket}>
-              {(loading[bucket] ?? false) ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : (images[bucket] || []).length === 0 ? (
-                <p className="text-center py-8 text-muted-foreground">
-                  Aucune image dans {bucket}
-                </p>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {(images[bucket] || []).map((image) => (
-                    <ImageCard
-                      key={image.name}
-                      image={image}
-                      isCurrentHero={false}
-                      sourceBucket={bucket}
-                      onSelect={() => {}}
-                      onPreview={previewImage}
-                      onDelete={handleDelete}
-                      onRefresh={() => loadBucket(bucket)}
-                    />
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-          ))}
+          {BUCKETS.map((bucket) => {
+            const totalPages = getTotalPages(bucket);
+            const page = getPage(bucket);
+            const paginated = getPaginatedImages(bucket);
+
+            return (
+              <TabsContent key={bucket} value={bucket}>
+                {(loading[bucket] ?? false) ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : getBucketImages(bucket).length === 0 ? (
+                  <p className="text-center py-8 text-muted-foreground">
+                    Aucune image dans {bucket}
+                  </p>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {paginated.map((image) => (
+                        <ImageCard
+                          key={image.name}
+                          image={image}
+                          isCurrentHero={false}
+                          sourceBucket={bucket}
+                          onSelect={() => {}}
+                          onPreview={previewImage}
+                          onDelete={handleDelete}
+                          onRefresh={() => loadBucket(bucket)}
+                        />
+                      ))}
+                    </div>
+                    {totalPages > 1 && (
+                      <Pagination className="mt-6">
+                        <PaginationContent>
+                          <PaginationItem>
+                            <PaginationPrevious
+                              onClick={() => setPage(bucket, Math.max(1, page - 1))}
+                              className={page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            />
+                          </PaginationItem>
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                            <PaginationItem key={p}>
+                              <PaginationLink
+                                isActive={p === page}
+                                onClick={() => setPage(bucket, p)}
+                                className="cursor-pointer"
+                              >
+                                {p}
+                              </PaginationLink>
+                            </PaginationItem>
+                          ))}
+                          <PaginationItem>
+                            <PaginationNext
+                              onClick={() => setPage(bucket, Math.min(totalPages, page + 1))}
+                              className={page >= totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            />
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
+                    )}
+                  </>
+                )}
+              </TabsContent>
+            );
+          })}
         </Tabs>
       </CardContent>
     </Card>
