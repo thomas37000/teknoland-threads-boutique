@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Image as ImageIcon, Loader2, Search } from "lucide-react";
+import { Image as ImageIcon, Loader2, Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ImageCard from "./ImageCard";
@@ -168,8 +168,16 @@ const AllBucketsGallery = () => {
                 placeholder="Rechercher un fichier…"
                 value={searchQuery}
                 onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage({}); }}
-                className="pl-9 h-9"
+                className="pl-9 pr-8 h-9"
               />
+              {searchQuery && (
+                <button
+                  onClick={() => { setSearchQuery(""); setCurrentPage({}); }}
+                  className="absolute right-2 top-2.5 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
 
