@@ -172,7 +172,6 @@ const AllBucketsGallery = () => {
               />
             </div>
           </div>
-          </TabsList>
 
           {BUCKETS.map((bucket) => {
             const totalPages = getTotalPages(bucket);
