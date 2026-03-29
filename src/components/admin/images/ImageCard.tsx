@@ -7,7 +7,7 @@ import { StorageImage } from "@/hooks/useImageManagement";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const MOVE_BUCKETS = ["products", "sweats", "teknoland-img", "tshirts"] as const;
+const MOVE_BUCKETS = ["products", "sweats", "teknoland-img", "tshirts", "stickers"] as const;
 
 interface ImageCardProps {
   image: StorageImage;
