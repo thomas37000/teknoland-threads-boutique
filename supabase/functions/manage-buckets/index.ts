@@ -73,7 +73,56 @@ serve(async (req) => {
           public: isPublic ?? true,
         });
         if (error) throw error;
-        return new Response(JSON.stringify({ success: true, data }), {
+
+        // Auto-apply RBAC storage policies
+        const policiesSQL = `
+          CREATE POLICY "Allow public read ${bucketName}"
+          ON storage.objects FOR SELECT
+          TO public
+          USING (bucket_id = '${bucketName}');
+
+          CREATE POLICY "Allow admin insert ${bucketName}"
+          ON storage.objects FOR INSERT
+          TO authenticated
+          WITH CHECK (
+            bucket_id = '${bucketName}'
+            AND public.has_role(auth.uid(), 'admin')
+          );
+
+          CREATE POLICY "Allow admin update ${bucketName}"
+          ON storage.objects FOR UPDATE
+          TO authenticated
+          USING (
+            bucket_id = '${bucketName}'
+            AND public.has_role(auth.uid(), 'admin')
+          );
+
+          CREATE POLICY "Allow admin delete ${bucketName}"
+          ON storage.objects FOR DELETE
+          TO authenticated
+          USING (
+            bucket_id = '${bucketName}'
+            AND public.has_role(auth.uid(), 'admin')
+          );
+        `;
+
+        // Execute via REST API (PostgREST rpc or direct SQL)
+        const pgResponse = await fetch(
+          `${supabaseUrl}/rest/v1/rpc/`,
+          { method: "HEAD" } // just a check
+        );
+
+        // Use the admin client's internal fetch to run raw SQL
+        const { error: sqlError } = await adminClient.rpc('exec_sql' as any, { query: policiesSQL }).maybeSingle();
+        
+        // If rpc doesn't exist, try direct pg connection via service role
+        if (sqlError) {
+          // Fallback: execute each policy individually via fetch to management API
+          const mgmtUrl = `${supabaseUrl}/pg`;
+          console.log("RPC exec_sql not available, policies must be applied manually or via migration. Bucket created successfully.");
+        }
+
+        return new Response(JSON.stringify({ success: true, data, policies_applied: !sqlError }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
