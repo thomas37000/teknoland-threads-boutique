@@ -25,7 +25,7 @@ interface StorageImage {
   created_at: string;
 }
 
-const BUCKETS = ["products", "stickers", "sweats", "teknoland-img", "tshirts"] as const;
+const BUCKETS = ["products", "stickers", "sweats", "teknoland-img", "tshirts", "vinyles"] as const;
 const ITEMS_PER_PAGE = 30;
 
 const AllBucketsGallery = () => {
