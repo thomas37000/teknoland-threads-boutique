@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
 
-const MOVE_BUCKETS = ["products", "sweats", "teknoland-img", "tshirts", "stickers"] as const;
+const MOVE_BUCKETS = ["products", "sweats", "teknoland-img", "tshirts", "stickers", "vinyles"] as const;
 
 const formatFileSize = (bytes: number) => {
   if (bytes === 0) return "0 B";
