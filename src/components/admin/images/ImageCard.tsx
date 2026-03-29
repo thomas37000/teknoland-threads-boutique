@@ -1,8 +1,16 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Eye, Trash2, FileDown, ImageDown, FolderInput } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Check, Eye, Trash2, FileDown, ImageDown, FolderInput, Pencil } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { StorageImage } from "@/hooks/useImageManagement";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -38,6 +46,43 @@ const ImageCard: React.FC<ImageCardProps> = ({
 }) => {
   const [compressing, setCompressing] = useState(false);
   const [moving, setMoving] = useState(false);
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [renaming, setRenaming] = useState(false);
+
+  const handleRename = async () => {
+    const trimmed = newName.trim();
+    if (!trimmed || trimmed === image.name) {
+      setRenameOpen(false);
+      return;
+    }
+    setRenaming(true);
+    try {
+      const { data, error: dlError } = await supabase.storage
+        .from(sourceBucket)
+        .download(image.name);
+      if (dlError || !data) throw dlError || new Error("Téléchargement échoué");
+
+      const { error: upError } = await supabase.storage
+        .from(sourceBucket)
+        .upload(trimmed, data, { upsert: false });
+      if (upError) throw upError;
+
+      const { error: rmError } = await supabase.storage
+        .from(sourceBucket)
+        .remove([image.name]);
+      if (rmError) throw rmError;
+
+      toast.success(`Renommé en ${trimmed}`);
+      onRefresh();
+    } catch (err: any) {
+      console.error("Rename error:", err);
+      toast.error(err.message || "Erreur lors du renommage");
+    } finally {
+      setRenaming(false);
+      setRenameOpen(false);
+    }
+  };
 
   const moveToB = async (targetBucket: string) => {
     if (targetBucket === sourceBucket) return;
@@ -207,6 +252,18 @@ const ImageCard: React.FC<ImageCardProps> = ({
         </DropdownMenu>
         <Button
           size="sm"
+          variant="secondary"
+          className="h-8 w-8 p-0"
+          onClick={() => {
+            setNewName(image.name);
+            setRenameOpen(true);
+          }}
+          title="Renommer"
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
+        <Button
+          size="sm"
           variant="destructive"
           className="h-8 w-8 p-0"
           onClick={() => onDelete(image.name)}
@@ -215,6 +272,28 @@ const ImageCard: React.FC<ImageCardProps> = ({
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
+
+      <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Renommer l'image</DialogTitle>
+          </DialogHeader>
+          <Input
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="Nouveau nom de fichier"
+            onKeyDown={(e) => e.key === "Enter" && handleRename()}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRenameOpen(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleRename} disabled={renaming}>
+              {renaming ? "Renommage..." : "Renommer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
