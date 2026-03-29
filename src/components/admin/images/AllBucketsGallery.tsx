@@ -45,6 +45,7 @@ const AllBucketsGallery = () => {
   const [uploading, setUploading] = useState(false);
   const [currentPage, setCurrentPage] = useState<Record<string, number>>({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   const loadBucket = useCallback(async (bucket: string) => {
     setLoading((prev) => ({ ...prev, [bucket]: true }));
@@ -93,15 +94,21 @@ const AllBucketsGallery = () => {
     }
   };
 
-  const handleDelete = async (name: string) => {
-    if (!confirm(`Supprimer ${name} ?`)) return;
+  const handleDelete = (name: string) => {
+    setDeleteTarget(name);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      const { error } = await supabase.storage.from(activeBucket).remove([name]);
+      const { error } = await supabase.storage.from(activeBucket).remove([deleteTarget]);
       if (error) throw error;
       toast.success("Image supprimée");
       loadBucket(activeBucket);
     } catch (err: any) {
       toast.error(err.message || "Erreur suppression");
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -257,6 +264,23 @@ const AllBucketsGallery = () => {
             );
           })}
         </Tabs>
+
+        <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Supprimer cette image ?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Le fichier <span className="font-medium">{deleteTarget}</span> sera définitivement supprimé du bucket <span className="font-medium">{activeBucket}</span>.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Supprimer
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   );
