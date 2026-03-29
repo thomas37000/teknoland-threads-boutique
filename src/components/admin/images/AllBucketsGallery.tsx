@@ -46,6 +46,7 @@ const AllBucketsGallery = () => {
   const [currentPage, setCurrentPage] = useState<Record<string, number>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const loadBucket = useCallback(async (bucket: string) => {
     setLoading((prev) => ({ ...prev, [bucket]: true }));
@@ -113,7 +114,7 @@ const AllBucketsGallery = () => {
   };
 
   const previewImage = (url: string) => {
-    if (url) window.open(url, "_blank");
+    if (url) setPreviewUrl(url);
   };
 
   const getPage = (bucket: string) => currentPage[bucket] || 1;
@@ -281,6 +282,18 @@ const AllBucketsGallery = () => {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <Dialog open={!!previewUrl} onOpenChange={(open) => !open && setPreviewUrl(null)}>
+          <DialogContent className="max-w-3xl p-2">
+            {previewUrl && (
+              <img
+                src={previewUrl}
+                alt="Aperçu"
+                className="w-full h-auto max-h-[80vh] object-contain rounded-md"
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
