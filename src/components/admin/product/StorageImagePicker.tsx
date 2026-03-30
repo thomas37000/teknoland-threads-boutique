@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ImageIcon, Check, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-
+import { useBuckets } from "@/hooks/useBuckets";
 interface StorageImage {
   name: string;
   url: string;
