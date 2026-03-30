@@ -533,6 +533,10 @@ export type Database = {
       }
     }
     Functions: {
+      apply_bucket_storage_policies: {
+        Args: { bucket: string }
+        Returns: undefined
+      }
       generate_strict_slug: { Args: { input: string }; Returns: string }
       get_current_user_role: { Args: never; Returns: string }
       has_role: {
@@ -541,6 +545,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      remove_bucket_storage_policies: {
+        Args: { bucket: string }
+        Returns: undefined
       }
       slugify: { Args: { input: string }; Returns: string }
     }
