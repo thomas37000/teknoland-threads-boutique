@@ -92,12 +92,17 @@ const BucketManagement = () => {
     const sanitized = newBucketName.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-");
     setActionLoading(true);
     try {
-      await callManageBuckets({
+      const result = await callManageBuckets({
         action: "create",
         bucketName: sanitized,
         isPublic: newBucketPublic,
       });
-      toast.success(`Bucket "${sanitized}" créé avec succès`);
+      const policiesApplied = result?.policies_applied;
+      toast.success(`Bucket "${sanitized}" créé avec succès${policiesApplied ? " (politiques RLS appliquées)" : ""}`);
+      if (result?.policy_errors?.length > 0) {
+        toast.warning("Certaines politiques n'ont pas pu être appliquées automatiquement");
+        console.warn("Policy errors:", result.policy_errors);
+      }
       setShowCreateDialog(false);
       setNewBucketName("");
       setNewBucketPublic(true);
