@@ -74,7 +74,13 @@ const AllBucketsGallery = () => {
   }, []);
 
   useEffect(() => {
-    loadBucket(activeBucket);
+    if (BUCKETS.length > 0 && !activeBucket) {
+      setActiveBucket(BUCKETS[0]);
+    }
+  }, [BUCKETS, activeBucket]);
+
+  useEffect(() => {
+    if (activeBucket) loadBucket(activeBucket);
   }, [activeBucket, loadBucket]);
 
   const handleUpload = async (file: File) => {

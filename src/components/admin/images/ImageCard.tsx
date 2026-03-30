@@ -35,6 +35,7 @@ const formatFileSize = (bytes: number) => {
 };
 
 const ImageCard: React.FC<ImageCardProps> = ({
+
   image,
   isCurrentHero,
   sourceBucket = "products",
