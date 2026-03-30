@@ -39,6 +39,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
   image,
   isCurrentHero,
   sourceBucket = "products",
+  allBuckets = [],
   onSelect,
   onPreview,
   onDelete,
