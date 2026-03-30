@@ -231,6 +231,7 @@ const AllBucketsGallery = () => {
                           image={image}
                           isCurrentHero={false}
                           sourceBucket={bucket}
+                          allBuckets={BUCKETS}
                           onSelect={() => {}}
                           onPreview={previewImage}
                           onDelete={handleDelete}
