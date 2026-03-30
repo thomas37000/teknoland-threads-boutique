@@ -15,12 +15,11 @@ import { StorageImage } from "@/hooks/useImageManagement";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const MOVE_BUCKETS = ["products", "sweats", "teknoland-img", "tshirts", "stickers", "vinyles"] as const;
-
 interface ImageCardProps {
   image: StorageImage;
   isCurrentHero: boolean;
   sourceBucket?: string;
+  allBuckets?: string[];
   onSelect: (url: string) => void;
   onPreview: (url: string) => void;
   onDelete: (name: string) => void;
@@ -36,9 +35,11 @@ const formatFileSize = (bytes: number) => {
 };
 
 const ImageCard: React.FC<ImageCardProps> = ({
+
   image,
   isCurrentHero,
   sourceBucket = "products",
+  allBuckets = [],
   onSelect,
   onPreview,
   onDelete,
@@ -243,7 +244,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {MOVE_BUCKETS.filter((b) => b !== sourceBucket).map((bucket) => (
+            {allBuckets.filter((b) => b !== sourceBucket).map((bucket) => (
               <DropdownMenuItem key={bucket} onClick={() => moveToB(bucket)}>
                 {bucket}
               </DropdownMenuItem>

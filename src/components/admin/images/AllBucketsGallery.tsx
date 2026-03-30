@@ -20,6 +20,7 @@ import { Image as ImageIcon, Loader2, Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ImageCard from "./ImageCard";
+import { useBuckets } from "@/hooks/useBuckets";
 import {
   Pagination,
   PaginationContent,
@@ -36,11 +37,11 @@ interface StorageImage {
   created_at: string;
 }
 
-const BUCKETS = ["products", "stickers", "sweats", "teknoland-img", "tshirts", "vinyles"] as const;
 const ITEMS_PER_PAGE = 30;
 
 const AllBucketsGallery = () => {
-  const [activeBucket, setActiveBucket] = useState<string>(BUCKETS[0]);
+  const { buckets: BUCKETS, loading: bucketsLoading } = useBuckets();
+  const [activeBucket, setActiveBucket] = useState<string>("");
   const [images, setImages] = useState<Record<string, StorageImage[]>>({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [uploading, setUploading] = useState(false);
@@ -74,7 +75,13 @@ const AllBucketsGallery = () => {
   }, []);
 
   useEffect(() => {
-    loadBucket(activeBucket);
+    if (BUCKETS.length > 0 && !activeBucket) {
+      setActiveBucket(BUCKETS[0]);
+    }
+  }, [BUCKETS, activeBucket]);
+
+  useEffect(() => {
+    if (activeBucket) loadBucket(activeBucket);
   }, [activeBucket, loadBucket]);
 
   const handleUpload = async (file: File) => {
@@ -224,6 +231,7 @@ const AllBucketsGallery = () => {
                           image={image}
                           isCurrentHero={false}
                           sourceBucket={bucket}
+                          allBuckets={BUCKETS}
                           onSelect={() => {}}
                           onPreview={previewImage}
                           onDelete={handleDelete}

@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ImageIcon, Check, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-
+import { useBuckets } from "@/hooks/useBuckets";
 interface StorageImage {
   name: string;
   url: string;
@@ -21,7 +21,7 @@ interface StorageImagePickerProps {
   onSelectMultiple?: (urls: string[]) => void;
 }
 
-const BUCKETS = ["products", "sweats", "teknoland-img", "tshirts", "stickers", "vinyles"] as const;
+
 
 const formatFileSize = (bytes: number) => {
   if (bytes === 0) return "0 B";
@@ -38,17 +38,24 @@ const StorageImagePicker: React.FC<StorageImagePickerProps> = ({
   multiple = false,
   onSelectMultiple,
 }) => {
+  const { buckets: BUCKETS } = useBuckets();
   const [images, setImages] = useState<Record<string, StorageImage[]>>({});
   const [loading, setLoading] = useState(false);
   const [selectedUrls, setSelectedUrls] = useState<string[]>([]);
-  const [activeBucket, setActiveBucket] = useState<string>(BUCKETS[0]);
+  const [activeBucket, setActiveBucket] = useState<string>("");
 
   useEffect(() => {
-    if (open) {
+    if (BUCKETS.length > 0 && !activeBucket) {
+      setActiveBucket(BUCKETS[0]);
+    }
+  }, [BUCKETS, activeBucket]);
+
+  useEffect(() => {
+    if (open && BUCKETS.length > 0) {
       loadAllBuckets();
       setSelectedUrls([]);
     }
-  }, [open]);
+  }, [open, BUCKETS]);
 
   const loadAllBuckets = async () => {
     setLoading(true);
