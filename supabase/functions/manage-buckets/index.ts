@@ -1,84 +1,64 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
+import postgres from "https://deno.land/x/postgresjs@v3.4.4/mod.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-async function applyBucketPolicies(supabaseUrl: string, serviceKey: string, bucket: string) {
-  const sqlStatements = [
+async function applyBucketPolicies(bucket: string) {
+  const dbUrl = Deno.env.get("SUPABASE_DB_URL");
+  if (!dbUrl) {
+    console.error("SUPABASE_DB_URL not set, cannot apply policies");
+    return ["SUPABASE_DB_URL not configured"];
+  }
+
+  const sql = postgres(dbUrl);
+  const errors: string[] = [];
+
+  const policies = [
     {
       name: `Allow public read ${bucket}`,
-      sql: `CREATE POLICY "Allow public read ${bucket}" ON storage.objects FOR SELECT TO public USING (bucket_id = '${bucket}')`,
+      stmt: `CREATE POLICY "Allow public read ${bucket}" ON storage.objects FOR SELECT TO public USING (bucket_id = '${bucket}')`,
     },
     {
       name: `Allow admin insert ${bucket}`,
-      sql: `CREATE POLICY "Allow admin insert ${bucket}" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = '${bucket}' AND public.has_role(auth.uid(), 'admin'))`,
+      stmt: `CREATE POLICY "Allow admin insert ${bucket}" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = '${bucket}' AND public.has_role(auth.uid(), 'admin'))`,
     },
     {
       name: `Allow admin update ${bucket}`,
-      sql: `CREATE POLICY "Allow admin update ${bucket}" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = '${bucket}' AND public.has_role(auth.uid(), 'admin'))`,
+      stmt: `CREATE POLICY "Allow admin update ${bucket}" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = '${bucket}' AND public.has_role(auth.uid(), 'admin'))`,
     },
     {
       name: `Allow admin delete ${bucket}`,
-      sql: `CREATE POLICY "Allow admin delete ${bucket}" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = '${bucket}' AND public.has_role(auth.uid(), 'admin'))`,
+      stmt: `CREATE POLICY "Allow admin delete ${bucket}" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = '${bucket}' AND public.has_role(auth.uid(), 'admin'))`,
     },
   ];
 
-  const errors: string[] = [];
-  for (const stmt of sqlStatements) {
-    const res = await fetch(`${supabaseUrl}/rest/v1/rpc/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${serviceKey}`,
-        apikey: serviceKey,
-      },
-      body: JSON.stringify({}),
-    });
-    // PostgREST rpc won't work for DDL, use pg REST SQL endpoint instead
-  }
-
-  // Use the Supabase SQL API (available via service role)
-  const fullSql = sqlStatements.map((s) => s.sql + ";").join("\n");
-
-  const pgRes = await fetch(`${supabaseUrl}/pg/query`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${serviceKey}`,
-      apikey: serviceKey,
-    },
-    body: JSON.stringify({ query: fullSql }),
-  });
-
-  if (!pgRes.ok) {
-    // Fallback: try each statement individually via pg meta
-    for (const stmt of sqlStatements) {
+  try {
+    for (const p of policies) {
       try {
-        const r = await fetch(`${supabaseUrl}/pg/query`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${serviceKey}`,
-            apikey: serviceKey,
-          },
-          body: JSON.stringify({ query: stmt.sql }),
-        });
-        if (!r.ok) {
-          errors.push(`Policy "${stmt.name}": ${await r.text()}`);
-        }
+        await sql.unsafe(p.stmt);
       } catch (e) {
-        errors.push(`Policy "${stmt.name}": ${e.message}`);
+        // Policy might already exist
+        if (!e.message?.includes("already exists")) {
+          errors.push(`${p.name}: ${e.message}`);
+        }
       }
     }
+  } finally {
+    await sql.end();
   }
 
   return errors;
 }
 
-async function removeBucketPolicies(supabaseUrl: string, serviceKey: string, bucket: string) {
+async function removeBucketPolicies(bucket: string) {
+  const dbUrl = Deno.env.get("SUPABASE_DB_URL");
+  if (!dbUrl) return;
+
+  const sql = postgres(dbUrl);
   const policyNames = [
     `Allow public read ${bucket}`,
     `Allow admin insert ${bucket}`,
@@ -86,19 +66,13 @@ async function removeBucketPolicies(supabaseUrl: string, serviceKey: string, buc
     `Allow admin delete ${bucket}`,
   ];
 
-  const sql = policyNames
-    .map((name) => `DROP POLICY IF EXISTS "${name}" ON storage.objects;`)
-    .join("\n");
-
-  await fetch(`${supabaseUrl}/pg/query`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${serviceKey}`,
-      apikey: serviceKey,
-    },
-    body: JSON.stringify({ query: sql }),
-  });
+  try {
+    for (const name of policyNames) {
+      await sql.unsafe(`DROP POLICY IF EXISTS "${name}" ON storage.objects`);
+    }
+  } finally {
+    await sql.end();
+  }
 }
 
 serve(async (req) => {
@@ -165,11 +139,11 @@ serve(async (req) => {
         if (error) throw error;
 
         // Auto-apply RBAC storage policies
-        const policyErrors = await applyBucketPolicies(supabaseUrl, supabaseServiceKey, bucketName);
-        
-        return new Response(JSON.stringify({ 
-          success: true, 
-          data, 
+        const policyErrors = await applyBucketPolicies(bucketName);
+
+        return new Response(JSON.stringify({
+          success: true,
+          data,
           policies_applied: policyErrors.length === 0,
           policy_errors: policyErrors.length > 0 ? policyErrors : undefined,
         }), {
@@ -191,15 +165,14 @@ serve(async (req) => {
       case "delete": {
         if (!bucketName) throw new Error("Nom du bucket requis");
         // Remove RLS policies first
-        await removeBucketPolicies(supabaseUrl, supabaseServiceKey, bucketName);
-        
+        await removeBucketPolicies(bucketName);
+
         // Empty the bucket
         const { data: files } = await adminClient.storage.from(bucketName).list("", { limit: 1000 });
         if (files && files.length > 0) {
           const filePaths = files.map((f) => f.name);
           await adminClient.storage.from(bucketName).remove(filePaths);
         }
-        // Delete the bucket
         const { error } = await adminClient.storage.deleteBucket(bucketName);
         if (error) throw error;
         return new Response(JSON.stringify({ success: true }), {
