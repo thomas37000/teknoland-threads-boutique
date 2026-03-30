@@ -36,11 +36,11 @@ interface StorageImage {
   created_at: string;
 }
 
-const BUCKETS = ["products", "stickers", "sweats", "teknoland-img", "tshirts", "vinyles"] as const;
 const ITEMS_PER_PAGE = 30;
 
 const AllBucketsGallery = () => {
-  const [activeBucket, setActiveBucket] = useState<string>(BUCKETS[0]);
+  const { buckets: BUCKETS, loading: bucketsLoading } = useBuckets();
+  const [activeBucket, setActiveBucket] = useState<string>("");
   const [images, setImages] = useState<Record<string, StorageImage[]>>({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [uploading, setUploading] = useState(false);
