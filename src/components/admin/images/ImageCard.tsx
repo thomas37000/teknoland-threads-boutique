@@ -244,7 +244,7 @@ const ImageCard: React.FC<ImageCardProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {MOVE_BUCKETS.filter((b) => b !== sourceBucket).map((bucket) => (
+            {allBuckets.filter((b) => b !== sourceBucket).map((bucket) => (
               <DropdownMenuItem key={bucket} onClick={() => moveToB(bucket)}>
                 {bucket}
               </DropdownMenuItem>
