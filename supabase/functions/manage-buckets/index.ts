@@ -6,13 +6,107 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+async function applyBucketPolicies(supabaseUrl: string, serviceKey: string, bucket: string) {
+  const sqlStatements = [
+    {
+      name: `Allow public read ${bucket}`,
+      sql: `CREATE POLICY "Allow public read ${bucket}" ON storage.objects FOR SELECT TO public USING (bucket_id = '${bucket}')`,
+    },
+    {
+      name: `Allow admin insert ${bucket}`,
+      sql: `CREATE POLICY "Allow admin insert ${bucket}" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = '${bucket}' AND public.has_role(auth.uid(), 'admin'))`,
+    },
+    {
+      name: `Allow admin update ${bucket}`,
+      sql: `CREATE POLICY "Allow admin update ${bucket}" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = '${bucket}' AND public.has_role(auth.uid(), 'admin'))`,
+    },
+    {
+      name: `Allow admin delete ${bucket}`,
+      sql: `CREATE POLICY "Allow admin delete ${bucket}" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = '${bucket}' AND public.has_role(auth.uid(), 'admin'))`,
+    },
+  ];
+
+  const errors: string[] = [];
+  for (const stmt of sqlStatements) {
+    const res = await fetch(`${supabaseUrl}/rest/v1/rpc/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${serviceKey}`,
+        apikey: serviceKey,
+      },
+      body: JSON.stringify({}),
+    });
+    // PostgREST rpc won't work for DDL, use pg REST SQL endpoint instead
+  }
+
+  // Use the Supabase SQL API (available via service role)
+  const fullSql = sqlStatements.map((s) => s.sql + ";").join("\n");
+
+  const pgRes = await fetch(`${supabaseUrl}/pg/query`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${serviceKey}`,
+      apikey: serviceKey,
+    },
+    body: JSON.stringify({ query: fullSql }),
+  });
+
+  if (!pgRes.ok) {
+    // Fallback: try each statement individually via pg meta
+    for (const stmt of sqlStatements) {
+      try {
+        const r = await fetch(`${supabaseUrl}/pg/query`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${serviceKey}`,
+            apikey: serviceKey,
+          },
+          body: JSON.stringify({ query: stmt.sql }),
+        });
+        if (!r.ok) {
+          errors.push(`Policy "${stmt.name}": ${await r.text()}`);
+        }
+      } catch (e) {
+        errors.push(`Policy "${stmt.name}": ${e.message}`);
+      }
+    }
+  }
+
+  return errors;
+}
+
+async function removeBucketPolicies(supabaseUrl: string, serviceKey: string, bucket: string) {
+  const policyNames = [
+    `Allow public read ${bucket}`,
+    `Allow admin insert ${bucket}`,
+    `Allow admin update ${bucket}`,
+    `Allow admin delete ${bucket}`,
+  ];
+
+  const sql = policyNames
+    .map((name) => `DROP POLICY IF EXISTS "${name}" ON storage.objects;`)
+    .join("\n");
+
+  await fetch(`${supabaseUrl}/pg/query`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${serviceKey}`,
+      apikey: serviceKey,
+    },
+    body: JSON.stringify({ query: sql }),
+  });
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    // Verify the user is admin
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Non autorisé" }), {
@@ -25,7 +119,6 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Verify user role with anon client
     const anonClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -38,7 +131,6 @@ serve(async (req) => {
       });
     }
 
-    // Check admin role
     const { data: roleData } = await anonClient
       .from("user_roles")
       .select("role")
@@ -53,9 +145,7 @@ serve(async (req) => {
       });
     }
 
-    // Use service role client for bucket operations
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
-
     const { action, bucketName, newBucketName, isPublic } = await req.json();
 
     switch (action) {
@@ -75,64 +165,20 @@ serve(async (req) => {
         if (error) throw error;
 
         // Auto-apply RBAC storage policies
-        const policiesSQL = `
-          CREATE POLICY "Allow public read ${bucketName}"
-          ON storage.objects FOR SELECT
-          TO public
-          USING (bucket_id = '${bucketName}');
-
-          CREATE POLICY "Allow admin insert ${bucketName}"
-          ON storage.objects FOR INSERT
-          TO authenticated
-          WITH CHECK (
-            bucket_id = '${bucketName}'
-            AND public.has_role(auth.uid(), 'admin')
-          );
-
-          CREATE POLICY "Allow admin update ${bucketName}"
-          ON storage.objects FOR UPDATE
-          TO authenticated
-          USING (
-            bucket_id = '${bucketName}'
-            AND public.has_role(auth.uid(), 'admin')
-          );
-
-          CREATE POLICY "Allow admin delete ${bucketName}"
-          ON storage.objects FOR DELETE
-          TO authenticated
-          USING (
-            bucket_id = '${bucketName}'
-            AND public.has_role(auth.uid(), 'admin')
-          );
-        `;
-
-        // Execute via REST API (PostgREST rpc or direct SQL)
-        const pgResponse = await fetch(
-          `${supabaseUrl}/rest/v1/rpc/`,
-          { method: "HEAD" } // just a check
-        );
-
-        // Use the admin client's internal fetch to run raw SQL
-        const { error: sqlError } = await adminClient.rpc('exec_sql' as any, { query: policiesSQL }).maybeSingle();
+        const policyErrors = await applyBucketPolicies(supabaseUrl, supabaseServiceKey, bucketName);
         
-        // If rpc doesn't exist, try direct pg connection via service role
-        if (sqlError) {
-          // Fallback: execute each policy individually via fetch to management API
-          const mgmtUrl = `${supabaseUrl}/pg`;
-          console.log("RPC exec_sql not available, policies must be applied manually or via migration. Bucket created successfully.");
-        }
-
-        return new Response(JSON.stringify({ success: true, data, policies_applied: !sqlError }), {
+        return new Response(JSON.stringify({ 
+          success: true, 
+          data, 
+          policies_applied: policyErrors.length === 0,
+          policy_errors: policyErrors.length > 0 ? policyErrors : undefined,
+        }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
       case "update": {
         if (!bucketName || !newBucketName) throw new Error("Noms requis");
-        // Supabase doesn't support renaming buckets directly.
-        // We need to: create new bucket, move files, delete old bucket.
-        // For simplicity, we update the bucket settings (public/private).
-        // True rename requires file migration.
         const { error } = await adminClient.storage.updateBucket(bucketName, {
           public: isPublic ?? true,
         });
@@ -144,13 +190,16 @@ serve(async (req) => {
 
       case "delete": {
         if (!bucketName) throw new Error("Nom du bucket requis");
-        // First empty the bucket
+        // Remove RLS policies first
+        await removeBucketPolicies(supabaseUrl, supabaseServiceKey, bucketName);
+        
+        // Empty the bucket
         const { data: files } = await adminClient.storage.from(bucketName).list("", { limit: 1000 });
         if (files && files.length > 0) {
           const filePaths = files.map((f) => f.name);
           await adminClient.storage.from(bucketName).remove(filePaths);
         }
-        // Then delete the bucket
+        // Delete the bucket
         const { error } = await adminClient.storage.deleteBucket(bucketName);
         if (error) throw error;
         return new Response(JSON.stringify({ success: true }), {
