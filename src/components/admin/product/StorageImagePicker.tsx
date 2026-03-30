@@ -37,18 +37,25 @@ const StorageImagePicker: React.FC<StorageImagePickerProps> = ({
   onSelect,
   multiple = false,
   onSelectMultiple,
-}) => {
+) => {
+  const { buckets: BUCKETS } = useBuckets();
   const [images, setImages] = useState<Record<string, StorageImage[]>>({});
   const [loading, setLoading] = useState(false);
   const [selectedUrls, setSelectedUrls] = useState<string[]>([]);
-  const [activeBucket, setActiveBucket] = useState<string>(BUCKETS[0]);
+  const [activeBucket, setActiveBucket] = useState<string>("");
 
   useEffect(() => {
-    if (open) {
+    if (BUCKETS.length > 0 && !activeBucket) {
+      setActiveBucket(BUCKETS[0]);
+    }
+  }, [BUCKETS, activeBucket]);
+
+  useEffect(() => {
+    if (open && BUCKETS.length > 0) {
       loadAllBuckets();
       setSelectedUrls([]);
     }
-  }, [open]);
+  }, [open, BUCKETS]);
 
   const loadAllBuckets = async () => {
     setLoading(true);
