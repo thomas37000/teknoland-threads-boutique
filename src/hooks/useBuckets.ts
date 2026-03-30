@@ -8,9 +8,12 @@ export const useBuckets = () => {
   const fetchBuckets = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.storage.listBuckets();
+      const { data, error } = await supabase.functions.invoke("manage-buckets", {
+        body: { action: "list" },
+      });
       if (error) throw error;
-      setBuckets((data || []).map((b) => b.name).sort());
+      const names = (data?.buckets || []).map((b: any) => b.name).sort();
+      setBuckets(names);
     } catch (err) {
       console.error("Error fetching buckets:", err);
     } finally {
