@@ -92,7 +92,7 @@ const BucketManagement = () => {
     const sanitized = newBucketName.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-");
     setActionLoading(true);
     try {
-      await callManageBuckets({
+      const result = await callManageBuckets({
         action: "create",
         bucketName: sanitized,
         isPublic: newBucketPublic,
