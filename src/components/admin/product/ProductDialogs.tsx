@@ -24,6 +24,7 @@ interface VinylTrack {
   duration: string; // Format MM:SS
   artist: string;
   year: string;
+  audioUrl?: string; // URL du fichier audio uploadé (mp3, wav, flac, aac, aiff)
 }
 
 interface ProductDialogsProps {
