@@ -333,21 +333,33 @@ const ProductDetails = ({
               return (
                 <div className="space-y-2">
                   {vinylTracks.map((track: any, index: number) => (
-                    <div key={track.id || index} className="flex items-center justify-between py-2 px-3 bg-white rounded border">
-                      <div className="flex-1">
-                        <span className="font-medium">{track.name}</span>
-                        {track.artist && (
-                          <span className="text-gray-600 ml-2">- {track.artist}</span>
-                        )}
+                    <div key={track.id || index} className="py-2 px-3 bg-white rounded border space-y-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <span className="font-medium">{track.name}</span>
+                          {track.artist && (
+                            <span className="text-gray-600 ml-2">- {track.artist}</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 text-sm text-gray-500 shrink-0">
+                          {track.duration && (
+                            <span>{track.duration}</span>
+                          )}
+                          {track.year && (
+                            <span>({track.year})</span>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-gray-500">
-                        {track.duration && (
-                          <span>{track.duration}</span>
-                        )}
-                        {track.year && (
-                          <span>({track.year})</span>
-                        )}
-                      </div>
+                      {track.audioUrl && (
+                        <audio
+                          controls
+                          preload="none"
+                          src={track.audioUrl}
+                          className="w-full h-10"
+                        >
+                          Votre navigateur ne supporte pas la lecture audio.
+                        </audio>
+                      )}
                     </div>
                   ))}
                 </div>
