@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Helmet } from "react-helmet-async";
+import { CheckCircle2, X } from "lucide-react";
 
 const ContactPage = () => {
   const { t } = useTranslation();
@@ -14,6 +15,7 @@ const ContactPage = () => {
     message: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -65,6 +67,7 @@ const ContactPage = () => {
       }
 
       toast.success(t('contact.successMessage'));
+      setShowSuccess(true);
 
       // Reset form
       setFormData({
