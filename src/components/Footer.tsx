@@ -1,8 +1,55 @@
 
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Check } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { toast } = useToast();
+  const [footerEmail, setFooterEmail] = useState("");
+  const [footerLoading, setFooterLoading] = useState(false);
+  const [footerSuccess, setFooterSuccess] = useState(false);
+
+  const handleFooterSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!footerEmail) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez entrer votre email",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setFooterLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("newsletter-subscribe", {
+        body: { email: footerEmail },
+      });
+      if (error) throw error;
+      if (data && data.ok === false) {
+        throw new Error(data.error || "Échec de l'inscription");
+      }
+      setFooterSuccess(true);
+      setFooterEmail("");
+      toast({
+        title: "Inscription réussie",
+        description: "Vérifiez votre email pour confirmer votre inscription",
+      });
+      setTimeout(() => setFooterSuccess(false), 5000);
+    } catch (err: any) {
+      console.error("Footer newsletter error:", err);
+      toast({
+        title: "Erreur",
+        description: err.message || "Échec de l'inscription",
+        variant: "destructive",
+      });
+    } finally {
+      setFooterLoading(false);
+    }
+  };
 
   return (
     <footer className="bg-tekno-black text-white mt-16">
@@ -77,17 +124,22 @@ const Footer = () => {
             <p className="text-tekno-gray mb-4">
               Subscribe to our newsletter for updates and promotions
             </p>
-            <form className="flex">
+            <form onSubmit={handleFooterSubscribe} className="flex">
               <input
                 type="email"
                 placeholder="Your Email"
-                className="px-3 py-2 bg-white/10 rounded-l-md text-white w-full"
+                value={footerEmail}
+                onChange={(e) => setFooterEmail(e.target.value)}
+                disabled={footerLoading || footerSuccess}
+                required
+                className="px-3 py-2 bg-white/10 rounded-l-md text-white w-full disabled:opacity-60"
               />
               <button
-                type="button"
-                className="px-4 py-2 bg-tekno-blue text-white rounded-r-md hover:bg-tekno-blue/90 transition-colors"
+                type="submit"
+                disabled={footerLoading || footerSuccess}
+                className="px-4 py-2 bg-tekno-blue text-white rounded-r-md hover:bg-tekno-blue/90 transition-colors disabled:opacity-60 flex items-center gap-1"
               >
-                Join
+                {footerLoading ? "..." : footerSuccess ? (<><Check className="w-4 h-4" /> OK</>) : "Join"}
               </button>
             </form>
           </div>
