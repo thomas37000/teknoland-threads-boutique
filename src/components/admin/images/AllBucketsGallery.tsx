@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Image as ImageIcon, Loader2, Search, X } from "lucide-react";
+import { Image as ImageIcon, Loader2, Search, X, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ImageCard from "./ImageCard";
@@ -40,7 +40,7 @@ interface StorageImage {
 const ITEMS_PER_PAGE = 30;
 
 const AllBucketsGallery = () => {
-  const { buckets: BUCKETS, loading: bucketsLoading } = useBuckets();
+  const { buckets: BUCKETS, loading: bucketsLoading, refetch: refetchBuckets } = useBuckets();
   const [activeBucket, setActiveBucket] = useState<string>("");
   const [images, setImages] = useState<Record<string, StorageImage[]>>({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
@@ -153,6 +153,19 @@ const AllBucketsGallery = () => {
           Galeries de stockage
         </CardTitle>
         <div className="flex items-center gap-2">
+          <Button
+            onClick={async () => {
+              await refetchBuckets();
+              toast.success("Liste des buckets actualisée");
+            }}
+            variant="outline"
+            size="sm"
+            disabled={bucketsLoading}
+            title="Rafraîchir la liste des buckets"
+          >
+            <RefreshCw className={`h-4 w-4 mr-1.5 ${bucketsLoading ? "animate-spin" : ""}`} />
+            Buckets
+          </Button>
           <div>
             <Label htmlFor="bucket-img-upload" className="sr-only">Importer une image</Label>
             <Input
