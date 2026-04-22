@@ -148,14 +148,21 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (emailError) {
       console.error("Email error:", emailError);
-      const errorMessage = emailError.message || "Failed to send confirmation email";
+      const rawMessage = emailError.message || "";
+      const isDomainError =
+        emailError.statusCode === 403 ||
+        rawMessage.toLowerCase().includes("verify a domain") ||
+        rawMessage.toLowerCase().includes("testing emails");
+      const userMessage = isDomainError
+        ? "L'envoi d'emails est en mode test. Veuillez vérifier un domaine sur resend.com/domains pour autoriser l'envoi à toutes les adresses."
+        : rawMessage || "Échec de l'envoi de l'email de confirmation";
       return new Response(
-        JSON.stringify({ 
-          error: errorMessage,
-          details: "Please verify your domain in Resend if you're seeing validation errors."
+        JSON.stringify({
+          ok: false,
+          error: userMessage,
         }),
         {
-          status: 500,
+          status: 200,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );
@@ -164,7 +171,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Newsletter subscription successful for:", email);
 
     return new Response(
-      JSON.stringify({ message: "Confirmation email sent successfully" }),
+      JSON.stringify({ ok: true, message: "Confirmation email sent successfully" }),
       {
         status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -173,9 +180,9 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in newsletter-subscribe function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ ok: false, error: error.message }),
       {
-        status: 500,
+        status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
