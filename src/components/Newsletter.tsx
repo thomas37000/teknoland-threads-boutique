@@ -28,11 +28,14 @@ const Newsletter = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.functions.invoke("newsletter-subscribe", {
+      const { data, error } = await supabase.functions.invoke("newsletter-subscribe", {
         body: { email },
       });
 
       if (error) throw error;
+      if (data && data.ok === false) {
+        throw new Error(data.error || t("newsletter.errorGeneric"));
+      }
 
       setIsSuccess(true);
       setEmail("");
