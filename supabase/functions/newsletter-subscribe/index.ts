@@ -28,9 +28,9 @@ const handler = async (req: Request): Promise<Response> => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
       return new Response(
-        JSON.stringify({ error: "Invalid email address" }),
+        JSON.stringify({ ok: false, error: "Adresse email invalide" }),
         {
-          status: 400,
+          status: 200,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );
@@ -48,9 +48,9 @@ const handler = async (req: Request): Promise<Response> => {
     if (existingSubscription) {
       if (existingSubscription.confirmed) {
         return new Response(
-          JSON.stringify({ error: "Email already subscribed" }),
+          JSON.stringify({ ok: false, error: "Cet email est déjà inscrit à la newsletter" }),
           {
-            status: 400,
+            status: 200,
             headers: { "Content-Type": "application/json", ...corsHeaders },
           }
         );
@@ -85,7 +85,7 @@ const handler = async (req: Request): Promise<Response> => {
         });
 
         return new Response(
-          JSON.stringify({ message: "Confirmation email resent" }),
+          JSON.stringify({ ok: true, message: "Email de confirmation renvoyé" }),
           {
             status: 200,
             headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -109,9 +109,9 @@ const handler = async (req: Request): Promise<Response> => {
     if (insertError) {
       console.error("Insert error:", insertError);
       return new Response(
-        JSON.stringify({ error: "Failed to subscribe" }),
+        JSON.stringify({ ok: false, error: "Échec de l'inscription" }),
         {
-          status: 500,
+          status: 200,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );
