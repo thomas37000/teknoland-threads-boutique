@@ -27,6 +27,7 @@ export function AddProductDialog({
   showVinylTracks,
   vinylTracks,
   updateVinylTrack,
+  handleVinylAudioUpload,
   multipleImageFiles,
   imageFile,
   handleImageChange,
@@ -432,6 +433,25 @@ export function AddProductDialog({
                         placeholder="2024"
                       />
                     </div>
+                  </div>
+
+                  {/* Upload audio par piste */}
+                  <div className="space-y-1">
+                    <Label className="text-sm">Fichier audio</Label>
+                    <Input
+                      type="file"
+                      accept=".mp3,.wav,.flac,.aac,.aiff,.aif,audio/mpeg,audio/wav,audio/x-wav,audio/flac,audio/aac,audio/aiff,audio/x-aiff"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleVinylAudioUpload?.(index, file, false);
+                      }}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Formats acceptés : MP3, WAV, FLAC, AAC, AIFF. Max 50MB.
+                    </p>
+                    {track.audioUrl && (
+                      <audio controls src={track.audioUrl} className="w-full mt-1" />
+                    )}
                   </div>
                 </div>
               ))}
