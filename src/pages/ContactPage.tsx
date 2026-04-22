@@ -121,6 +121,22 @@ const ContactPage = () => {
           <div className="flex flex-col lg:flex-row gap-12">
             {/* Contact Form */}
             <div className="lg:w-2/3">
+              {showSuccess && (
+                <div className="mb-6 flex items-start justify-between gap-3 rounded-md border border-green-200 bg-green-50 p-4 text-green-800">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm font-medium">{t('contact.successMessage')}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowSuccess(false)}
+                    aria-label="Fermer"
+                    className="text-green-800 hover:text-green-900"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
               <h2 className="text-3xl font-bold mb-6">{t('contact.sendMessage')}</h2>
 
               <form onSubmit={handleSubmit} className="space-y-6">
