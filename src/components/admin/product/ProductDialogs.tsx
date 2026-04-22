@@ -317,6 +317,57 @@ const ProductDialogs = ({
     setTargetTracks(updatedTracks);
   };
 
+  // Handle audio file upload for a vinyl track
+  const handleVinylAudioUpload = async (
+    index: number,
+    file: File,
+    isEdit: boolean = false
+  ) => {
+    const allowedExt = ["mp3", "wav", "flac", "aac", "aiff", "aif"];
+    const ext = file.name.split(".").pop()?.toLowerCase() || "";
+    if (!allowedExt.includes(ext)) {
+      toast({
+        title: "Format non supporté",
+        description: "Formats acceptés : MP3, WAV, FLAC, AAC, AIFF.",
+        variant: "destructive",
+      });
+      return;
+    }
+    // Limite à 50 MB par piste
+    if (file.size > 50 * 1024 * 1024) {
+      toast({
+        title: "Fichier trop volumineux",
+        description: "Le fichier audio doit faire moins de 50 MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const fileName = `tracks/${Date.now()}_${Math.random()
+        .toString(36)
+        .substring(2, 10)}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("vinyles")
+        .upload(fileName, file, { contentType: file.type || `audio/${ext}` });
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("vinyles")
+        .getPublicUrl(fileName);
+
+      updateVinylTrack(index, "audioUrl", urlData.publicUrl, isEdit);
+      toast({ title: "Audio uploadé", description: file.name });
+    } catch (err: any) {
+      console.error("Audio upload error:", err);
+      toast({
+        title: "Erreur d'upload",
+        description: err.message || "Impossible d'uploader le fichier audio.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Handle add product with image upload
   const handleAddWithImage = async () => {
     try {
