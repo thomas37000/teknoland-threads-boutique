@@ -8,7 +8,12 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:run:component": "cypress run --component",
+    "test:e2e": "start-server-and-test dev http://localhost:8080 cy:run",
+    "test:e2e:open": "start-server-and-test dev http://localhost:8080 cy:open"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -44,6 +49,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
+    "cypress": "^15.14.1",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
     "i18next": "^25.2.1",
@@ -61,6 +67,7 @@
     "react-router-dom": "^6.26.2",
     "recharts": "^2.12.7",
     "sonner": "^1.5.0",
+    "start-server-and-test": "^3.0.2",
     "stripe": "^14.21.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
