@@ -40,7 +40,7 @@ cypress/
 │   ├── shop.cy.ts          → Boutique
 │   ├── cart.cy.ts          → Panier
 │   ├── auth.cy.ts          → Connexion / Inscription
-│   ├── contact.cy.ts       → Formulaire de contact
+│   ├── contact.cy.ts       → 📨 Formulaire de contact (validation, envoi BD + email, erreurs)
 │   ├── navigation.cy.ts    → Routes globales + 404
 │   ├── protected-routes.cy.ts → Vérification des accès admin/profile
 │   ├── stripe-checkout.cy.ts       → 💳 Parcours de paiement (popup login + redirection Stripe)
@@ -205,6 +205,43 @@ cy.mockStripeCheckout("stripeCheckout", 500); // 2e arg = statusCode
 - Si tu changes le **contrat** (ajout/suppression de champ dans `cartItems`), mets à jour `stripe-edge-function.cy.ts` ET la fonction Deno côté `supabase/functions/create-cart-checkout/`.
 - Le test "n'envoie PAS de prix final calculé côté client" garantit le respect de la mémoire `securite-flux-paiement` : le serveur recalcule toujours les prix.
 - Pour tester un **vrai** parcours bout-en-bout avec carte de test Stripe (`4242 4242 4242 4242`), il faut désactiver les mocks et passer en mode `sandbox` Stripe — ce n'est pas couvert ici.
+
+---
+
+## 📨 Tester le formulaire de contact
+
+Le fichier `cypress/e2e/contact.cy.ts` couvre toute la page `/contact` :
+
+| Type de test | Vérifie |
+|--------------|---------|
+| **Affichage** | Présence des champs (nom/email/sujet/message), 5 options de sujet, coordonnées, liens sociaux |
+| **Validation HTML5** | Bouton bloqué si champs vides, email mal formé rejeté |
+| **Envoi succès** | Insert dans `contacts` + appel Edge Function `send-contact-notification` + bannière de confirmation + reset du formulaire |
+| **Erreur BD** | Toast d'erreur, formulaire conservé pour ne pas perdre la saisie |
+| **Échec email non-bloquant** | Si l'Edge Function email échoue mais la BD passe, l'user voit quand même un succès (cf. `ContactPage.tsx` lignes 60-67) |
+| **UX** | Bouton désactivé pendant l'envoi avec texte "Envoi..." |
+
+### Comment ça marche ?
+
+Deux requêtes Supabase sont mockées :
+
+```ts
+// 1. Insertion dans la table contacts
+cy.intercept("POST", "**/rest/v1/contacts*", { statusCode: 201, body: [{}] });
+
+// 2. Edge Function d'envoi d'email
+cy.intercept("POST", "**/functions/v1/send-contact-notification", {
+  statusCode: 200,
+  body: { success: true },
+});
+```
+
+### ⚠️ À retenir
+
+- **Aucune ligne réelle n'est insérée** dans la table `contacts` — tout passe par `cy.intercept()`.
+- Si tu modifies les noms de colonnes (`name`, `email`, `subject`, `message`), mets à jour les assertions du test "envoie le formulaire avec succès".
+- L'échec de l'email est volontairement non-bloquant côté frontend — c'est testé pour éviter une régression.
+- Pour tester l'envoi **réel** de l'email, utilise `supabase--curl_edge_functions` ou regarde les logs de la fonction `send-contact-notification`.
 
 ---
 
