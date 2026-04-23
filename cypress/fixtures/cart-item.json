@@ -1,0 +1,9 @@
+{
+  "id": "test-product-1",
+  "name": "Vinyle Test Cypress",
+  "price": 25,
+  "image": "https://thwkmsuqkevfgqwlayqv.supabase.co/storage/v1/object/public/placeholder/no-image.png",
+  "quantity": 1,
+  "size": null,
+  "color": null
+}
