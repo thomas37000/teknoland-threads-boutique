@@ -8,7 +8,12 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:run:component": "cypress run --component",
+    "test:e2e": "start-server-and-test dev http://localhost:8080 cy:run",
+    "test:e2e:open": "start-server-and-test dev http://localhost:8080 cy:open"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
