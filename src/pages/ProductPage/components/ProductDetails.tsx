@@ -355,7 +355,7 @@ const ProductDetails = ({
                           controls
                           controlsList="nodownload noplaybackrate"
                           onContextMenu={(e) => e.preventDefault()}
-                          preload="none"
+                          preload="metadata"
                           src={track.audioUrl}
                           className="w-full h-10"
                         >
