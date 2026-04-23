@@ -42,7 +42,10 @@ cypress/
 │   ├── auth.cy.ts          → Connexion / Inscription
 │   ├── contact.cy.ts       → Formulaire de contact
 │   ├── navigation.cy.ts    → Routes globales + 404
-│   └── protected-routes.cy.ts → Vérification des accès admin/profile
+│   ├── protected-routes.cy.ts → Vérification des accès admin/profile
+│   ├── stripe-checkout.cy.ts       → 💳 Parcours de paiement (popup login + redirection Stripe)
+│   ├── stripe-payment-success.cy.ts → 💳 Page /payment-success après retour Stripe
+│   └── stripe-edge-function.cy.ts  → 💳 Contrat de l'Edge Function create-cart-checkout
 ├── component/              → Tests de composants React isolés (montés sans navigation)
 │   ├── Button.cy.tsx
 │   ├── Badge.cy.tsx
@@ -54,7 +57,9 @@ cypress/
 │   └── component-index.html
 ├── fixtures/               → Données de test mockées (JSON)
 │   ├── product.json
-│   └── user.json
+│   ├── user.json
+│   ├── cart-item.json         → Article de panier type
+│   └── stripe-checkout.json   → Réponse mockée de l'Edge Function Stripe
 └── README.md               → Ce fichier
 ```
 
@@ -146,9 +151,60 @@ Définies dans `cypress/support/commands.ts` :
 cy.getByTestId("login-button");      // Sélecteur par data-testid
 cy.loginAsMockUser("admin@test.fr"); // Pose un faux token Supabase
 cy.clearCart();                      // Vide le panier (localStorage)
+cy.seedCart([{ id, name, price, image, quantity }]); // Pré-remplit le panier
+cy.mockStripeCheckout();             // Mock l'Edge Function create-cart-checkout
+cy.mockStripeSingleCheckout();       // Mock l'Edge Function create-checkout (achat unitaire)
 ```
 
 Pour ajouter ta propre commande, édite `cypress/support/commands.ts` et déclare-la dans le bloc `declare global`.
+
+---
+
+## 💳 Tester le flux Stripe
+
+Trois fichiers couvrent le paiement, **sans jamais appeler la vraie API Stripe** :
+
+| Fichier | Ce qu'il vérifie |
+|---------|------------------|
+| `stripe-checkout.cy.ts` | Popup de connexion, redirection vers Stripe quand l'user est loggué, gestion d'erreur 500, bouton désactivé si panier vide |
+| `stripe-payment-success.cy.ts` | Page `/payment-success` : confirmation, vidage du panier, bouton retour boutique |
+| `stripe-edge-function.cy.ts` | Contrat de la requête envoyée à `create-cart-checkout` : structure des items, header `Authorization`, **absence de prix calculé côté client** (sécurité) |
+
+### Comment ça marche ?
+
+1. **`cy.seedCart([...])`** dépose un panier dans `localStorage` (clé `teknoland-cart`).
+2. **`cy.mockStripeCheckout()`** intercepte `POST **/functions/v1/create-cart-checkout` et renvoie l'URL factice de `cypress/fixtures/stripe-checkout.json`.
+3. Un **stub sur `window.location.href`** empêche la redirection réelle vers `checkout.stripe.com` et stocke l'URL dans `window.__redirectedTo` pour assertion.
+4. **`cy.loginAsMockUser()`** pose un faux token Supabase pour que l'app considère l'user authentifié.
+
+### Exemple minimal
+
+```ts
+it("redirige vers Stripe quand on valide le panier", () => {
+  cy.loginAsMockUser("acheteur@test.fr");
+  cy.seedCart();                  // panier par défaut : 1 vinyle à 25€
+  cy.mockStripeCheckout();        // alias par défaut : @stripeCheckout
+  cy.visit("/cart");
+
+  cy.contains(/passer commande/i).click();
+  cy.wait("@stripeCheckout");     // attend l'appel Edge Function
+  cy.window().its("__redirectedTo").should("include", "checkout.stripe.com");
+});
+```
+
+### Tester un cas d'erreur
+
+```ts
+cy.mockStripeCheckout("stripeCheckout", 500); // 2e arg = statusCode
+// → l'app affichera un toast d'erreur, l'user reste sur /cart
+```
+
+### ⚠️ À retenir
+
+- **On ne teste jamais la vraie Edge Function** depuis Cypress — elle est testée via `supabase--test_edge_functions` (Deno) côté backend.
+- Si tu changes le **contrat** (ajout/suppression de champ dans `cartItems`), mets à jour `stripe-edge-function.cy.ts` ET la fonction Deno côté `supabase/functions/create-cart-checkout/`.
+- Le test "n'envoie PAS de prix final calculé côté client" garantit le respect de la mémoire `securite-flux-paiement` : le serveur recalcule toujours les prix.
+- Pour tester un **vrai** parcours bout-en-bout avec carte de test Stripe (`4242 4242 4242 4242`), il faut désactiver les mocks et passer en mode `sandbox` Stripe — ce n'est pas couvert ici.
 
 ---
 
