@@ -302,7 +302,10 @@ const CategoryManagement = () => {
           </div>
           <div>
             <Label>Image de la catégorie</Label>
-            <div className="flex items-center gap-3 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
+              Taille conseillée : 800 × 600 px (ratio 4:3) pour un rendu optimal sur les cartes.
+            </p>
+            <div className="flex items-center gap-3 mt-2">
               {newCategory.image_url ? (
                 <img src={newCategory.image_url} alt="" className="h-16 w-16 rounded object-cover border" />
               ) : (
