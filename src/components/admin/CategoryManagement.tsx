@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import StorageImagePicker from "./product/StorageImagePicker";
+import { ImageIcon } from "lucide-react";
 
 interface Category {
   id: string;
@@ -18,6 +20,7 @@ interface Category {
   description?: string;
   is_active: boolean;
   display_order: number;
+  image_url?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -28,12 +31,15 @@ const CategoryManagement = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerTarget, setPickerTarget] = useState<"new" | "edit">("edit");
   const [newCategory, setNewCategory] = useState({
     name: "",
     slug: "",
     description: "",
     is_active: true,
-    display_order: 0
+    display_order: 0,
+    image_url: ""
   });
 
   // Fetch categories from Supabase
@@ -83,6 +89,7 @@ const CategoryManagement = () => {
         description: newCategory.description || null,
         is_active: newCategory.is_active,
         display_order: newCategory.display_order || categories.length + 1,
+        image_url: newCategory.image_url || null,
       };
 
       const { data, error } = await supabase
@@ -107,7 +114,8 @@ const CategoryManagement = () => {
         slug: "",
         description: "",
         is_active: true,
-        display_order: 0
+        display_order: 0,
+        image_url: ""
       });
       setIsAddDialogOpen(false);
 
@@ -131,7 +139,8 @@ const CategoryManagement = () => {
           slug: currentCategory.slug,
           description: currentCategory.description || null,
           is_active: currentCategory.is_active,
-          display_order: currentCategory.display_order
+          display_order: currentCategory.display_order,
+          image_url: currentCategory.image_url || null,
         })
         .eq('id', currentCategory.id)
         .select()
@@ -291,6 +300,26 @@ const CategoryManagement = () => {
             />
             <Label htmlFor="is_active">Catégorie active</Label>
           </div>
+          <div>
+            <Label>Image de la catégorie</Label>
+            <div className="flex items-center gap-3 mt-1">
+              {newCategory.image_url ? (
+                <img src={newCategory.image_url} alt="" className="h-16 w-16 rounded object-cover border" />
+              ) : (
+                <div className="h-16 w-16 rounded border flex items-center justify-center bg-muted">
+                  <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                </div>
+              )}
+              <Button type="button" variant="outline" size="sm" onClick={() => { setPickerTarget("new"); setPickerOpen(true); }}>
+                Choisir une image
+              </Button>
+              {newCategory.image_url && (
+                <Button type="button" variant="ghost" size="sm" onClick={() => setNewCategory({ ...newCategory, image_url: "" })}>
+                  Retirer
+                </Button>
+              )}
+            </div>
+          </div>
           <div className="flex gap-2">
             <Button onClick={handleAddCategory} className="flex-1">Ajouter</Button>
             <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="flex-1">Annuler</Button>
@@ -401,6 +430,26 @@ const CategoryManagement = () => {
                 onChange={(e) => setCurrentCategory({...currentCategory, description: e.target.value})}
               />
             </div>
+            <div>
+              <Label>Image de la catégorie</Label>
+              <div className="flex items-center gap-3 mt-1">
+                {currentCategory.image_url ? (
+                  <img src={currentCategory.image_url} alt="" className="h-16 w-16 rounded object-cover border" />
+                ) : (
+                  <div className="h-16 w-16 rounded border flex items-center justify-center bg-muted">
+                    <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                )}
+                <Button type="button" variant="outline" size="sm" onClick={() => { setPickerTarget("edit"); setPickerOpen(true); }}>
+                  Choisir une image
+                </Button>
+                {currentCategory.image_url && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setCurrentCategory({ ...currentCategory, image_url: null })}>
+                    Retirer
+                  </Button>
+                )}
+              </div>
+            </div>
             <div className="flex gap-2">
               <Button onClick={handleEditCategory} className="flex-1">Sauvegarder</Button>
               <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="flex-1">Annuler</Button>
@@ -408,6 +457,18 @@ const CategoryManagement = () => {
           </div>
         )}
       </PopupAdmin>
+
+      <StorageImagePicker
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={(url) => {
+          if (pickerTarget === "new") {
+            setNewCategory((prev) => ({ ...prev, image_url: url }));
+          } else if (currentCategory) {
+            setCurrentCategory({ ...currentCategory, image_url: url });
+          }
+        }}
+      />
     </div>
   );
 };
