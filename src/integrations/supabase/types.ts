@@ -53,6 +53,7 @@ export type Database = {
           description: string | null
           display_order: number
           id: string
+          image_url: string | null
           is_active: boolean
           name: string
           slug: string
@@ -63,6 +64,7 @@ export type Database = {
           description?: string | null
           display_order?: number
           id?: string
+          image_url?: string | null
           is_active?: boolean
           name: string
           slug: string
@@ -73,6 +75,7 @@ export type Database = {
           description?: string | null
           display_order?: number
           id?: string
+          image_url?: string | null
           is_active?: boolean
           name?: string
           slug?: string
