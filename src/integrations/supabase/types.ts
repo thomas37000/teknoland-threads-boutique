@@ -143,6 +143,117 @@ export type Database = {
         }
         Relationships: []
       }
+      discogs_releases: {
+        Row: {
+          artist: string | null
+          created_at: string
+          current_collection_count: number
+          current_wantlist_count: number
+          discogs_url: string | null
+          id: string
+          last_synced_at: string | null
+          release_id: number
+          thumbnail: string | null
+          title: string
+          updated_at: string
+          year: number | null
+        }
+        Insert: {
+          artist?: string | null
+          created_at?: string
+          current_collection_count?: number
+          current_wantlist_count?: number
+          discogs_url?: string | null
+          id?: string
+          last_synced_at?: string | null
+          release_id: number
+          thumbnail?: string | null
+          title: string
+          updated_at?: string
+          year?: number | null
+        }
+        Update: {
+          artist?: string | null
+          created_at?: string
+          current_collection_count?: number
+          current_wantlist_count?: number
+          discogs_url?: string | null
+          id?: string
+          last_synced_at?: string | null
+          release_id?: number
+          thumbnail?: string | null
+          title?: string
+          updated_at?: string
+          year?: number | null
+        }
+        Relationships: []
+      }
+      discogs_stats_history: {
+        Row: {
+          collection_count: number
+          delta_collection: number
+          delta_wantlist: number
+          id: string
+          recorded_at: string
+          release_id: number
+          wantlist_count: number
+        }
+        Insert: {
+          collection_count?: number
+          delta_collection?: number
+          delta_wantlist?: number
+          id?: string
+          recorded_at?: string
+          release_id: number
+          wantlist_count?: number
+        }
+        Update: {
+          collection_count?: number
+          delta_collection?: number
+          delta_wantlist?: number
+          id?: string
+          recorded_at?: string
+          release_id?: number
+          wantlist_count?: number
+        }
+        Relationships: []
+      }
+      discogs_sync_state: {
+        Row: {
+          id: string
+          last_admin_viewed_at: string | null
+          last_full_sync_at: string | null
+          last_stats_cursor: number
+          last_stats_sync_at: string | null
+          singleton: boolean
+          unseen_collection_delta: number
+          unseen_wantlist_delta: number
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          last_admin_viewed_at?: string | null
+          last_full_sync_at?: string | null
+          last_stats_cursor?: number
+          last_stats_sync_at?: string | null
+          singleton?: boolean
+          unseen_collection_delta?: number
+          unseen_wantlist_delta?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          last_admin_viewed_at?: string | null
+          last_full_sync_at?: string | null
+          last_stats_cursor?: number
+          last_stats_sync_at?: string | null
+          singleton?: boolean
+          unseen_collection_delta?: number
+          unseen_wantlist_delta?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string
