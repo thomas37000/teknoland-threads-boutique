@@ -1,5 +1,6 @@
-import { Package, Users, Tag, Filter, Mail, Heart, Calculator, Image, Music } from "lucide-react";
+import { Package, Users, Tag, Filter, Mail, Heart, Calculator, Image, Music, Disc3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useDiscogsUnseen } from "@/hooks/useDiscogs";
 import {
   Sidebar,
   SidebarContent,
@@ -32,6 +33,7 @@ const menuItems = [
   { value: "images", label: "Images", icon: Image },
   { value: "idees", label: "Idées", icon: Users },
   { value: "artistes", label: "Artistes", icon: Music },
+  { value: "discogs", label: "Discogs", icon: Disc3, badge: "discogsUnseenCount" },
 ];
 
 export function AdminSidebar({
@@ -43,12 +45,14 @@ export function AdminSidebar({
 }: AdminSidebarProps) {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
+  const discogsUnseenCount = useDiscogsUnseen();
 
   const getBadgeCount = (badgeKey?: string) => {
     if (!badgeKey) return 0;
     if (badgeKey === "newProductsCount") return newProductsCount;
     if (badgeKey === "unreadMessagesCount") return unreadMessagesCount;
     if (badgeKey === "newUsersCount") return newUsersCount;
+    if (badgeKey === "discogsUnseenCount") return discogsUnseenCount;
     return 0;
   };
 

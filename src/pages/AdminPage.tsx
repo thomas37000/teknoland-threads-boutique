@@ -13,6 +13,7 @@ import DepensesManagement from "@/components/admin/DepensesManagement";
 import ImageManagement from "@/components/admin/ImageManagement";
 import { supabase } from "@/integrations/supabase/client";
 import AirtableManagement from "@/components/admin/AirtableManagement";
+import DiscogsManagement from "@/components/admin/DiscogsManagement";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
@@ -99,6 +100,7 @@ const AdminPage = () => {
             {activeTab === "images" && <ImageManagement />}
             {activeTab === "idees" && <IdeasManagement initialIdeas={[]} />}
             {activeTab === "artistes" && <AirtableManagement />}
+            {activeTab === "discogs" && <DiscogsManagement />}
           </div>
         </main>
       </div>

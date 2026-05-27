@@ -23,3 +23,9 @@ verify_jwt = false
 
 [functions.sitemap]
 verify_jwt = false
+
+[functions.discogs-sync-releases]
+verify_jwt = false
+
+[functions.discogs-sync-stats]
+verify_jwt = false
