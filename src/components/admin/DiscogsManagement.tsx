@@ -1,10 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import { RefreshCw, Search, Disc3, Heart, AlertCircle } from "lucide-react";
+import { RefreshCw, Search, Disc3, Heart, AlertCircle, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useDiscogs } from "@/hooks/useDiscogs";
 import { ReleaseCard } from "./discogs/ReleaseCard";
 import { useToast } from "@/hooks/use-toast";
