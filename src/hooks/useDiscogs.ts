@@ -109,14 +109,25 @@ export function useDiscogsUnseen() {
   useEffect(() => {
     let active = true;
     const load = async () => {
-      const { data } = await supabase
+      // Récupère la date de la dernière visite admin
+      const { data: st } = await supabase
         .from("discogs_sync_state")
-        .select("unseen_collection_delta, unseen_wantlist_delta")
+        .select("last_admin_viewed_at")
         .eq("singleton", true)
         .maybeSingle();
-      if (active && data) {
-        setCount((data.unseen_collection_delta ?? 0) + (data.unseen_wantlist_delta ?? 0));
+      const since = st?.last_admin_viewed_at ?? "1970-01-01";
+      // Compte le nombre de releases distinctes avec un delta positif depuis cette date
+      const { data: hist } = await supabase
+        .from("discogs_stats_history")
+        .select("release_id, delta_collection, delta_wantlist")
+        .gt("recorded_at", since);
+      const distinct = new Set<number>();
+      for (const h of (hist as any[]) ?? []) {
+        if ((h.delta_collection ?? 0) > 0 || (h.delta_wantlist ?? 0) > 0) {
+          distinct.add(h.release_id);
+        }
       }
+      if (active) setCount(distinct.size);
     };
     load();
     const id = setInterval(load, 60_000);
