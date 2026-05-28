@@ -1,10 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import { RefreshCw, Search, Disc3, Heart, AlertCircle } from "lucide-react";
+import { RefreshCw, Search, Disc3, Heart, AlertCircle, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useDiscogs } from "@/hooks/useDiscogs";
 import { ReleaseCard } from "./discogs/ReleaseCard";
 import { useToast } from "@/hooks/use-toast";
@@ -90,16 +96,49 @@ const DiscogsManagement = () => {
               : "Aucun sync stats"}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleSyncReleases} disabled={syncing}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
-            Importer releases
-          </Button>
-          <Button onClick={handleSyncStats} disabled={syncing}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
-            Sync stats (batch)
-          </Button>
-        </div>
+        <TooltipProvider delayDuration={200}>
+          <div className="flex gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" onClick={handleSyncReleases} disabled={syncing}>
+                  <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
+                  Importer releases
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-xs">
+                <div className="space-y-1">
+                  <p className="font-semibold flex items-center gap-1">
+                    <Info className="h-3 w-3" /> Importer releases
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Récupère toutes les releases vinyles du label Discogs 1625918.
+                    À utiliser la première fois ou pour actualiser le catalogue complet.
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={handleSyncStats} disabled={syncing}>
+                  <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
+                  Sync stats (batch)
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-xs">
+                <div className="space-y-1">
+                  <p className="font-semibold flex items-center gap-1">
+                    <Info className="h-3 w-3" /> Sync stats
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Met à jour les compteurs collection / wantlist par batch de 40 releases.
+                    Respecte les rate limits Discogs (1 requête / 1,1 s).
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
       </div>
 
       {/* KPI cards */}
