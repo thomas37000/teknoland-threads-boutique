@@ -43,6 +43,11 @@ Deno.serve(async (req) => {
       const data = await res.json();
       totalPages = data.pagination?.pages ?? 1;
       for (const r of data.releases ?? []) {
+        // Filtre : ne garder que les vinyles
+        const fmt = Array.isArray(r.format)
+          ? r.format.join(",").toLowerCase()
+          : String(r.format ?? "").toLowerCase();
+        if (!fmt.includes("vinyl")) continue;
         allReleases.push({
           release_id: r.id,
           title: r.title ?? "",
@@ -63,6 +68,13 @@ Deno.serve(async (req) => {
         .upsert(allReleases, { onConflict: "release_id", ignoreDuplicates: false });
       if (error) throw error;
       imported = allReleases.length;
+
+      // Supprime les releases qui ne sont plus dans le set vinyles
+      const vinylIds = allReleases.map((r) => r.release_id);
+      await supabase
+        .from("discogs_releases")
+        .delete()
+        .not("release_id", "in", `(${vinylIds.join(",")})`);
     }
 
     await supabase

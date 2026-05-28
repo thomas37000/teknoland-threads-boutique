@@ -10,8 +10,15 @@ interface ReleaseCardProps {
 }
 
 export function ReleaseCard({ release, deltaCollection, deltaWantlist }: ReleaseCardProps) {
+  const hasNew = deltaCollection > 0 || deltaWantlist > 0;
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+    <Card className="relative overflow-hidden hover:shadow-md transition-shadow">
+      {hasNew && (
+        <span className="absolute -top-1 -right-1 z-10 flex h-3 w-3">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
+          <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500 ring-2 ring-background" />
+        </span>
+      )}
       <div className="aspect-square bg-muted relative">
         {release.thumbnail ? (
           <img
