@@ -60,11 +60,12 @@ async function main() {
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // Active categories -> /shop/:category
-    const { data: categories } = await supabase
+    const { data: categories, error: catErr } = await supabase
       .from("categories")
       .select("slug")
       .eq("is_active", true)
       .not("slug", "is", null);
+    if (catErr) console.warn("sitemap categories error:", catErr);
 
     for (const c of categories ?? []) {
       entries.push({
@@ -75,10 +76,11 @@ async function main() {
     }
 
     // Products -> /product/:category/:slug
-    const { data: products } = await supabase
+    const { data: products, error: prodErr } = await supabase
       .from("products")
       .select("slug, category, created_at")
       .not("slug", "is", null);
+    if (prodErr) console.warn("sitemap products error:", prodErr);
 
     for (const p of products ?? []) {
       if (!p.category) continue;
