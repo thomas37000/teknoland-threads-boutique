@@ -6,9 +6,9 @@ import { createClient } from "@supabase/supabase-js";
 
 const BASE_URL = "https://teknoland-threads-boutique.lovable.app";
 
-const SUPABASE_URL = "https://lrmrnirzxqvcwlnyilxe.supabase.co";
+const SUPABASE_URL = "https://thwkmsuqkevfgqwlayqv.supabase.co";
 const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxybXJuaXJ6eHF2Y3dsbnlpbHhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY1MjE2NDcsImV4cCI6MjA2MjA5NzY0N30.U6Zk1jKkLI3aozZP6XQkPpoCJ1FZQ4Q3l8KQjLqIYO0";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRod2ttc3Vxa2V2Zmdxd2xheXF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5NTM4MDUsImV4cCI6MjA1OTUyOTgwNX0.uxyLw7U2wPTJIQssjXT_de8C_3nhge7ReJlFR1bj2g4";
 
 interface SitemapEntry {
   path: string;
