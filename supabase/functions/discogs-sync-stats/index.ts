@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
 };
 
 const USER_AGENT = "TeknolandApp/1.0 +https://teknoland.app";
@@ -20,6 +20,48 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  const startedAt = Date.now();
+  let callerId = "cron";
+
+  const cronSecret = req.headers.get("x-cron-secret");
+  const expectedCron = Deno.env.get("DISCOGS_CRON_SECRET");
+  const isCron = !!expectedCron && cronSecret === expectedCron;
+
+  if (!isCron) {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } },
+    );
+    const { data: { user } } = await userClient.auth.getUser();
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const { data: isAdmin } = await userClient.rpc("has_role", {
+      _user_id: user.id,
+      _role: "admin",
+    });
+    if (!isAdmin) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    callerId = user.id;
+  }
+
+  console.log(`[discogs-sync-stats] start caller=${callerId} at=${new Date().toISOString()}`);
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -117,12 +159,13 @@ Deno.serve(async (req) => {
       })
       .eq("singleton", true);
 
+    console.log(`[discogs-sync-stats] done caller=${callerId} processed=${processed} duration_ms=${Date.now() - startedAt}`);
     return new Response(
       JSON.stringify({ ok: true, processed, totalDeltaCollection, totalDeltaWantlist, nextCursor }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (e) {
-    console.error("discogs-sync-stats error", e);
+    console.error(`[discogs-sync-stats] error caller=${callerId} duration_ms=${Date.now() - startedAt}`, e);
     return new Response(JSON.stringify({ ok: false, error: String(e) }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
