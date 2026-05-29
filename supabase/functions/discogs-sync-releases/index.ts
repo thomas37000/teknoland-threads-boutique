@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
 };
 
 const LABEL_ID = 1625918;
@@ -21,6 +21,49 @@ async function sleep(ms: number) {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  const startedAt = Date.now();
+  let callerId = "cron";
+
+  // Auth: either admin JWT or shared cron secret
+  const cronSecret = req.headers.get("x-cron-secret");
+  const expectedCron = Deno.env.get("DISCOGS_CRON_SECRET");
+  const isCron = !!expectedCron && cronSecret === expectedCron;
+
+  if (!isCron) {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } },
+    );
+    const { data: { user } } = await userClient.auth.getUser();
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const { data: isAdmin } = await userClient.rpc("has_role", {
+      _user_id: user.id,
+      _role: "admin",
+    });
+    if (!isAdmin) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    callerId = user.id;
+  }
+
+  console.log(`[discogs-sync-releases] start caller=${callerId} at=${new Date().toISOString()}`);
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -82,11 +125,12 @@ Deno.serve(async (req) => {
       .update({ last_full_sync_at: new Date().toISOString() })
       .eq("singleton", true);
 
+    console.log(`[discogs-sync-releases] done caller=${callerId} imported=${imported} duration_ms=${Date.now() - startedAt}`);
     return new Response(JSON.stringify({ ok: true, imported }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    console.error("discogs-sync-releases error", e);
+    console.error(`[discogs-sync-releases] error caller=${callerId} duration_ms=${Date.now() - startedAt}`, e);
     return new Response(JSON.stringify({ ok: false, error: String(e) }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
