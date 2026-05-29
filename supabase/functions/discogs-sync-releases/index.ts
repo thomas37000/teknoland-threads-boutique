@@ -25,10 +25,18 @@ Deno.serve(async (req) => {
   const startedAt = Date.now();
   let callerId = "cron";
 
-  // Auth: either admin JWT or shared cron secret
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
+  // Auth: either admin JWT or shared cron secret stored in vault
   const cronSecret = req.headers.get("x-cron-secret");
-  const expectedCron = Deno.env.get("DISCOGS_CRON_SECRET");
-  const isCron = !!expectedCron && cronSecret === expectedCron;
+  let isCron = false;
+  if (cronSecret) {
+    const { data: expected } = await supabase.rpc("get_discogs_cron_secret");
+    isCron = !!expected && cronSecret === expected;
+  }
 
   if (!isCron) {
     const authHeader = req.headers.get("Authorization");
@@ -64,11 +72,6 @@ Deno.serve(async (req) => {
   }
 
   console.log(`[discogs-sync-releases] start caller=${callerId} at=${new Date().toISOString()}`);
-
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-  );
 
   try {
     let page = 1;
