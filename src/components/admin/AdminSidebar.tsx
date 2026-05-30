@@ -1,4 +1,4 @@
-import { Package, Users, Tag, Filter, Mail, Heart, Calculator, Image, Music, Disc3 } from "lucide-react";
+import { Package, Users, Tag, Filter, Mail, Heart, Calculator, Image, Music, Disc3, Cloud } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useDiscogsUnseen } from "@/hooks/useDiscogs";
 import {
@@ -34,6 +34,7 @@ const menuItems = [
   { value: "idees", label: "Idées", icon: Users },
   { value: "artistes", label: "Artistes", icon: Music },
   { value: "discogs", label: "Discogs", icon: Disc3, badge: "discogsUnseenCount" },
+  { value: "soundcloud", label: "SoundCloud", icon: Cloud },
 ];
 
 export function AdminSidebar({

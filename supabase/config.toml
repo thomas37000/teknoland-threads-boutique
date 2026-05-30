@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.discogs-sync-stats]
 verify_jwt = false
+
+[functions.soundcloud-sync]
+verify_jwt = false

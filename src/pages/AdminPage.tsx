@@ -14,6 +14,7 @@ import ImageManagement from "@/components/admin/ImageManagement";
 import { supabase } from "@/integrations/supabase/client";
 import AirtableManagement from "@/components/admin/AirtableManagement";
 import DiscogsManagement from "@/components/admin/DiscogsManagement";
+import SoundCloudManagement from "@/components/admin/SoundCloudManagement";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
@@ -101,6 +102,7 @@ const AdminPage = () => {
             {activeTab === "idees" && <IdeasManagement initialIdeas={[]} />}
             {activeTab === "artistes" && <AirtableManagement />}
             {activeTab === "discogs" && <DiscogsManagement />}
+            {activeTab === "soundcloud" && <SoundCloudManagement />}
           </div>
         </main>
       </div>
