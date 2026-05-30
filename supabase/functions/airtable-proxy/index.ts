@@ -6,9 +6,10 @@ const corsHeaders = {
 };
 
 async function getLiveFollowers(airtableUrl: string, airtableKey: string) {
-  const SOUNDCLOUD_CLIENT_ID = Deno.env.get('SOUNDCLOUD_CLIENT_ID');
-  
-  if (!SOUNDCLOUD_CLIENT_ID) {
+  const SOUNDCLOUD_CLIENT_ID = Deno.env.get('VITE_SOUNDCLOUD_CLIENT_ID');
+  const SOUNDCLOUD_CLIENT_SECRET = Deno.env.get('VITE_SOUNDCLOUD_CLIENT_SECRET');
+
+  if (!SOUNDCLOUD_CLIENT_ID || !SOUNDCLOUD_CLIENT_SECRET) {
     console.error('Missing SoundCloud credentials');
     return new Response(
       JSON.stringify({ error: 'SoundCloud credentials not configured' }),
@@ -102,9 +103,10 @@ async function getLiveFollowers(airtableUrl: string, airtableKey: string) {
 }
 
 async function syncSoundCloudFollowers(airtableUrl: string, airtableKey: string) {
-  const SOUNDCLOUD_CLIENT_ID = Deno.env.get('SOUNDCLOUD_CLIENT_ID');
-  
-  if (!SOUNDCLOUD_CLIENT_ID) {
+  const SOUNDCLOUD_CLIENT_ID = Deno.env.get('VITE_SOUNDCLOUD_CLIENT_ID');
+  const SOUNDCLOUD_CLIENT_SECRET = Deno.env.get('VITE_SOUNDCLOUD_CLIENT_SECRET');
+
+  if (!SOUNDCLOUD_CLIENT_ID || !SOUNDCLOUD_CLIENT_SECRET) {
     console.error('Missing SoundCloud credentials');
     return new Response(
       JSON.stringify({ error: 'SoundCloud credentials not configured' }),
