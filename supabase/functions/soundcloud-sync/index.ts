@@ -8,6 +8,70 @@ const corsHeaders = {
 const AIRTABLE_URL = Deno.env.get("VITE_AIRTABLE_URL")!;
 const AIRTABLE_KEY = Deno.env.get("VITE_AIRTABLE_KEY")!;
 const SOUNDCLOUD_CLIENT_ID = Deno.env.get("SOUNDCLOUD_CLIENT_ID")!;
+const SOUNDCLOUD_CLIENT_SECRET = Deno.env.get("SOUNDCLOUD_CLIENT_SECRET") ?? "";
+
+// Token cache for OAuth2 client_credentials flow (SoundCloud API v2 requires it)
+let cachedToken: { value: string; expiresAt: number } | null = null;
+
+async function getAccessToken(): Promise<string | null> {
+  if (!SOUNDCLOUD_CLIENT_SECRET) return null;
+  if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) {
+    return cachedToken.value;
+  }
+  const res = await fetch("https://api.soundcloud.com/oauth2/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded", Accept: "application/json; charset=utf-8" },
+    body: new URLSearchParams({
+      grant_type: "client_credentials",
+      client_id: SOUNDCLOUD_CLIENT_ID,
+      client_secret: SOUNDCLOUD_CLIENT_SECRET,
+    }),
+  });
+  if (!res.ok) {
+    const txt = await res.text();
+    console.error(`[soundcloud-sync] token fetch failed ${res.status} ${txt.slice(0, 200)}`);
+    return null;
+  }
+  const data = await res.json();
+  cachedToken = {
+    value: data.access_token,
+    expiresAt: Date.now() + (data.expires_in ?? 3600) * 1000,
+  };
+  return cachedToken.value;
+}
+
+async function scFetch(url: string, token: string | null): Promise<Response> {
+  const headers: Record<string, string> = { Accept: "application/json; charset=utf-8" };
+  if (token) headers["Authorization"] = `OAuth ${token}`;
+  return fetch(url, { headers });
+}
+
+async function resolveUrl(url: string, token: string | null) {
+  // Try up to 2 times
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const endpoint = token
+      ? `https://api.soundcloud.com/resolve?url=${encodeURIComponent(url)}`
+      : `https://api.soundcloud.com/resolve?url=${encodeURIComponent(url)}&client_id=${SOUNDCLOUD_CLIENT_ID}`;
+    const res = await scFetch(endpoint, token);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && typeof data.id === "number") return data;
+    } else if (res.status === 401 || res.status === 403) {
+      return { __error: `resolve ${res.status}` };
+    }
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  return { __error: "resolve: no numeric id" };
+}
+
+async function fetchUser(userId: string | number, token: string | null) {
+  const endpoint = token
+    ? `https://api.soundcloud.com/users/${userId}`
+    : `https://api.soundcloud.com/users/${userId}?client_id=${SOUNDCLOUD_CLIENT_ID}`;
+  const res = await scFetch(endpoint, token);
+  if (!res.ok) return { __error: `users ${res.status}` };
+  return await res.json();
+}
 
 async function airtableFetch(path: string, init?: RequestInit) {
   return fetch(`${AIRTABLE_URL}/${path}`, {
@@ -50,6 +114,10 @@ serve(async (req) => {
   const errors: string[] = [];
 
   try {
+    const token = await getAccessToken();
+    if (!token) {
+      console.warn("[soundcloud-sync] no OAuth token (missing SOUNDCLOUD_CLIENT_SECRET or token request failed); falling back to client_id query param");
+    }
     const artists = await listAllArtists();
     console.log(`[soundcloud-sync] processing ${artists.length} artists`);
 
@@ -57,6 +125,7 @@ serve(async (req) => {
       const f = artist.fields ?? {};
       const scUrl = f["Soundcloud_url"];
       const name = f["Name"] ?? "(unnamed)";
+      let storedUserId = f["SoundCloud User ID"];
 
       if (!scUrl) {
         skipped++;
@@ -64,16 +133,49 @@ serve(async (req) => {
       }
 
       try {
-        const resolveUrl = `https://api.soundcloud.com/resolve?url=${encodeURIComponent(scUrl)}&client_id=${SOUNDCLOUD_CLIENT_ID}`;
-        const scRes = await fetch(resolveUrl);
-        if (!scRes.ok) {
-          errors.push(`${name}: SC ${scRes.status}`);
-          skipped++;
-          continue;
+        let userId: number | string | undefined;
+        let username: string | undefined;
+        let permalinkUrl: string | undefined;
+        let userData: any = null;
+
+        // Step 1: ensure we have a numeric user id (resolve URL if missing/invalid)
+        if (!storedUserId || !/^\d+$/.test(String(storedUserId))) {
+          const resolved = await resolveUrl(scUrl, token);
+          if (resolved.__error || typeof resolved.id !== "number") {
+            errors.push(`${name}: ${resolved.__error ?? "resolve failed"}`);
+            skipped++;
+            continue;
+          }
+          userId = resolved.id;
+          username = resolved.username;
+          permalinkUrl = resolved.permalink_url;
+          userData = resolved;
+        } else {
+          userId = storedUserId;
         }
-        const sc = await scRes.json();
-        const newCount: number = sc.followers_count ?? 0;
-        const userId: number | string | undefined = sc.id;
+
+        // Step 2: always fetch fresh user data via /users/{id}
+        const user = await fetchUser(userId!, token);
+        if (user.__error || typeof user.id !== "number") {
+          // fallback: re-resolve once
+          const resolved = await resolveUrl(scUrl, token);
+          if (resolved.__error || typeof resolved.id !== "number") {
+            errors.push(`${name}: ${user.__error ?? "users failed"} / ${resolved.__error ?? "re-resolve failed"}`);
+            skipped++;
+            continue;
+          }
+          userId = resolved.id;
+          username = resolved.username;
+          permalinkUrl = resolved.permalink_url;
+          userData = resolved;
+        } else {
+          userId = user.id;
+          username = user.username ?? username;
+          permalinkUrl = user.permalink_url ?? permalinkUrl;
+          userData = user;
+        }
+
+        const newCount: number = userData.followers_count ?? 0;
         const prev: number = Number(f["Followers Count"] ?? f["Followers"] ?? 0);
         const delta = newCount - prev;
 
@@ -81,7 +183,9 @@ serve(async (req) => {
           method: "PATCH",
           body: JSON.stringify({
             fields: {
-              "SoundCloud User ID": userId ? String(userId) : "",
+              "SoundCloud User ID": String(userId),
+              "SoundCloud Username": username ?? "",
+              "SoundCloud Permalink": permalinkUrl ?? "",
               "Followers Count": newCount,
               "Followers Delta": delta,
               "Last Sync": new Date().toISOString(),
