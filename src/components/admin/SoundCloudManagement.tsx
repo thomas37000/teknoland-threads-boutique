@@ -4,7 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { RefreshCw } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { RefreshCw, AlertCircle } from "lucide-react";
+
 import {
   Table,
   TableBody,
@@ -57,8 +59,11 @@ const SoundCloudManagement: React.FC = () => {
   const [artists, setArtists] = useState<ScArtist[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [syncErrors, setSyncErrors] = useState<string[]>([]);
+  const [syncSummary, setSyncSummary] = useState<{ updated: number; skipped: number; total: number } | null>(null);
   const [search, setSearch] = useState("");
   const { toast } = useToast();
+
 
   const fetchArtists = async () => {
     try {
@@ -84,6 +89,8 @@ const SoundCloudManagement: React.FC = () => {
   const handleSync = async () => {
     try {
       setSyncing(true);
+      setSyncErrors([]);
+      setSyncSummary(null);
       toast({
         title: "Synchronisation en cours",
         description: "Récupération des followers SoundCloud…",
@@ -93,22 +100,41 @@ const SoundCloudManagement: React.FC = () => {
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      toast({
-        title: "Succès",
-        description: `${data.updated} mis à jour, ${data.skipped} ignorés`,
+
+      setSyncSummary({
+        updated: data.updated ?? 0,
+        skipped: data.skipped ?? 0,
+        total: data.total ?? 0,
       });
+
+      if (Array.isArray(data.errors) && data.errors.length > 0) {
+        setSyncErrors(data.errors);
+        toast({
+          title: "Synchronisation terminée avec erreurs",
+          description: `${data.updated} mis à jour, ${data.skipped} ignorés, ${data.errors.length} erreur(s)`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Succès",
+          description: `${data.updated} mis à jour, ${data.skipped} ignorés`,
+        });
+      }
       fetchArtists();
     } catch (err) {
       console.error(err);
+      const message = err instanceof Error ? err.message : "Sync impossible";
+      setSyncErrors([message]);
       toast({
         title: "Erreur",
-        description: err instanceof Error ? err.message : "Sync impossible",
+        description: message,
         variant: "destructive",
       });
     } finally {
       setSyncing(false);
     }
   };
+
 
   useEffect(() => {
     fetchArtists();
@@ -133,7 +159,26 @@ const SoundCloudManagement: React.FC = () => {
         </div>
       </CardHeader>
       <CardContent>
+        {syncErrors.length > 0 && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>La synchronisation a échoué pour certains artistes</AlertTitle>
+            <AlertDescription>
+              {syncSummary && (
+                <div className="mb-2 text-sm">
+                  {syncSummary.updated} mis à jour · {syncSummary.skipped} ignorés · {syncSummary.total} au total
+                </div>
+              )}
+              <ul className="list-disc pl-4 space-y-1 text-sm max-h-48 overflow-y-auto">
+                {syncErrors.map((err, idx) => (
+                  <li key={idx}>{err}</li>
+                ))}
+              </ul>
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="mb-4 max-w-sm">
+
           <Input
             placeholder="Rechercher un artiste..."
             value={search}
