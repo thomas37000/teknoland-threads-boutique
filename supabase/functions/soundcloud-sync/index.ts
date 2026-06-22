@@ -7,8 +7,14 @@ const corsHeaders = {
 
 const AIRTABLE_URL = Deno.env.get("VITE_AIRTABLE_URL")!;
 const AIRTABLE_KEY = Deno.env.get("VITE_AIRTABLE_KEY")!;
-const SOUNDCLOUD_CLIENT_ID = Deno.env.get("VITE_SOUNDCLOUD_CLIENT_ID")!;
-const SOUNDCLOUD_CLIENT_SECRET = Deno.env.get("VITE_SOUNDCLOUD_CLIENT_SECRET") ?? "";
+const SOUNDCLOUD_CLIENT_ID =
+  Deno.env.get("SOUNDCLOUD_CLIENT_ID") ??
+  Deno.env.get("VITE_SOUNDCLOUD_CLIENT_ID") ??
+  "";
+const SOUNDCLOUD_CLIENT_SECRET =
+  Deno.env.get("SOUNDCLOUD_CLIENT_SECRET") ??
+  Deno.env.get("VITE_SOUNDCLOUD_CLIENT_SECRET") ??
+  "";
 
 // Token cache for OAuth2 client_credentials flow (SoundCloud API v2 requires it)
 let cachedToken: { value: string; expiresAt: number } | null = null;
