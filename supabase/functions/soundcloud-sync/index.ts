@@ -102,7 +102,14 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   if (!AIRTABLE_URL || !AIRTABLE_KEY || !SOUNDCLOUD_CLIENT_ID) {
-    return new Response(JSON.stringify({ error: "Missing env config" }), {
+    return new Response(JSON.stringify({
+      error: "Missing env config",
+      missing: {
+        VITE_AIRTABLE_URL: !AIRTABLE_URL,
+        VITE_AIRTABLE_KEY: !AIRTABLE_KEY,
+        SOUNDCLOUD_CLIENT_ID: !SOUNDCLOUD_CLIENT_ID,
+      },
+    }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
