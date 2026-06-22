@@ -89,11 +89,30 @@ Deno.serve(async (req) => {
       const data = await res.json();
       totalPages = data.pagination?.pages ?? 1;
       for (const r of data.releases ?? []) {
-        // Filtre : ne garder que les vinyles
+        // Filtre : ne garder que les vinyles. L'API /labels/{id}/releases
+        // renvoie le format comme une chaîne ("2x12\"", "LP", "7\"", "File, WAV",
+        // "CD, Album", ...). Le mot "vinyl" n'apparaît jamais. On exclut donc
+        // les formats digitaux/non-vinyle, et on accepte tout ce qui reste qui
+        // ressemble à un vinyle.
         const fmt = Array.isArray(r.format)
           ? r.format.join(",").toLowerCase()
           : String(r.format ?? "").toLowerCase();
-        if (!fmt.includes("vinyl")) continue;
+        const digitalTokens = ["file", "wav", "mp3", "flac", "aiff", "alac"];
+        const physicalNonVinyl = ["cd", "cdr", "cassette", "dvd", "blu-ray", "minidisc", "8-track", "shellac"];
+        const isDigital = digitalTokens.some((t) => fmt.includes(t));
+        const isOtherPhysical = physicalNonVinyl.some((t) => {
+          // word-boundary-ish: avoid matching "cd" inside other tokens
+          const re = new RegExp(`(^|[^a-z])${t}([^a-z]|$)`);
+          return re.test(fmt);
+        });
+        if (isDigital || isOtherPhysical) continue;
+        // Doit ressembler à un vinyle: contient "vinyl", `"` (pouces), `lp`, `ep`, `7"`, `10"`, `12"`
+        const looksLikeVinyl =
+          fmt.includes("vinyl") ||
+          fmt.includes('"') ||
+          /(^|[^a-z])lp([^a-z]|$)/.test(fmt) ||
+          /(^|[^a-z])ep([^a-z]|$)/.test(fmt);
+        if (!looksLikeVinyl) continue;
         allReleases.push({
           release_id: r.id,
           title: r.title ?? "",
