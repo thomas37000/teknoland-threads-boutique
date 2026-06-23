@@ -160,7 +160,26 @@ const SoundCloudManagement: React.FC = () => {
     setAddLoading(true);
     try {
       const fields: Record<string, unknown> = { Name: addName.trim() };
-      if (addUrl.trim()) fields.Soundcloud_url = addUrl.trim();
+      const url = addUrl.trim();
+      if (url) {
+        fields.Soundcloud_url = url;
+
+        // Resolve SoundCloud user ID via edge function
+        const { data: resolved, error: resolveErr } = await supabase.functions.invoke(
+          "soundcloud-resolve",
+          { body: { url } },
+        );
+        if (resolveErr) throw new Error(resolveErr.message ?? "Resolve SoundCloud impossible");
+        if (resolved?.error) throw new Error(resolved.error);
+        if (resolved?.id) {
+          fields["SoundCloud User ID"] = String(resolved.id);
+          if (resolved.username) fields["SoundCloud Username"] = resolved.username;
+          if (resolved.permalink_url) fields["SoundCloud Permalink"] = resolved.permalink_url;
+          if (typeof resolved.followers_count === "number") {
+            fields["Followers Count"] = resolved.followers_count;
+          }
+        }
+      }
       const stylesArray = addStyles
         .split(",")
         .map((s) => s.trim())
