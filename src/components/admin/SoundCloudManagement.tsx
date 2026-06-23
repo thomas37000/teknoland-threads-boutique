@@ -5,7 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { RefreshCw, AlertCircle } from "lucide-react";
+import { RefreshCw, AlertCircle, Plus, Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 import {
   Table,
@@ -62,6 +71,11 @@ const SoundCloudManagement: React.FC = () => {
   const [syncErrors, setSyncErrors] = useState<string[]>([]);
   const [syncSummary, setSyncSummary] = useState<{ updated: number; skipped: number; total: number } | null>(null);
   const [search, setSearch] = useState("");
+  const [addOpen, setAddOpen] = useState(false);
+  const [addName, setAddName] = useState("");
+  const [addUrl, setAddUrl] = useState("");
+  const [addStyles, setAddStyles] = useState("");
+  const [addLoading, setAddLoading] = useState(false);
   const { toast } = useToast();
 
 
@@ -140,6 +154,43 @@ const SoundCloudManagement: React.FC = () => {
     fetchArtists();
   }, []);
 
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!addName.trim()) return;
+    setAddLoading(true);
+    try {
+      const fields: Record<string, unknown> = { Name: addName.trim() };
+      if (addUrl.trim()) fields.Soundcloud_url = addUrl.trim();
+      const stylesArray = addStyles
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+      if (stylesArray.length) fields.styles = stylesArray;
+
+      const { data, error } = await supabase.functions.invoke("airtable-proxy", {
+        body: { method: "POST", table: "Artistes", fields },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast({ title: "Succès", description: "Artiste ajouté à Airtable" });
+      setAddOpen(false);
+      setAddName("");
+      setAddUrl("");
+      setAddStyles("");
+      fetchArtists();
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Erreur",
+        description: err instanceof Error ? err.message : "Ajout impossible",
+        variant: "destructive",
+      });
+    } finally {
+      setAddLoading(false);
+    }
+  };
+
   const filtered = artists
     .filter((a) => !!a.fields?.Soundcloud_url)
     .filter((a) =>
@@ -152,10 +203,16 @@ const SoundCloudManagement: React.FC = () => {
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-2">
           <CardTitle>SoundCloud</CardTitle>
-          <Button onClick={handleSync} disabled={syncing} variant="outline">
-            <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
-            Sync maintenant
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => setAddOpen(true)} variant="default">
+              <Plus className="h-4 w-4 mr-2" />
+              Ajouter un artiste
+            </Button>
+            <Button onClick={handleSync} disabled={syncing} variant="outline">
+              <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
+              Sync maintenant
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -225,6 +282,70 @@ const SoundCloudManagement: React.FC = () => {
           </div>
         )}
       </CardContent>
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Ajouter un artiste</DialogTitle>
+            <DialogDescription>
+              Crée un nouvel enregistrement dans la table Airtable « Artistes ».
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleAdd}>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="sc-name">
+                  Nom <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="sc-name"
+                  value={addName}
+                  onChange={(e) => setAddName(e.target.value)}
+                  placeholder="Nom de l'artiste"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="sc-url">URL SoundCloud</Label>
+                <Input
+                  id="sc-url"
+                  type="url"
+                  value={addUrl}
+                  onChange={(e) => setAddUrl(e.target.value)}
+                  placeholder="https://soundcloud.com/handle"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="sc-styles">
+                  Styles{" "}
+                  <span className="text-muted-foreground text-sm">
+                    (séparés par des virgules)
+                  </span>
+                </Label>
+                <Input
+                  id="sc-styles"
+                  value={addStyles}
+                  onChange={(e) => setAddStyles(e.target.value)}
+                  placeholder="Techno, House"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setAddOpen(false)}
+                disabled={addLoading}
+              >
+                Annuler
+              </Button>
+              <Button type="submit" disabled={addLoading}>
+                {addLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Créer
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
