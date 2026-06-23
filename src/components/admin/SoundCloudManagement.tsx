@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { RefreshCw, AlertCircle, Plus, Loader2 } from "lucide-react";
+import { RefreshCw, AlertCircle, Plus, Loader2, Check, ChevronsUpDown, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 
 import {
   Table,
@@ -37,6 +40,7 @@ interface ScArtist {
     "Last Sync"?: string;
     "SoundCloud User ID"?: string;
     Followers?: number;
+    styles?: string[];
   };
 }
 
@@ -74,7 +78,8 @@ const SoundCloudManagement: React.FC = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [addName, setAddName] = useState("");
   const [addUrl, setAddUrl] = useState("");
-  const [addStyles, setAddStyles] = useState("");
+  const [addStyles, setAddStyles] = useState<string[]>([]);
+  const [stylesOpen, setStylesOpen] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
   const { toast } = useToast();
 
@@ -154,6 +159,22 @@ const SoundCloudManagement: React.FC = () => {
     fetchArtists();
   }, []);
 
+  const availableStyles = React.useMemo(() => {
+    const set = new Set<string>();
+    artists.forEach((a) => {
+      (a.fields.styles ?? []).forEach((s) => {
+        if (s && typeof s === "string") set.add(s.trim());
+      });
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [artists]);
+
+  const toggleStyle = (style: string) => {
+    setAddStyles((prev) =>
+      prev.includes(style) ? prev.filter((s) => s !== style) : [...prev, style],
+    );
+  };
+
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!addName.trim()) return;
@@ -171,20 +192,18 @@ const SoundCloudManagement: React.FC = () => {
         );
         if (resolveErr) throw new Error(resolveErr.message ?? "Resolve SoundCloud impossible");
         if (resolved?.error) throw new Error(resolved.error);
-        if (resolved?.id) {
-          fields["SoundCloud User ID"] = String(resolved.id);
-          if (resolved.username) fields["SoundCloud Username"] = resolved.username;
+        if (typeof resolved?.id === "number") {
+          fields.id = resolved.id;
+          if (resolved.username) fields.username = resolved.username;
           if (resolved.permalink_url) fields["SoundCloud Permalink"] = resolved.permalink_url;
           if (typeof resolved.followers_count === "number") {
             fields["Followers Count"] = resolved.followers_count;
           }
+        } else {
+          throw new Error("ID SoundCloud introuvable pour cette URL");
         }
       }
-      const stylesArray = addStyles
-        .split(",")
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0);
-      if (stylesArray.length) fields.styles = stylesArray;
+      if (addStyles.length) fields.styles = addStyles;
 
       const { data, error } = await supabase.functions.invoke("airtable-proxy", {
         body: { method: "POST", table: "Artistes", fields },
@@ -196,7 +215,7 @@ const SoundCloudManagement: React.FC = () => {
       setAddOpen(false);
       setAddName("");
       setAddUrl("");
-      setAddStyles("");
+      setAddStyles([]);
       fetchArtists();
     } catch (err) {
       console.error(err);
@@ -335,17 +354,72 @@ const SoundCloudManagement: React.FC = () => {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="sc-styles">
-                  Styles{" "}
-                  <span className="text-muted-foreground text-sm">
-                    (séparés par des virgules)
-                  </span>
+                  Styles
                 </Label>
-                <Input
-                  id="sc-styles"
-                  value={addStyles}
-                  onChange={(e) => setAddStyles(e.target.value)}
-                  placeholder="Techno, House"
-                />
+                <Popover open={stylesOpen} onOpenChange={setStylesOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="sc-styles"
+                      type="button"
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={stylesOpen}
+                      className="w-full justify-between font-normal"
+                    >
+                      <span className="truncate text-left">
+                        {addStyles.length === 0
+                          ? "Sélectionner des styles…"
+                          : `${addStyles.length} sélectionné${addStyles.length > 1 ? "s" : ""}`}
+                      </span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Rechercher un style…" />
+                      <CommandList>
+                        <CommandEmpty>Aucun style</CommandEmpty>
+                        <CommandGroup>
+                          {availableStyles.map((style) => {
+                            const selected = addStyles.includes(style);
+                            return (
+                              <CommandItem
+                                key={style}
+                                value={style}
+                                onSelect={() => toggleStyle(style)}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selected ? "opacity-100" : "opacity-0",
+                                  )}
+                                />
+                                {style}
+                              </CommandItem>
+                            );
+                          })}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                {addStyles.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {addStyles.map((s) => (
+                      <Badge key={s} variant="secondary" className="gap-1">
+                        {s}
+                        <button
+                          type="button"
+                          onClick={() => toggleStyle(s)}
+                          className="ml-1 rounded-full outline-none ring-offset-background hover:bg-muted"
+                          aria-label={`Retirer ${s}`}
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             <DialogFooter>
