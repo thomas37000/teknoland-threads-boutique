@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { RefreshCw, AlertCircle } from "lucide-react";
+import { RefreshCw, AlertCircle, Plus } from "lucide-react";
+import { AddEditArtisteDialog } from "./ArtistesDialogs";
 
 import {
   Table,
@@ -62,6 +63,7 @@ const SoundCloudManagement: React.FC = () => {
   const [syncErrors, setSyncErrors] = useState<string[]>([]);
   const [syncSummary, setSyncSummary] = useState<{ updated: number; skipped: number; total: number } | null>(null);
   const [search, setSearch] = useState("");
+  const [addOpen, setAddOpen] = useState(false);
   const { toast } = useToast();
 
 
@@ -152,10 +154,16 @@ const SoundCloudManagement: React.FC = () => {
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-2">
           <CardTitle>SoundCloud</CardTitle>
-          <Button onClick={handleSync} disabled={syncing} variant="outline">
-            <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
-            Sync maintenant
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => setAddOpen(true)} variant="default">
+              <Plus className="h-4 w-4 mr-2" />
+              Ajouter un artiste
+            </Button>
+            <Button onClick={handleSync} disabled={syncing} variant="outline">
+              <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
+              Sync maintenant
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -225,6 +233,11 @@ const SoundCloudManagement: React.FC = () => {
           </div>
         )}
       </CardContent>
+      <AddEditArtisteDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        onSuccess={fetchArtists}
+      />
     </Card>
   );
 };
