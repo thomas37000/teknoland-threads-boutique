@@ -36,6 +36,7 @@ const menuItems = [
   { value: "artistes", label: "Artistes", icon: Music },
   { value: "discogs", label: "Discogs", icon: Disc3, badge: "discogsUnseenCount" },
   { value: "soundcloud", label: "SoundCloud", icon: Cloud },
+  { value: "distribution", label: "Distribution", icon: Truck, href: "/distribution" },
 ];
 
 export function AdminSidebar({
