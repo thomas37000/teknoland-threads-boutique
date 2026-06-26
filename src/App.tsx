@@ -9,6 +9,7 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { Client } from "@/types";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
+import DistributorRoute from "./components/DistributorRoute";
 import Index from "./pages/Index";
 import ShopPage from "./pages/ShopPage";
 import ProductPage from "./pages/ProductPage";
@@ -21,6 +22,7 @@ import ProfilePage from "./pages/ProfilePage";
 import AuthPage from "./pages/AuthPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import VendorStorePage from "./pages/VendorStorePage";
+import DistributionPage from "./pages/DistributionPage";
 import NewsletterConfirmPage from "./pages/NewsletterConfirmPage";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
@@ -79,6 +81,14 @@ const AppContent = () => {
             } 
           />
           <Route path="/auth" element={<AuthPage />} />
+          <Route
+            path="/distribution"
+            element={
+              <DistributorRoute>
+                <DistributionPage />
+              </DistributorRoute>
+            }
+          />
           <Route path="/newsletter/confirm" element={<NewsletterConfirmPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
