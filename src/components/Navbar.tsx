@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
+import { useDistributorAccess } from "@/hooks/use-distributor-access";
 import LanguageSelector from "./LanguageSelector";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { cartItems } = useCart();
   const { user, signOut, isAdmin, userRole } = useAuth();
+  const { hasAccess: hasDistributionAccess } = useDistributorAccess();
   const { t } = useTranslation();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -50,6 +52,11 @@ const Navbar = () => {
           {userRole === 'seller' && (
             <Link to="/seller" className="font-medium hover:text-tekno-blue transition-colors">
               {t('nav.seller')}
+            </Link>
+          )}
+          {hasDistributionAccess && (
+            <Link to="/distribution" className="font-medium hover:text-tekno-blue transition-colors">
+              Distribution
             </Link>
           )}
           <Link to="/" className="font-medium hover:text-tekno-blue transition-colors">
@@ -149,6 +156,16 @@ const Navbar = () => {
                 onClick={toggleMenu}
               >
                 {t('nav.seller')}
+              </Link>
+            )}
+
+            {hasDistributionAccess && (
+              <Link
+                to="/distribution"
+                className="py-3 border-b font-medium text-tekno-blue"
+                onClick={toggleMenu}
+              >
+                Distribution
               </Link>
             )}
 
