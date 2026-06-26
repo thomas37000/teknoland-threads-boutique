@@ -78,7 +78,7 @@ export function AdminSidebar({
                       {!isCollapsed && (
                         <div className="flex items-center justify-between w-full">
                           <span>{item.label}</span>
-                          {badgeCount > 0 && (
+                      {badgeCount > 0 && (
                             <Badge variant="destructive" className="ml-1 min-w-[20px] h-5 px-1.5 py-0 text-xs">
                               {badgeCount}
                             </Badge>
@@ -86,6 +86,27 @@ export function AdminSidebar({
                         </div>
                       )}
                     </SidebarMenuButton>
+                  ) : (
+                    <Link to={item.href} className="flex items-center w-full">
+                      <SidebarMenuButton
+                        className={activeTab === item.value ? "bg-muted text-primary font-medium w-full" : "hover:bg-muted/50 w-full"}
+                        asChild
+                      >
+                        <div className="flex items-center w-full">
+                          <item.icon className="h-4 w-4 shrink-0" />
+                          {!isCollapsed && (
+                            <div className="flex items-center justify-between w-full ml-2">
+                              <span>{item.label}</span>
+                              {badgeCount > 0 && (
+                                <Badge variant="destructive" className="ml-1 min-w-[20px] h-5 px-1.5 py-0 text-xs">
+                                  {badgeCount}
+                                </Badge>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </SidebarMenuButton>
+                    </Link>
                   </SidebarMenuItem>
                 );
               })}
