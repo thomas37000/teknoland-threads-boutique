@@ -1,4 +1,5 @@
-import { Package, Users, Tag, Filter, Mail, Heart, Calculator, Image, Music, Disc3, Cloud } from "lucide-react";
+import { Package, Users, Tag, Filter, Mail, Heart, Calculator, Image, Music, Disc3, Cloud, Truck } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useDiscogsUnseen } from "@/hooks/useDiscogs";
 import {
@@ -35,6 +36,7 @@ const menuItems = [
   { value: "artistes", label: "Artistes", icon: Music },
   { value: "discogs", label: "Discogs", icon: Disc3, badge: "discogsUnseenCount" },
   { value: "soundcloud", label: "SoundCloud", icon: Cloud },
+  { value: "distribution", label: "Distribution", icon: Truck, href: "/distribution" },
 ];
 
 export function AdminSidebar({
@@ -68,22 +70,35 @@ export function AdminSidebar({
                 const badgeCount = getBadgeCount(item.badge);
                 return (
                   <SidebarMenuItem key={item.value}>
-                    <SidebarMenuButton
-                      onClick={() => onTabChange(item.value)}
-                      className={activeTab === item.value ? "bg-muted text-primary font-medium" : "hover:bg-muted/50"}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      {!isCollapsed && (
-                        <div className="flex items-center justify-between w-full">
-                          <span>{item.label}</span>
-                          {badgeCount > 0 && (
-                            <Badge variant="destructive" className="ml-1 min-w-[20px] h-5 px-1.5 py-0 text-xs">
-                              {badgeCount}
-                            </Badge>
+                    {"href" in item ? (
+                      <Link to={item.href} className="w-full">
+                        <SidebarMenuButton className={activeTab === item.value ? "bg-muted text-primary font-medium" : "hover:bg-muted/50"}>
+                          <item.icon className="h-4 w-4" />
+                          {!isCollapsed && (
+                            <div className="flex items-center justify-between w-full">
+                              <span>{item.label}</span>
+                            </div>
                           )}
-                        </div>
-                      )}
-                    </SidebarMenuButton>
+                        </SidebarMenuButton>
+                      </Link>
+                    ) : (
+                      <SidebarMenuButton
+                        onClick={() => onTabChange(item.value)}
+                        className={activeTab === item.value ? "bg-muted text-primary font-medium" : "hover:bg-muted/50"}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        {!isCollapsed && (
+                          <div className="flex items-center justify-between w-full">
+                            <span>{item.label}</span>
+                            {badgeCount > 0 && (
+                              <Badge variant="destructive" className="ml-1 min-w-[20px] h-5 px-1.5 py-0 text-xs">
+                                {badgeCount}
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+                      </SidebarMenuButton>
+                    )}
                   </SidebarMenuItem>
                 );
               })}
