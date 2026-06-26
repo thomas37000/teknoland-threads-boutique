@@ -1,4 +1,4 @@
-import { Package, Users, Tag, Filter, Mail, Heart, Calculator, Image, Music, Disc3, Cloud, Truck } from "lucide-react";
+import { Package, Users, Tag, Filter, Mail, Heart, Calculator, Image, Music, Disc3, Cloud, Truck, Database } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useDiscogsUnseen } from "@/hooks/useDiscogs";
@@ -37,6 +37,7 @@ const menuItems = [
   { value: "discogs", label: "Discogs", icon: Disc3, badge: "discogsUnseenCount" },
   { value: "soundcloud", label: "SoundCloud", icon: Cloud },
   { value: "distribution", label: "Distribution", icon: Truck, href: "/distribution" },
+  { value: "Airtable", label: "Airtable", icon: Database, href: "https://airtable.com/appSuJdzsJZZYHqUf/tbl7kClC80WYUoYq2/viwOMXAikMLfmFvf2", target: "_blank" },
 ];
 
 export function AdminSidebar({
@@ -71,7 +72,7 @@ export function AdminSidebar({
                 return (
                   <SidebarMenuItem key={item.value}>
                     {"href" in item ? (
-                      <Link to={item.href} className="w-full">
+                      <Link to={item.href} className="w-full" target={item.target} rel={item.target === "_blank" ? "noopener noreferrer" : undefined}>
                         <SidebarMenuButton className={activeTab === item.value ? "bg-muted text-primary font-medium" : "hover:bg-muted/50"}>
                           <item.icon className="h-4 w-4" />
                           {!isCollapsed && (
