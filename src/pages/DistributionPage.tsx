@@ -25,6 +25,31 @@ import {
 } from "@/components/ui/dialog";
 import { Edit, Loader2, Plus, RefreshCw, Trash2, Users } from "lucide-react";
 import TableSkeleton from "@/components/skeletons/TableSkeleton";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Check, ChevronsUpDown, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+/**
+ * Représentation d'un artiste tel que renvoyé par Airtable (table Artistes).
+ * Le champ `Artistes` d'un vinyle est un champ « linked record » : il contient
+ * des record IDs (ex: "rec7SCTs5sYm9jSLq") et non des noms. On résout donc les
+ * IDs en noms via cette interface pour l'affichage et le formulaire.
+ */
+export interface Artiste {
+  id: string; // Airtable record ID (rec...)
+  fields: {
+    Name?: string;
+    [k: string]: any;
+  };
+}
 
 interface VinyleFields {
   Ref?: string;
@@ -35,6 +60,7 @@ interface VinyleFields {
   Prix_distributeur?: number;
   Format?: string;
   Styles?: string[] | string;
+  /** Tableau de record IDs Airtable pointant vers la table Artistes. */
   Artistes?: string[] | string;
   [k: string]: any;
 }
@@ -52,13 +78,22 @@ const EMPTY: VinyleFields = {
   Prix_distributeur: 0,
   Format: "",
   Styles: "",
-  Artistes: "",
+  Artistes: [],
 };
 
 const formatList = (v: any): string => {
   if (!v) return "";
   if (Array.isArray(v)) return v.join(", ");
   return String(v);
+};
+
+const toIdArray = (v: any): string[] => {
+  if (!v) return [];
+  if (Array.isArray(v)) return v.filter(Boolean);
+  return String(v)
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
 };
 
 const firstImage = (img: VinyleFields["Image"]): string | null => {
@@ -74,6 +109,7 @@ const DistributionPage = () => {
   const { isAdmin } = useDistributorAccess();
   const { toast } = useToast();
   const [records, setRecords] = useState<VinyleRecord[]>([]);
+  const [artistes, setArtistes] = useState<Artiste[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
@@ -87,15 +123,40 @@ const DistributionPage = () => {
 
   const [manageOpen, setManageOpen] = useState(false);
 
+  // Map record ID -> nom d'artiste, utilisée pour afficher les noms à la
+  // place des record IDs renvoyés par Airtable dans le champ linked `Artistes`.
+  const artisteMap = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const a of artistes) m.set(a.id, a.fields?.Name || a.id);
+    return m;
+  }, [artistes]);
+
+  const resolveArtistes = (v: any): string => {
+    const ids = toIdArray(v);
+    if (ids.length === 0) return "";
+    return ids.map((id) => artisteMap.get(id) || id).join(", ");
+  };
+
   const fetchRecords = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.functions.invoke("airtable-proxy", {
-        body: { method: "GET", table: "Vinyles" },
-      });
-      if (error) throw error;
-      if (data?.error) throw new Error(typeof data.error === "string" ? data.error : "Erreur Airtable");
-      setRecords(data?.records || []);
+      const [vinylesRes, artistesRes] = await Promise.all([
+        supabase.functions.invoke("airtable-proxy", {
+          body: { method: "GET", table: "Vinyles" },
+        }),
+        supabase.functions.invoke("airtable-proxy", {
+          body: { method: "GET", table: "Artistes" },
+        }),
+      ]);
+      if (vinylesRes.error) throw vinylesRes.error;
+      if (vinylesRes.data?.error)
+        throw new Error(
+          typeof vinylesRes.data.error === "string" ? vinylesRes.data.error : "Erreur Airtable",
+        );
+      setRecords(vinylesRes.data?.records || []);
+      if (!artistesRes.error && !artistesRes.data?.error) {
+        setArtistes((artistesRes.data?.records as Artiste[]) || []);
+      }
     } catch (e: any) {
       console.error(e);
       toast({
@@ -120,12 +181,12 @@ const DistributionPage = () => {
       return (
         f.Ref?.toLowerCase().includes(q) ||
         f.Titre?.toLowerCase().includes(q) ||
-        formatList(f.Artistes).toLowerCase().includes(q) ||
+        resolveArtistes(f.Artistes).toLowerCase().includes(q) ||
         formatList(f.Styles).toLowerCase().includes(q) ||
         f.Format?.toLowerCase().includes(q)
       );
     });
-  }, [records, search]);
+  }, [records, search, artisteMap]);
 
   const openAdd = () => {
     setEditing(null);
@@ -143,7 +204,8 @@ const DistributionPage = () => {
       Prix_distributeur: r.fields.Prix_distributeur ?? 0,
       Format: r.fields.Format || "",
       Styles: formatList(r.fields.Styles),
-      Artistes: formatList(r.fields.Artistes),
+      // On stocke des record IDs Airtable (linked records).
+      Artistes: toIdArray(r.fields.Artistes),
     });
     setEditOpen(true);
   };
@@ -165,10 +227,10 @@ const DistributionPage = () => {
     if (styles) {
       fields.Styles = styles.split(",").map((s) => s.trim()).filter(Boolean);
     }
-    const artistes = typeof form.Artistes === "string" ? form.Artistes : formatList(form.Artistes);
-    if (artistes) {
-      fields.Artistes = artistes.split(",").map((s) => s.trim()).filter(Boolean);
-    }
+    // Airtable attend des record IDs pour le champ linked « Artistes ».
+    // Envoyer des noms produit l'erreur « rec... is not a valid record ID ».
+    const artisteIds = toIdArray(form.Artistes).filter((id) => id.startsWith("rec"));
+    fields.Artistes = artisteIds;
     return fields;
   };
 
@@ -296,7 +358,7 @@ const DistributionPage = () => {
                           </TableCell>
                           <TableCell className="font-mono text-xs">{r.fields.Ref}</TableCell>
                           <TableCell className="font-medium">{r.fields.Titre}</TableCell>
-                          <TableCell>{formatList(r.fields.Artistes)}</TableCell>
+                          <TableCell>{resolveArtistes(r.fields.Artistes) || "—"}</TableCell>
                           <TableCell>{r.fields.Format}</TableCell>
                           <TableCell>{formatList(r.fields.Styles)}</TableCell>
                           <TableCell>{r.fields.Date_de_sortie}</TableCell>
@@ -357,10 +419,11 @@ const DistributionPage = () => {
               <Input value={form.Titre || ""} onChange={(e) => setForm({ ...form, Titre: e.target.value })} />
             </div>
             <div className="space-y-2">
-              <Label>Artistes (séparés par des virgules)</Label>
-              <Input
-                value={typeof form.Artistes === "string" ? form.Artistes : formatList(form.Artistes)}
-                onChange={(e) => setForm({ ...form, Artistes: e.target.value })}
+              <Label>Artistes</Label>
+              <ArtistesMultiSelect
+                artistes={artistes}
+                value={toIdArray(form.Artistes)}
+                onChange={(ids) => setForm({ ...form, Artistes: ids })}
               />
             </div>
             <div className="space-y-2">
@@ -441,6 +504,97 @@ const DistributionPage = () => {
 };
 
 /* -------- Manage distributors (admin only) -------- */
+
+/* -------- Artistes multi-select (linked records Airtable) -------- */
+
+const ArtistesMultiSelect = ({
+  artistes,
+  value,
+  onChange,
+}: {
+  artistes: Artiste[];
+  value: string[];
+  onChange: (ids: string[]) => void;
+}) => {
+  const [open, setOpen] = useState(false);
+  const byId = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const a of artistes) m.set(a.id, a.fields?.Name || a.id);
+    return m;
+  }, [artistes]);
+
+  const toggle = (id: string) => {
+    if (value.includes(id)) onChange(value.filter((v) => v !== id));
+    else onChange([...value, id]);
+  };
+
+  const sorted = useMemo(
+    () =>
+      [...artistes].sort((a, b) =>
+        (a.fields?.Name || "").localeCompare(b.fields?.Name || ""),
+      ),
+    [artistes],
+  );
+
+  return (
+    <div className="space-y-2">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between"
+          >
+            {value.length > 0 ? `${value.length} artiste(s) sélectionné(s)` : "Sélectionner des artistes…"}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+          <Command>
+            <CommandInput placeholder="Rechercher un artiste…" />
+            <CommandList>
+              <CommandEmpty>Aucun artiste trouvé.</CommandEmpty>
+              <CommandGroup>
+                {sorted.map((a) => {
+                  const selected = value.includes(a.id);
+                  return (
+                    <CommandItem
+                      key={a.id}
+                      value={a.fields?.Name || a.id}
+                      onSelect={() => toggle(a.id)}
+                    >
+                      <Check className={cn("mr-2 h-4 w-4", selected ? "opacity-100" : "opacity-0")} />
+                      {a.fields?.Name || a.id}
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+      {value.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {value.map((id) => (
+            <Badge key={id} variant="secondary" className="gap-1">
+              {byId.get(id) || id}
+              <button
+                type="button"
+                onClick={() => toggle(id)}
+                className="ml-1 rounded-full hover:bg-muted-foreground/20"
+                aria-label="Retirer"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 interface ProfileRow {
   id: string;
