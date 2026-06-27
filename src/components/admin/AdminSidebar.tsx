@@ -38,6 +38,7 @@ const menuItems = [
   { value: "soundcloud", label: "SoundCloud", icon: Cloud },
   { value: "distribution", label: "Distribution", icon: Truck, href: "/distribution" },
   { value: "Airtable", label: "Airtable", icon: Database, href: "https://airtable.com/appSuJdzsJZZYHqUf/tbl7kClC80WYUoYq2/viwOMXAikMLfmFvf2", target: "_blank" },
+  { value: "Supabase", label: "Supabase", icon: Database, href: "https://supabase.com/dashboard/org/hhidraefjatqiwuysmnz", target: "_blank" },
 ];
 
 export function AdminSidebar({
