@@ -4,6 +4,7 @@ import { products } from "@/data/products";
 import ProductManagement from "@/components/admin/product/ProductManagement";
 import ClientManagement from "@/components/admin/ClientManagement";
 import AdminNotifications from "@/components/admin/AdminNotifications";
+import AirtableUsageCard from "@/components/admin/AirtableUsageCard";
 import CategoryManagement from "@/components/admin/CategoryManagement";
 import FilterManagement from "@/components/admin/FilterManagement";
 import ContactManagement from "@/components/admin/ContactManagement";
@@ -90,6 +91,7 @@ const AdminPage = () => {
               <h1 className="text-3xl font-bold">Admin Dashboard</h1>
             </div>
             <AdminNotifications />
+            <AirtableUsageCard />
 
             {activeTab === "products" && <ProductManagement initialProducts={products} />}
             {activeTab === "categories" && <CategoryManagement />}

@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      airtable_usage: {
+        Row: {
+          count: number
+          month: string
+          updated_at: string
+        }
+        Insert: {
+          count?: number
+          month: string
+          updated_at?: string
+        }
+        Update: {
+          count?: number
+          month?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           color: string | null
@@ -558,16 +576,19 @@ export type Database = {
       }
       settings: {
         Row: {
+          airtable_monthly_quota: number
           created_at: string
           hero_bg: string | null
           id: string
         }
         Insert: {
+          airtable_monthly_quota?: number
           created_at?: string
           hero_bg?: string | null
           id?: string
         }
         Update: {
+          airtable_monthly_quota?: number
           created_at?: string
           hero_bg?: string | null
           id?: string
@@ -661,6 +682,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_airtable_usage: { Args: { _delta?: number }; Returns: number }
       remove_bucket_storage_policies: {
         Args: { bucket: string }
         Returns: undefined

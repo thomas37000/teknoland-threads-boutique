@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -79,8 +80,22 @@ async function fetchUser(userId: string | number, token: string | null) {
   return await res.json();
 }
 
+// Compteur d'utilisation Airtable (partagé via la table public.airtable_usage)
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+const usageClient = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } })
+  : null;
+
+function incrementAirtableUsage(delta = 1) {
+  if (!usageClient) return;
+  usageClient.rpc("increment_airtable_usage", { _delta: delta }).then(({ error }) => {
+    if (error) console.error("increment_airtable_usage error", error);
+  });
+}
+
 async function airtableFetch(path: string, init?: RequestInit) {
-  return fetch(`${AIRTABLE_URL}/${path}`, {
+  const res = await fetch(`${AIRTABLE_URL}/${path}`, {
     ...init,
     headers: {
       Authorization: `Bearer ${AIRTABLE_KEY}`,
@@ -88,6 +103,8 @@ async function airtableFetch(path: string, init?: RequestInit) {
       ...(init?.headers ?? {}),
     },
   });
+  incrementAirtableUsage(1);
+  return res;
 }
 
 async function listAllArtists() {
