@@ -16,10 +16,14 @@ interface Order {
     price: number;
     size: string | null;
     color: string | null;
+    item_name: string | null;
+    item_image: string | null;
+    item_type: string | null;
+    external_ref: string | null;
     products: {
       id: string;
       name: string;
-    };
+    } | null;
   }[];
 }
 
@@ -61,6 +65,10 @@ const ProfilePage = () => {
             price,
             size,
             color,
+            item_name,
+            item_image,
+            item_type,
+            external_ref,
             products (
               id,
               name
@@ -68,6 +76,7 @@ const ProfilePage = () => {
           )
         `)
         .eq('user_id', userId)
+        .neq('status', 'pending')
         .order('created_at', { ascending: false });
 
       if (error) {
