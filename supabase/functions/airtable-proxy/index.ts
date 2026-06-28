@@ -1,9 +1,63 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// --- Compteur d'utilisation Airtable -----------------------------------------
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+const usageClient = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } })
+  : null;
+
+async function incrementAirtableUsage(delta = 1) {
+  if (!usageClient) return;
+  try {
+    const { error } = await usageClient.rpc('increment_airtable_usage', { _delta: delta });
+    if (error) console.error('increment_airtable_usage error', error);
+  } catch (err) {
+    console.error('increment_airtable_usage threw', err);
+  }
+}
+
+/** Wrapper qui appelle Airtable et incrémente le compteur d'utilisation. */
+async function airtableFetch(url: string, init?: RequestInit): Promise<Response> {
+  const res = await fetch(url, init);
+  // On compte chaque requête réseau émise vers Airtable, peu importe le statut.
+  incrementAirtableUsage(1);
+  return res;
+}
+
+async function getUsage() {
+  if (!usageClient) {
+    return new Response(
+      JSON.stringify({ error: 'Service role not configured' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+  const month = new Date().toISOString().slice(0, 7);
+  const [{ data: usage }, { data: settings }] = await Promise.all([
+    usageClient.from('airtable_usage').select('count, updated_at').eq('month', month).maybeSingle(),
+    usageClient.from('settings').select('airtable_monthly_quota').limit(1).maybeSingle(),
+  ]);
+  const count = Number(usage?.count ?? 0);
+  const quota = Number(settings?.airtable_monthly_quota ?? 1000);
+  return new Response(
+    JSON.stringify({
+      month,
+      count,
+      quota,
+      remaining: Math.max(quota - count, 0),
+      percent: quota > 0 ? Math.min(100, Math.round((count / quota) * 100)) : 0,
+      updated_at: usage?.updated_at ?? null,
+    }),
+    { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
+}
+// ---------------------------------------------------------------------------
 
 async function getLiveFollowers(airtableUrl: string, airtableKey: string) {
   const SOUNDCLOUD_CLIENT_ID = Deno.env.get('VITE_SOUNDCLOUD_CLIENT_ID');
@@ -20,7 +74,7 @@ async function getLiveFollowers(airtableUrl: string, airtableKey: string) {
   try {
     // Fetch all artists from Airtable
     console.log('Fetching artists from Airtable for live followers...');
-    const artistsResponse = await fetch(`${airtableUrl}/Artistes`, {
+    const artistsResponse = await airtableFetch(`${airtableUrl}/Artistes`, {
       headers: {
         'Authorization': `Bearer ${airtableKey}`,
         'Content-Type': 'application/json',
@@ -117,7 +171,7 @@ async function syncSoundCloudFollowers(airtableUrl: string, airtableKey: string)
   try {
     // Fetch all artists from Airtable
     console.log('Fetching artists from Airtable...');
-    const artistsResponse = await fetch(`${airtableUrl}/Artistes`, {
+    const artistsResponse = await airtableFetch(`${airtableUrl}/Artistes`, {
       headers: {
         'Authorization': `Bearer ${airtableKey}`,
         'Content-Type': 'application/json',
@@ -164,7 +218,7 @@ async function syncSoundCloudFollowers(airtableUrl: string, airtableKey: string)
         console.log(`${artist.fields.Name}: ${followers} followers`);
 
         // Update Airtable record
-        const updateResponse = await fetch(`${airtableUrl}/Artistes/${artist.id}`, {
+        const updateResponse = await airtableFetch(`${airtableUrl}/Artistes/${artist.id}`, {
           method: 'PATCH',
           headers: {
             'Authorization': `Bearer ${airtableKey}`,
@@ -235,6 +289,11 @@ serve(async (req) => {
 
     const { method, table, recordId, fields, action } = await req.json();
 
+    // Compteur d'utilisation (lecture)
+    if (action === 'get-usage') {
+      return await getUsage();
+    }
+
     // Handle get-live-followers action
     if (action === 'get-live-followers') {
       return await getLiveFollowers(AIRTABLE_URL, AIRTABLE_KEY);
@@ -264,7 +323,7 @@ serve(async (req) => {
     }
 
     console.log(`Calling Airtable: ${url}`);
-    const response = await fetch(url, options);
+    const response = await airtableFetch(url, options);
     const data = await response.json();
 
     if (!response.ok) {
