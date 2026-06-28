@@ -115,7 +115,7 @@ const AirtableUsageCard = () => {
             <span>Progression</span>
             <span className="font-medium">{percent}%</span>
           </div>
-          <Progress value={percent} indicatorClassName={barTone} />
+          <Progress value={percent} className={`h-2 [&>div]:${barTone}`} />
         </div>
 
         <p className="text-xs text-muted-foreground italic">
