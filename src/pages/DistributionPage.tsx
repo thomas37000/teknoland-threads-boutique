@@ -23,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Edit, Loader2, Plus, RefreshCw, Trash2, Users } from "lucide-react";
+import { Edit, Loader2, Plus, RefreshCw, Trash2, Users, ShoppingCart, Minus } from "lucide-react";
 import TableSkeleton from "@/components/skeletons/TableSkeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -112,6 +112,38 @@ const DistributionPage = () => {
   const [artistes, setArtistes] = useState<Artiste[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+
+  // Panier d'achat distributeur : recordId -> quantité.
+  const [qty, setQty] = useState<Record<string, number>>({});
+  const [buyingId, setBuyingId] = useState<string | null>(null);
+
+  const getQty = (id: string) => qty[id] ?? 1;
+  const bump = (id: string, delta: number, max: number) =>
+    setQty((q) => ({ ...q, [id]: Math.max(1, Math.min(max || 99, (q[id] ?? 1) + delta)) }));
+
+  const buyOne = async (r: VinyleRecord) => {
+    try {
+      setBuyingId(r.id);
+      const quantity = getQty(r.id);
+      const { data, error } = await supabase.functions.invoke("create-vinyle-checkout", {
+        body: { items: [{ recordId: r.id, quantity }] },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(typeof data.error === "string" ? data.error : "Erreur");
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("URL de paiement manquante");
+      }
+    } catch (e: any) {
+      toast({
+        title: "Achat impossible",
+        description: e?.message || "Échec du démarrage du paiement",
+        variant: "destructive",
+      });
+      setBuyingId(null);
+    }
+  };
 
   const [editOpen, setEditOpen] = useState(false);
   const [editing, setEditing] = useState<VinyleRecord | null>(null);
@@ -334,13 +366,14 @@ const DistributionPage = () => {
                     <TableHead>Date</TableHead>
                     <TableHead className="text-right">Stock</TableHead>
                     <TableHead className="text-right">Prix dist.</TableHead>
+                    <TableHead className="text-center">Acheter</TableHead>
                     {isAdmin && <TableHead>Actions</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={isAdmin ? 10 : 9} className="text-center py-6 text-muted-foreground">
+                      <TableCell colSpan={isAdmin ? 11 : 10} className="text-center py-6 text-muted-foreground">
                         Aucun vinyle trouvé
                       </TableCell>
                     </TableRow>
@@ -369,6 +402,52 @@ const DistributionPage = () => {
                           </TableCell>
                           <TableCell className="text-right">
                             {r.fields.Prix_distributeur != null ? `${r.fields.Prix_distributeur} €` : "—"}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {(() => {
+                              const stock = Number(r.fields.Stock ?? 0);
+                              const price = Number(r.fields.Prix_distributeur ?? 0);
+                              const disabled = stock <= 0 || !(price > 0) || buyingId === r.id;
+                              const q = getQty(r.id);
+                              return (
+                                <div className="flex items-center justify-center gap-1">
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-7 w-7"
+                                    onClick={() => bump(r.id, -1, stock)}
+                                    disabled={disabled || q <= 1}
+                                    aria-label="Diminuer"
+                                  >
+                                    <Minus className="h-3 w-3" />
+                                  </Button>
+                                  <span className="w-6 text-sm tabular-nums">{q}</span>
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-7 w-7"
+                                    onClick={() => bump(r.id, +1, stock)}
+                                    disabled={disabled || q >= stock}
+                                    aria-label="Augmenter"
+                                  >
+                                    <Plus className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    className="ml-1"
+                                    onClick={() => buyOne(r)}
+                                    disabled={disabled}
+                                    title={stock <= 0 ? "Rupture de stock" : "Acheter"}
+                                  >
+                                    {buyingId === r.id ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                      <ShoppingCart className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                </div>
+                              );
+                            })()}
                           </TableCell>
                           {isAdmin && (
                             <TableCell>

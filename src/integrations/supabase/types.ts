@@ -379,28 +379,40 @@ export type Database = {
       order_items: {
         Row: {
           color: string | null
+          external_ref: string | null
           id: string
+          item_image: string | null
+          item_name: string | null
+          item_type: string
           order_id: string
           price: number
-          product_id: string
+          product_id: string | null
           quantity: number
           size: string | null
         }
         Insert: {
           color?: string | null
+          external_ref?: string | null
           id?: string
+          item_image?: string | null
+          item_name?: string | null
+          item_type?: string
           order_id: string
           price: number
-          product_id: string
+          product_id?: string | null
           quantity: number
           size?: string | null
         }
         Update: {
           color?: string | null
+          external_ref?: string | null
           id?: string
+          item_image?: string | null
+          item_name?: string | null
+          item_type?: string
           order_id?: string
           price?: number
-          product_id?: string
+          product_id?: string | null
           quantity?: number
           size?: string | null
         }

@@ -4,26 +4,40 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
+import { supabase } from "@/integrations/supabase/client";
 
 const PaymentSuccessPage = () => {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
+  const orderId = searchParams.get("order_id");
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const { clearCart } = useCart();
 
   useEffect(() => {
-    // Clear the cart after successful payment
-    if (sessionId) {
-      clearCart();
-    }
-    
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-    
-    return () => clearTimeout(timer);
-  }, [sessionId, clearCart]);
+    let cancelled = false;
+    const run = async () => {
+      if (sessionId) clearCart();
+      // Si la commande provient de la page Distribution (vinyles), on confirme
+      // le paiement côté Supabase pour marquer l'order comme `paid`.
+      if (sessionId && orderId) {
+        try {
+          await supabase.functions.invoke("confirm-vinyle-order", {
+            body: { sessionId, orderId },
+          });
+        } catch (e) {
+          console.error("confirm-vinyle-order failed", e);
+        }
+      }
+      if (!cancelled) {
+        setTimeout(() => !cancelled && setIsLoading(false), 800);
+      }
+    };
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId, orderId, clearCart]);
 
   return (
     <div className="tekno-container py-16 flex flex-col items-center justify-center text-center">
