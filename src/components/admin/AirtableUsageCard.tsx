@@ -115,7 +115,12 @@ const AirtableUsageCard = () => {
             <span>Progression</span>
             <span className="font-medium">{percent}%</span>
           </div>
-          <Progress value={percent} className={`h-2 [&>div]:${barTone}`} />
+          <div className="relative h-2 w-full overflow-hidden rounded-full bg-secondary">
+            <div
+              className={`h-full ${barTone} transition-all`}
+              style={{ width: `${percent}%` }}
+            />
+          </div>
         </div>
 
         <p className="text-xs text-muted-foreground italic">
