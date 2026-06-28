@@ -15,7 +15,7 @@ interface UsageData {
   percent: number;
 }
 
-const AirtableUsageCard = () => {
+const ApiAirtableManagement = () => {
   const [usage, setUsage] = useState<UsageData | null>(null);
   const [loading, setLoading] = useState(true);
   const [quotaInput, setQuotaInput] = useState<string>("");
@@ -147,4 +147,4 @@ const AirtableUsageCard = () => {
   );
 };
 
-export default AirtableUsageCard;
+export default ApiAirtableManagement;

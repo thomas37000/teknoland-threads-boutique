@@ -4,7 +4,6 @@ import { products } from "@/data/products";
 import ProductManagement from "@/components/admin/product/ProductManagement";
 import ClientManagement from "@/components/admin/ClientManagement";
 import AdminNotifications from "@/components/admin/AdminNotifications";
-import AirtableUsageCard from "@/components/admin/AirtableUsageCard";
 import CategoryManagement from "@/components/admin/CategoryManagement";
 import FilterManagement from "@/components/admin/FilterManagement";
 import ContactManagement from "@/components/admin/ContactManagement";
@@ -18,6 +17,7 @@ import DiscogsManagement from "@/components/admin/DiscogsManagement";
 import SoundCloudManagement from "@/components/admin/SoundCloudManagement";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import ApiAirtableManagement from "@/components/admin/ApiAirtableManagement";
 
 const AdminPage = () => {
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
@@ -91,7 +91,6 @@ const AdminPage = () => {
               <h1 className="text-3xl font-bold">Admin Dashboard</h1>
             </div>
             <AdminNotifications />
-            <AirtableUsageCard />
 
             {activeTab === "products" && <ProductManagement initialProducts={products} />}
             {activeTab === "categories" && <CategoryManagement />}
@@ -102,6 +101,7 @@ const AdminPage = () => {
             {activeTab === "clients" && <ClientManagement />}
             {activeTab === "images" && <ImageManagement />}
             {activeTab === "idees" && <IdeasManagement initialIdeas={[]} />}
+            {activeTab === "apiAirtable" && <ApiAirtableManagement />}
             {activeTab === "artistes" && <AirtableManagement />}
             {activeTab === "discogs" && <DiscogsManagement />}
             {activeTab === "soundcloud" && <SoundCloudManagement />}
