@@ -15,10 +15,14 @@ interface Order {
     price: number;
     size: string | null;
     color: string | null;
-    products: {
+    item_name?: string | null;
+    item_image?: string | null;
+    item_type?: string | null;
+    external_ref?: string | null;
+    products?: {
       id: string;
       name: string;
-    };
+    } | null;
   }[];
 }
 
