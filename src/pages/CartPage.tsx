@@ -30,6 +30,12 @@ const CartPage = () => {
   const navigate = useNavigate();
   const [showLoginDialog, setShowLoginDialog] = useState(false);
 
+  // Lien retour : si le panier contient des vinyles distributeur, on renvoie
+  // vers /distribution plutôt que vers la boutique grand public.
+  const hasVinyles = items.some((i) => i.itemType === "vinyle");
+  const backHref = hasVinyles ? "/distribution" : "/shop";
+  const backLabel = hasVinyles ? "Distribution" : t("nav.shop");
+
   const handleCheckout = async () => {
     // Check if user is logged in
     if (!user) {
@@ -82,9 +88,9 @@ const CartPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <Button variant="outline" asChild>
-              <a href="/shop" className="flex items-center gap-2">
+              <a href={backHref} className="flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
-                {t("nav.shop")}
+                {backLabel}
               </a>
             </Button>
           </div>
@@ -99,9 +105,9 @@ const CartPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <Button variant="outline" asChild>
-            <a href="/shop" className="flex items-center gap-2">
+            <a href={backHref} className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
-              {t("nav.shop")}
+              {backLabel}
             </a>
           </Button>
         </div>

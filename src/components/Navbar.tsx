@@ -12,7 +12,7 @@ import LanguageSelector from "./LanguageSelector";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { cartItems } = useCart();
+  const { cartItems, totalItems } = useCart();
   const { user, signOut, isAdmin, userRole } = useAuth();
   const { hasAccess: hasDistributionAccess } = useDistributorAccess();
   const { t } = useTranslation();
@@ -96,9 +96,9 @@ const Navbar = () => {
           <Link to="/cart">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart size={24} />
-              {cartItems.length > 0 && (
+              {totalItems > 0 && (
                 <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 bg-tekno-blue text-white rounded-full">
-                  {cartItems.length}
+                  {totalItems}
                 </Badge>
               )}
             </Button>
@@ -203,7 +203,7 @@ const Navbar = () => {
               <Link to="/cart" onClick={toggleMenu}>
                 <Button className="bg-tekno-blue text-white hover:bg-tekno-blue/90">
                   <ShoppingCart size={18} className="mr-2" />
-                  {t('nav.viewCart')} ({cartItems.length})
+                  {t('nav.viewCart')} ({totalItems})
                 </Button>
               </Link>
             </div>
