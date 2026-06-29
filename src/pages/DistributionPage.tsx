@@ -416,7 +416,7 @@ const DistributionPage = () => {
                             {(() => {
                               const stock = Number(r.fields.Stock ?? 0);
                               const price = Number(r.fields.Prix_distributeur ?? 0);
-                              const disabled = stock <= 0 || !(price > 0) || buyingId === r.id;
+                              const disabled = stock <= 0 || !(price > 0);
                               const q = getQty(r.id);
                               return (
                                 <div className="flex items-center justify-center gap-1">
@@ -444,15 +444,11 @@ const DistributionPage = () => {
                                   <Button
                                     size="sm"
                                     className="ml-1"
-                                    onClick={() => buyOne(r)}
+                                    onClick={() => addVinyleToCart(r)}
                                     disabled={disabled}
-                                    title={stock <= 0 ? "Rupture de stock" : "Acheter"}
+                                    title={stock <= 0 ? "Rupture de stock" : "Ajouter au panier"}
                                   >
-                                    {buyingId === r.id ? (
-                                      <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                      <ShoppingCart className="h-4 w-4" />
-                                    )}
+                                    <ShoppingCart className="h-4 w-4" />
                                   </Button>
                                 </div>
                               );
