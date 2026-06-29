@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { createCheckoutSession } from "@/utils/cart-checkout";
+import { supabase } from "@/integrations/supabase/client";
 import CartItem from "@/components/cart/CartItem";
 import CartSummary from "@/components/cart/CartSummary";
 import CartEmptyState from "@/components/cart/CartEmptyState";
@@ -37,7 +38,35 @@ const CartPage = () => {
     }
 
     try {
-      await createCheckoutSession(items);
+      const vinyles = items.filter((i) => i.itemType === "vinyle");
+      const others = items.filter((i) => i.itemType !== "vinyle");
+      if (vinyles.length > 0 && others.length > 0) {
+        // Stripe ne peut pas mixer une commande vinyles distributeur et une
+        // commande produits standard (logiques de stock & RBAC différentes).
+        throw new Error(
+          "Veuillez régler séparément les vinyles distributeur et les autres produits.",
+        );
+      }
+      if (vinyles.length > 0) {
+        const { data, error } = await supabase.functions.invoke("create-vinyle-checkout", {
+          body: {
+            items: vinyles.map((v) => ({
+              recordId: v.externalRef,
+              quantity: v.quantity,
+            })),
+          },
+        });
+        if (error) throw error;
+        if (data?.error)
+          throw new Error(typeof data.error === "string" ? data.error : "Erreur paiement");
+        if (data?.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error("URL de paiement manquante");
+        }
+      } else {
+        await createCheckoutSession(items);
+      }
     } catch (error) {
       console.error("Checkout error:", error);
     }
