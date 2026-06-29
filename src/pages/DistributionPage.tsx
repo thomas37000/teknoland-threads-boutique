@@ -37,6 +37,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Check, ChevronsUpDown, X } from "lucide-react";
+import { ChevronUp, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -116,6 +117,8 @@ const DistributionPage = () => {
   const [artistes, setArtistes] = useState<Artiste[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  // Tri par prix distributeur : 'none' = ordre Airtable, 'asc' = croissant, 'desc' = décroissant.
+  const [priceSort, setPriceSort] = useState<"none" | "asc" | "desc">("none");
 
   // Panier d'achat distributeur : recordId -> quantité.
   const [qty, setQty] = useState<Record<string, number>>({});
@@ -216,8 +219,9 @@ const DistributionPage = () => {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return records;
-    return records.filter((r) => {
+    const base = !q
+      ? records
+      : records.filter((r) => {
       const f = r.fields;
       return (
         f.Ref?.toLowerCase().includes(q) ||
@@ -227,7 +231,15 @@ const DistributionPage = () => {
         f.Format?.toLowerCase().includes(q)
       );
     });
-  }, [records, search, artisteMap]);
+    if (priceSort === "none") return base;
+    const arr = [...base];
+    arr.sort((a, b) => {
+      const pa = Number(a.fields.Prix_distributeur ?? 0);
+      const pb = Number(b.fields.Prix_distributeur ?? 0);
+      return priceSort === "asc" ? pa - pb : pb - pa;
+    });
+    return arr;
+  }, [records, search, artisteMap, priceSort]);
 
   const openAdd = () => {
     setEditing(null);
