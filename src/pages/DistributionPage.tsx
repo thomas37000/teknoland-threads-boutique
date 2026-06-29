@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useDistributorAccess } from "@/hooks/use-distributor-access";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/hooks/use-cart";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -108,6 +110,8 @@ const firstImage = (img: VinyleFields["Image"]): string | null => {
 const DistributionPage = () => {
   const { isAdmin } = useDistributorAccess();
   const { toast } = useToast();
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
   const [records, setRecords] = useState<VinyleRecord[]>([]);
   const [artistes, setArtistes] = useState<Artiste[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,34 +119,39 @@ const DistributionPage = () => {
 
   // Panier d'achat distributeur : recordId -> quantité.
   const [qty, setQty] = useState<Record<string, number>>({});
-  const [buyingId, setBuyingId] = useState<string | null>(null);
 
   const getQty = (id: string) => qty[id] ?? 1;
   const bump = (id: string, delta: number, max: number) =>
     setQty((q) => ({ ...q, [id]: Math.max(1, Math.min(max || 99, (q[id] ?? 1) + delta)) }));
 
-  const buyOne = async (r: VinyleRecord) => {
-    try {
-      setBuyingId(r.id);
-      const quantity = getQty(r.id);
-      const { data, error } = await supabase.functions.invoke("create-vinyle-checkout", {
-        body: { items: [{ recordId: r.id, quantity }] },
-      });
-      if (error) throw error;
-      if (data?.error) throw new Error(typeof data.error === "string" ? data.error : "Erreur");
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error("URL de paiement manquante");
-      }
-    } catch (e: any) {
-      toast({
-        title: "Achat impossible",
-        description: e?.message || "Échec du démarrage du paiement",
-        variant: "destructive",
-      });
-      setBuyingId(null);
-    }
+  /**
+   * Ajoute le vinyle au panier global. Le distributeur déclenche le paiement
+   * Stripe lui-même depuis la page Panier (icône caddie de la nav), comme un
+   * client classique. On marque l'item avec `itemType: 'vinyle'` et le recordId
+   * Airtable dans `externalRef` afin que la page Panier sache router vers la
+   * bonne Edge Function (create-vinyle-checkout) au moment du checkout.
+   */
+  const addVinyleToCart = (r: VinyleRecord) => {
+    const quantity = getQty(r.id);
+    const f = r.fields;
+    const price = Number(f.Prix_distributeur ?? 0);
+    const img = firstImage(f.Image) || "";
+    const name = `${f.Ref ? f.Ref + " — " : ""}${f.Titre || "Vinyle"}`;
+    addToCart(
+      {
+        id: `vinyle:${r.id}`,
+        name,
+        price,
+        image: img,
+        itemType: "vinyle",
+        externalRef: r.id,
+      },
+      quantity,
+    );
+    toast({
+      title: "Ajouté au panier",
+      description: `${quantity} × ${name}`,
+    });
   };
 
   const [editOpen, setEditOpen] = useState(false);
