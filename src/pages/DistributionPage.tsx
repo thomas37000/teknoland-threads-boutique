@@ -386,7 +386,25 @@ const DistributionPage = () => {
                     <TableHead>Styles</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead className="text-right">Stock</TableHead>
-                    <TableHead className="text-right">Prix dist.</TableHead>
+                    <TableHead className="text-right">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPriceSort((s) =>
+                            s === "none" ? "asc" : s === "asc" ? "desc" : "none",
+                          )
+                        }
+                        className="inline-flex items-center gap-1 hover:text-foreground"
+                        title="Trier par prix distributeur"
+                      >
+                        Prix dist.
+                        {priceSort === "asc" && <ChevronUp className="h-3 w-3" />}
+                        {priceSort === "desc" && <ChevronDown className="h-3 w-3" />}
+                        {priceSort === "none" && (
+                          <ChevronsUpDown className="h-3 w-3 opacity-50" />
+                        )}
+                      </button>
+                    </TableHead>
                     <TableHead className="text-center">Acheter</TableHead>
                     {isAdmin && <TableHead>Actions</TableHead>}
                   </TableRow>
