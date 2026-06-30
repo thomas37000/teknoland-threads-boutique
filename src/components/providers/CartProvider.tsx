@@ -52,6 +52,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         quantity,
         size,
         color,
+        itemType: product.itemType,
+        externalRef: product.externalRef,
       };
       setItems(prev => [...prev, newItem]);
     }

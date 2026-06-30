@@ -7,6 +7,10 @@ export interface CartItem {
   image: string;
   size?: string;
   color?: string;
+  /** 'vinyle' pour les articles distribués depuis Airtable, sinon produit standard. */
+  itemType?: "vinyle" | "product";
+  /** Référence externe (ex: recordId Airtable pour les vinyles). */
+  externalRef?: string;
 }
 
 export interface CartContextType {

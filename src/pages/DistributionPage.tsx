@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useDistributorAccess } from "@/hooks/use-distributor-access";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/hooks/use-cart";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +37,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Check, ChevronsUpDown, X } from "lucide-react";
+import { ChevronUp, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -108,41 +111,50 @@ const firstImage = (img: VinyleFields["Image"]): string | null => {
 const DistributionPage = () => {
   const { isAdmin } = useDistributorAccess();
   const { toast } = useToast();
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
   const [records, setRecords] = useState<VinyleRecord[]>([]);
   const [artistes, setArtistes] = useState<Artiste[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  // Tri par prix distributeur : 'none' = ordre Airtable, 'asc' = croissant, 'desc' = décroissant.
+  const [priceSort, setPriceSort] = useState<"none" | "asc" | "desc">("none");
 
   // Panier d'achat distributeur : recordId -> quantité.
   const [qty, setQty] = useState<Record<string, number>>({});
-  const [buyingId, setBuyingId] = useState<string | null>(null);
 
   const getQty = (id: string) => qty[id] ?? 1;
   const bump = (id: string, delta: number, max: number) =>
     setQty((q) => ({ ...q, [id]: Math.max(1, Math.min(max || 99, (q[id] ?? 1) + delta)) }));
 
-  const buyOne = async (r: VinyleRecord) => {
-    try {
-      setBuyingId(r.id);
-      const quantity = getQty(r.id);
-      const { data, error } = await supabase.functions.invoke("create-vinyle-checkout", {
-        body: { items: [{ recordId: r.id, quantity }] },
-      });
-      if (error) throw error;
-      if (data?.error) throw new Error(typeof data.error === "string" ? data.error : "Erreur");
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error("URL de paiement manquante");
-      }
-    } catch (e: any) {
-      toast({
-        title: "Achat impossible",
-        description: e?.message || "Échec du démarrage du paiement",
-        variant: "destructive",
-      });
-      setBuyingId(null);
-    }
+  /**
+   * Ajoute le vinyle au panier global. Le distributeur déclenche le paiement
+   * Stripe lui-même depuis la page Panier (icône caddie de la nav), comme un
+   * client classique. On marque l'item avec `itemType: 'vinyle'` et le recordId
+   * Airtable dans `externalRef` afin que la page Panier sache router vers la
+   * bonne Edge Function (create-vinyle-checkout) au moment du checkout.
+   */
+  const addVinyleToCart = (r: VinyleRecord) => {
+    const quantity = getQty(r.id);
+    const f = r.fields;
+    const price = Number(f.Prix_distributeur ?? 0);
+    const img = firstImage(f.Image) || "";
+    const name = `${f.Ref ? f.Ref + " — " : ""}${f.Titre || "Vinyle"}`;
+    addToCart(
+      {
+        id: `vinyle:${r.id}`,
+        name,
+        price,
+        image: img,
+        itemType: "vinyle",
+        externalRef: r.id,
+      },
+      quantity,
+    );
+    toast({
+      title: "Ajouté au panier",
+      description: `${quantity} × ${name}`,
+    });
   };
 
   const [editOpen, setEditOpen] = useState(false);
@@ -207,8 +219,9 @@ const DistributionPage = () => {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return records;
-    return records.filter((r) => {
+    const base = !q
+      ? records
+      : records.filter((r) => {
       const f = r.fields;
       return (
         f.Ref?.toLowerCase().includes(q) ||
@@ -218,7 +231,15 @@ const DistributionPage = () => {
         f.Format?.toLowerCase().includes(q)
       );
     });
-  }, [records, search, artisteMap]);
+    if (priceSort === "none") return base;
+    const arr = [...base];
+    arr.sort((a, b) => {
+      const pa = Number(a.fields.Prix_distributeur ?? 0);
+      const pb = Number(b.fields.Prix_distributeur ?? 0);
+      return priceSort === "asc" ? pa - pb : pb - pa;
+    });
+    return arr;
+  }, [records, search, artisteMap, priceSort]);
 
   const openAdd = () => {
     setEditing(null);
@@ -365,7 +386,25 @@ const DistributionPage = () => {
                     <TableHead>Styles</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead className="text-right">Stock</TableHead>
-                    <TableHead className="text-right">Prix dist.</TableHead>
+                    <TableHead className="text-right">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPriceSort((s) =>
+                            s === "none" ? "asc" : s === "asc" ? "desc" : "none",
+                          )
+                        }
+                        className="inline-flex items-center gap-1 hover:text-foreground"
+                        title="Trier par prix distributeur"
+                      >
+                        Prix dist.
+                        {priceSort === "asc" && <ChevronUp className="h-3 w-3" />}
+                        {priceSort === "desc" && <ChevronDown className="h-3 w-3" />}
+                        {priceSort === "none" && (
+                          <ChevronsUpDown className="h-3 w-3 opacity-50" />
+                        )}
+                      </button>
+                    </TableHead>
                     <TableHead className="text-center">Acheter</TableHead>
                     {isAdmin && <TableHead>Actions</TableHead>}
                   </TableRow>
@@ -407,7 +446,7 @@ const DistributionPage = () => {
                             {(() => {
                               const stock = Number(r.fields.Stock ?? 0);
                               const price = Number(r.fields.Prix_distributeur ?? 0);
-                              const disabled = stock <= 0 || !(price > 0) || buyingId === r.id;
+                              const disabled = stock <= 0 || !(price > 0);
                               const q = getQty(r.id);
                               return (
                                 <div className="flex items-center justify-center gap-1">
@@ -435,15 +474,11 @@ const DistributionPage = () => {
                                   <Button
                                     size="sm"
                                     className="ml-1"
-                                    onClick={() => buyOne(r)}
+                                    onClick={() => addVinyleToCart(r)}
                                     disabled={disabled}
-                                    title={stock <= 0 ? "Rupture de stock" : "Acheter"}
+                                    title={stock <= 0 ? "Rupture de stock" : "Ajouter au panier"}
                                   >
-                                    {buyingId === r.id ? (
-                                      <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                      <ShoppingCart className="h-4 w-4" />
-                                    )}
+                                    <ShoppingCart className="h-4 w-4" />
                                   </Button>
                                 </div>
                               );
