@@ -1,4 +1,4 @@
-import { Package, Users, Tag, Filter, Mail, Heart, Calculator, Image, Music, Disc3, Cloud, Truck, Database, DatabaseBackup, HardDrive, Cat } from "lucide-react";
+import { Package, Users, Tag, Filter, Mail, Heart, Calculator, Image, Music, Disc3, Cloud, Truck, Database, DatabaseBackup, HardDrive, Cat, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useDiscogsUnseen } from "@/hooks/useDiscogs";
@@ -33,29 +33,30 @@ interface MenuItem {
 }
 
 const dashboardMenuItems: MenuItem[] = [
-  { value: "products", label: "Produits", icon: Package, badge: "newProductsCount" },
   { value: "categories", label: "Catégories", icon: Tag },
-  { value: "filters", label: "Filtres", icon: Filter },
   { value: "contacts", label: "Messages", icon: Mail, badge: "unreadMessagesCount" },
-  { value: "moni", label: "Moni", icon: Calculator },
   { value: "clients", label: "Users", icon: Users, badge: "newUsersCount" },
-  { value: "images", label: "Images", icon: Image },
+  { value: "filters", label: "Filtres", icon: Filter },
   { value: "idees", label: "Idées", icon: Users },
+  { value: "images", label: "Images", icon: Image },
+  { value: "moni", label: "Moni", icon: Calculator },
+  { value: "products", label: "Produits", icon: Package, badge: "newProductsCount" },
 ];
 
 const apiMenuItems: MenuItem[]= [
-    { value: "discogs", label: "Discogs", icon: Disc3, badge: "discogsUnseenCount" },
+  { value: "apiAirtable", label: "ApiAirtable", icon: HardDrive },
   { value: "artistes", label: "Artistes", icon: Music },
-  { value: "soundcloud", label: "SoundCloud", icon: Cloud },
+  { value: "discogs", label: "Discogs", icon: Disc3, badge: "discogsUnseenCount" },
   { value: "distribution", label: "Distribution", icon: Truck, href: "/distribution" },
   { value: "lovable", label: "Lovable", icon: Heart },
-  { value: "apiAirtable", label: "ApiAirtable", icon: HardDrive },
+  { value: "soundcloud", label: "SoundCloud", icon: Cloud },
 ];
 
 const linksMenuItems: MenuItem[] = [
   { value: "Airtable", label: "Airtable", icon: Database, href: "https://airtable.com/appSuJdzsJZZYHqUf/tbl7kClC80WYUoYq2/viwOMXAikMLfmFvf2", target: "_blank" },
-  { value: "Supabase", label: "Supabase", icon: DatabaseBackup, href: "https://supabase.com/dashboard/org/hhidraefjatqiwuysmnz", target: "_blank" },
   { value: "Github", label: "Github", icon: Cat, href: "https://github.com/thomas37000/teknoland-threads-boutique", target: "_blank" },
+  { value: "Portfolio", label: "Portfolio", icon: Star, href: "https://thomas-chalanson-portfolio.lovable.app/", target: "_blank" },
+  { value: "Supabase", label: "Supabase", icon: DatabaseBackup, href: "https://supabase.com/dashboard/org/hhidraefjatqiwuysmnz", target: "_blank" },
 ];
 
 export function AdminSidebar({
