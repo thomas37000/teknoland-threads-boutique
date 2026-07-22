@@ -66,6 +66,7 @@ interface VinyleFields {
   /** Tableau de record IDs Airtable pointant vers la table Artistes. */
   Artistes?: string[] | string;
   [k: string]: any;
+  Label?: string;
 }
 
 interface VinyleRecord {
@@ -82,6 +83,7 @@ const EMPTY: VinyleFields = {
   Format: "",
   Styles: "",
   Artistes: [],
+  Label: "",
 };
 
 const formatList = (v: any): string => {
@@ -390,7 +392,7 @@ const DistributionPage = () => {
                     <TableHead>Artistes</TableHead>
                     <TableHead>Format</TableHead>
                     <TableHead>Styles</TableHead>
-                    <TableHead>Date</TableHead>
+                    <TableHead>Label</TableHead>
                     <TableHead className="text-right">Stock</TableHead>
                     <TableHead className="text-right">
                       <button
@@ -439,7 +441,7 @@ const DistributionPage = () => {
                           <TableCell>{resolveArtistes(r.fields.Artistes) || "—"}</TableCell>
                           <TableCell>{r.fields.Format}</TableCell>
                           <TableCell>{formatList(r.fields.Styles)}</TableCell>
-                          <TableCell>{r.fields.Date_de_sortie}</TableCell>
+                          <TableCell>{r.fields.Label}</TableCell>
                           <TableCell className="text-right">
                             <Badge variant={(r.fields.Stock ?? 0) > 0 ? "default" : "secondary"}>
                               {r.fields.Stock ?? 0}
