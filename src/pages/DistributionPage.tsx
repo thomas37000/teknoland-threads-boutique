@@ -219,8 +219,8 @@ const DistributionPage = () => {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    // Exclure les vinyles dont le statut Stock est "Plus en stock" ou "Pressage".
-    const HIDDEN_STATUSES = ["plus en stock", "pressage"];
+    // Exclure les vinyles dont le statut Stock est "Plus en stock" ou "Pressage" ou "En commande".
+    const HIDDEN_STATUSES = ["plus en stock", "pressage", "en commande"];
     const visible = records.filter((r) => {
       const status = String(r.fields.Stock ?? "").trim().toLowerCase();
       return !HIDDEN_STATUSES.includes(status);
