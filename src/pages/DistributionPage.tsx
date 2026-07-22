@@ -221,11 +221,11 @@ const DistributionPage = () => {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    // Exclure les vinyles dont le statut Stock est "Plus en stock" ou "Pressage" ou "En commande".
-    const HIDDEN_STATUSES = ["plus en stock", "pressage", "en commande"];
+    // Ne conserver que les vinyles dont le statut Stock est "En stock".
+    // La quantité disponible est lue depuis le champ numérique Quantité_Stock.
     const visible = records.filter((r) => {
       const status = String(r.fields.Stock ?? "").trim().toLowerCase();
-      return !HIDDEN_STATUSES.includes(status);
+      return status === "en stock";
     });
     const base = !q
       ? visible
