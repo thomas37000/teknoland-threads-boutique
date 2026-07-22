@@ -239,12 +239,30 @@ const DistributionPage = () => {
         f.Format?.toLowerCase().includes(q)
       );
     });
-    if (priceSort === "none") return base;
+    // Groupement par statut Echange :
+    // 0 = Label "Teknoland Production", 1 = case Echange cochée, 2 = autres.
+    const groupOf = (r: VinyleRecord): number => {
+      const label = String(r.fields.Label ?? "").trim().toLowerCase();
+      if (label === "teknoland production") return 0;
+      const ex = r.fields.Echange;
+      const isEchange =
+        ex === true ||
+        ex === 1 ||
+        (typeof ex === "string" && ["true", "1", "oui", "yes", "checked"].includes(ex.toLowerCase()));
+      if (isEchange) return 1;
+      return 2;
+    };
     const arr = [...base];
     arr.sort((a, b) => {
-      const pa = Number(a.fields.Prix_distributeur ?? 0);
-      const pb = Number(b.fields.Prix_distributeur ?? 0);
-      return priceSort === "asc" ? pa - pb : pb - pa;
+      const ga = groupOf(a);
+      const gb = groupOf(b);
+      if (ga !== gb) return ga - gb;
+      if (priceSort !== "none") {
+        const pa = Number(a.fields.Prix_distributeur ?? 0);
+        const pb = Number(b.fields.Prix_distributeur ?? 0);
+        return priceSort === "asc" ? pa - pb : pb - pa;
+      }
+      return 0;
     });
     return arr;
   }, [records, search, artisteMap, priceSort]);
