@@ -219,9 +219,15 @@ const DistributionPage = () => {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
+    // Exclure les vinyles dont le statut Stock est "Plus en stock" ou "Pressage".
+    const HIDDEN_STATUSES = ["plus en stock", "pressage"];
+    const visible = records.filter((r) => {
+      const status = String(r.fields.Stock ?? "").trim().toLowerCase();
+      return !HIDDEN_STATUSES.includes(status);
+    });
     const base = !q
-      ? records
-      : records.filter((r) => {
+      ? visible
+      : visible.filter((r) => {
       const f = r.fields;
       return (
         f.Ref?.toLowerCase().includes(q) ||
