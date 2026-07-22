@@ -411,7 +411,7 @@ const DistributionPage = () => {
                     <TableHead>Format</TableHead>
                     <TableHead>Styles</TableHead>
                     <TableHead>Label</TableHead>
-                    <TableHead className="text-right">Stock</TableHead>
+                    <TableHead className="text-right">Quantité</TableHead>
                     <TableHead className="text-right">
                       <button
                         type="button"
@@ -461,8 +461,8 @@ const DistributionPage = () => {
                           <TableCell>{formatList(r.fields.Styles)}</TableCell>
                           <TableCell>{r.fields.Label}</TableCell>
                           <TableCell className="text-right">
-                            <Badge variant={(r.fields.Stock ?? 0) > 0 ? "default" : "secondary"}>
-                              {r.fields.Stock ?? 0}
+                            <Badge variant={Number(r.fields.Quantité_Stock ?? 0) > 0 ? "default" : "secondary"}>
+                              {r.fields.Quantité_Stock ?? 0}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
@@ -470,7 +470,7 @@ const DistributionPage = () => {
                           </TableCell>
                           <TableCell className="text-center">
                             {(() => {
-                              const stock = Number(r.fields.Stock ?? 0);
+                              const stock = Number(r.fields.Quantité_Stock ?? 0);
                               const price = Number(r.fields.Prix_distributeur ?? 0);
                               const disabled = stock <= 0 || !(price > 0);
                               const q = getQty(r.id);
