@@ -80,6 +80,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems([]);
   };
 
+  const reserveCart = () => {
+    setItems(prev => prev.map(item => ({ ...item, reserved: true })));
+  };
+
   const getTotalPrice = () => {
     return items.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
@@ -95,6 +99,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     removeFromCart,
     updateQuantity,
     clearCart,
+    reserveCart,
     getTotalPrice,
     getItemCount,
     totalItems: getItemCount(),
