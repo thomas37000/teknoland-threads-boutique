@@ -11,6 +11,8 @@ export interface CartItem {
   itemType?: "vinyle" | "product";
   /** Référence externe (ex: recordId Airtable pour les vinyles). */
   externalRef?: string;
+  /** Marque l'article comme réservé (en attente de validation admin). */
+  reserved?: boolean;
 }
 
 export interface CartContextType {
@@ -20,6 +22,7 @@ export interface CartContextType {
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
+  reserveCart: () => void;
   getTotalPrice: () => number;
   getItemCount: () => number;
   totalItems: number;

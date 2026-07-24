@@ -60,6 +60,11 @@ const CartTab = () => {
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
+                {item.reserved && (
+                  <span className="ml-2 inline-flex items-center rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">
+                    Réservé
+                  </span>
+                )}
               </div>
             </div>
             <div className="text-right">
