@@ -59,7 +59,7 @@ export default {
 					black1212: '#121212',
 					gray: '#8A898C',
 					lightgray: '#F6F6F7',
-					orange: '#ff8800',
+					orange: '#ffa600',
 					red: '#D0021B',
 					green: '#2c8d2c',
 				}

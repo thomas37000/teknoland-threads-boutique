@@ -67,6 +67,7 @@ interface VinyleFields {
   Artistes?: string[] | string;
   [k: string]: any;
   Label?: string;
+  Discogs_url?: string;
 }
 
 interface VinyleRecord {
@@ -84,6 +85,7 @@ const EMPTY: VinyleFields = {
   Styles: "",
   Artistes: [],
   Label: "",
+  Discogs_url: "",
 };
 
 const formatList = (v: any): string => {
@@ -230,15 +232,15 @@ const DistributionPage = () => {
     const base = !q
       ? visible
       : visible.filter((r) => {
-      const f = r.fields;
-      return (
-        f.Ref?.toLowerCase().includes(q) ||
-        f.Titre?.toLowerCase().includes(q) ||
-        resolveArtistes(f.Artistes).toLowerCase().includes(q) ||
-        formatList(f.Styles).toLowerCase().includes(q) ||
-        f.Format?.toLowerCase().includes(q)
-      );
-    });
+        const f = r.fields;
+        return (
+          f.Ref?.toLowerCase().includes(q) ||
+          f.Titre?.toLowerCase().includes(q) ||
+          resolveArtistes(f.Artistes).toLowerCase().includes(q) ||
+          formatList(f.Styles).toLowerCase().includes(q) ||
+          f.Format?.toLowerCase().includes(q)
+        );
+      });
     // Groupement par statut Echange :
     // 0 = Label "Teknoland Production", 1 = case Echange cochée, 2 = autres.
     const groupOf = (r: VinyleRecord): number => {
@@ -408,7 +410,6 @@ const DistributionPage = () => {
                     <TableHead>Ref</TableHead>
                     <TableHead>Titre</TableHead>
                     <TableHead>Artistes</TableHead>
-                    <TableHead>Format</TableHead>
                     <TableHead>Styles</TableHead>
                     <TableHead>Label</TableHead>
                     <TableHead className="text-right">Quantité</TableHead>
@@ -432,6 +433,7 @@ const DistributionPage = () => {
                       </button>
                     </TableHead>
                     <TableHead className="text-center">Acheter</TableHead>
+                    <TableHead className="text-center">Discogs</TableHead>
                     {isAdmin && <TableHead>Actions</TableHead>}
                   </TableRow>
                 </TableHeader>
@@ -455,9 +457,8 @@ const DistributionPage = () => {
                             )}
                           </TableCell>
                           <TableCell className="font-mono text-xs">{r.fields.Ref}</TableCell>
-                          <TableCell className="font-medium">{r.fields.Titre}</TableCell>
+                          <TableCell className="text-l font-bold">{r.fields.Titre}</TableCell>
                           <TableCell>{resolveArtistes(r.fields.Artistes) || "—"}</TableCell>
-                          <TableCell>{r.fields.Format}</TableCell>
                           <TableCell>{formatList(r.fields.Styles)}</TableCell>
                           <TableCell>{r.fields.Label}</TableCell>
                           <TableCell className="text-right">
@@ -465,7 +466,7 @@ const DistributionPage = () => {
                               {r.fields.Quantité_Stock ?? 0}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="text-right text-l font-bold">
                             {r.fields.Prix_distributeur != null ? `${r.fields.Prix_distributeur} €` : "—"}
                           </TableCell>
                           <TableCell className="text-center">
@@ -509,6 +510,16 @@ const DistributionPage = () => {
                                 </div>
                               );
                             })()}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="bg-tekno-orange hover:bg-tekno-orange/90"
+                              onClick={() => window.open(r.fields.Discogs_url, "_blank")}
+                            >
+                              Discogs
+                            </Button>
                           </TableCell>
                           {isAdmin && (
                             <TableCell>
