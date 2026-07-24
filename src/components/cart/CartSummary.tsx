@@ -9,9 +9,10 @@ interface CartSummaryProps {
   totalPrice: number;
   onCheckout: () => void;
   onClearCart: () => void;
+  onReserve?: () => void;
 }
 
-const CartSummary = ({ totalPrice, onCheckout, onClearCart }: CartSummaryProps) => {
+const CartSummary = ({ totalPrice, onCheckout, onClearCart, onReserve }: CartSummaryProps) => {
   const { t } = useTranslation();
   return (
     <Card>
@@ -42,7 +43,7 @@ const CartSummary = ({ totalPrice, onCheckout, onClearCart }: CartSummaryProps) 
         <div className="space-y-2">
            {/* Réserver la commande && Order reserve */}
           <Button 
-            onClick={onCheckout}
+            onClick={onReserve ?? onCheckout}
             className="w-full bg-tekno-green hover:bg-tekno-green/90"
             disabled={totalPrice === 0}
           >
