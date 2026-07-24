@@ -54,10 +54,14 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				tekno: {
-					blue: '#2d925b',
+					blue: '#006efd',
 					black: '#151515',
+					black1212: '#121212',
 					gray: '#8A898C',
-					lightgray: '#F6F6F7'
+					lightgray: '#F6F6F7',
+					orange: '#ff8800',
+					red: '#D0021B',
+					green: '#2c8d2c',
 				}
 			},
 			borderRadius: {

@@ -148,6 +148,7 @@
     "quantity": "Quantity",
     "total": "Total",
     "summary": "Order Summary",
+    "reserve": "Reserve Order",
     "subtotal": "Subtotal",
     "shipping": "Shipping",
     "shippingFree": "Free",
