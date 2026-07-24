@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import ProfileSidebar from "@/components/profile/ProfileSidebar";
 import ProfileTabs from "@/components/profile/ProfileTabs";
@@ -28,11 +28,18 @@ interface Order {
 }
 
 const ProfilePage = () => {
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'account';
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("account");
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  useEffect(() => {
+    const t = searchParams.get('tab');
+    if (t) setActiveTab(t);
+  }, [searchParams]);
 
   useEffect(() => {
     const getUser = async () => {

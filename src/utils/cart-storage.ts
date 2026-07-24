@@ -2,6 +2,7 @@
 import { CartItem } from '@/types/cart';
 
 const CART_STORAGE_KEY = 'teknoland-cart';
+const RESERVED_CART_STORAGE_KEY = 'teknoland-reserved-cart';
 
 export const loadCartFromStorage = (): CartItem[] => {
   try {
@@ -26,5 +27,23 @@ export const clearCartStorage = (): void => {
     localStorage.removeItem(CART_STORAGE_KEY);
   } catch (error) {
     console.error('Failed to clear cart from localStorage:', error);
+  }
+};
+
+export const loadReservedCartFromStorage = (): CartItem[] => {
+  try {
+    const saved = localStorage.getItem(RESERVED_CART_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch (error) {
+    console.error('Failed to parse reserved cart from localStorage:', error);
+    return [];
+  }
+};
+
+export const saveReservedCartToStorage = (items: CartItem[]): void => {
+  try {
+    localStorage.setItem(RESERVED_CART_STORAGE_KEY, JSON.stringify(items));
+  } catch (error) {
+    console.error('Failed to save reserved cart to localStorage:', error);
   }
 };

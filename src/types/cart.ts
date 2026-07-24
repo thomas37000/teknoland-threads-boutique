@@ -18,8 +18,10 @@ export interface CartItem {
 export interface CartContextType {
   items: CartItem[];
   cartItems: CartItem[];
+  reservedItems: CartItem[];
   addToCart: (product: any, quantity?: number, size?: string, color?: string) => void;
   removeFromCart: (productId: string) => void;
+  removeReservedItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   reserveCart: () => void;

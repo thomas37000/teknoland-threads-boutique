@@ -2,19 +2,30 @@
 import React, { useState, useEffect } from "react";
 import { CartContext } from "@/contexts/CartContext";
 import { CartItem } from "@/types/cart";
-import { loadCartFromStorage, saveCartToStorage } from "@/utils/cart-storage";
+import {
+  loadCartFromStorage,
+  saveCartToStorage,
+  loadReservedCartFromStorage,
+  saveReservedCartToStorage,
+} from "@/utils/cart-storage";
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [reservedItems, setReservedItems] = useState<CartItem[]>([]);
 
   useEffect(() => {
     const savedCart = loadCartFromStorage();
     setItems(savedCart);
+    setReservedItems(loadReservedCartFromStorage());
   }, []);
 
   useEffect(() => {
     saveCartToStorage(items);
   }, [items]);
+
+  useEffect(() => {
+    saveReservedCartToStorage(reservedItems);
+  }, [reservedItems]);
 
   const addToCart = (product: any, quantity = 1, size?: string, color?: string) => {
     const existingItem = items.find(item => 
@@ -81,7 +92,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const reserveCart = () => {
-    setItems(prev => prev.map(item => ({ ...item, reserved: true })));
+    setReservedItems(prev => {
+      const merged = [...prev];
+      for (const it of items) {
+        const existing = merged.find(
+          m => m.id === it.id && m.size === it.size && m.color === it.color
+        );
+        if (existing) {
+          existing.quantity += it.quantity;
+        } else {
+          merged.push({ ...it, reserved: true });
+        }
+      }
+      return merged;
+    });
+    setItems([]);
+  };
+
+  const removeReservedItem = (productId: string) => {
+    setReservedItems(prev => prev.filter(item => item.id !== productId));
   };
 
   const getTotalPrice = () => {
@@ -95,8 +124,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const value = {
     items,
     cartItems: items,
+    reservedItems,
     addToCart,
     removeFromCart,
+    removeReservedItem,
     updateQuantity,
     clearCart,
     reserveCart,

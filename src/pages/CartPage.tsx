@@ -102,12 +102,21 @@ const CartPage = () => {
         (user.user_metadata?.full_name as string | undefined) ||
         (user.email as string | undefined)?.split("@")[0] ||
         "Vendeur";
+      const message = `Nouvelle demande de réservation de commande.\n\nArticles :\n${summary}\n\nTotal : ${total}€`;
+      await supabase.from("contacts").insert([
+        {
+          name: userName,
+          email: user.email,
+          subject: "order",
+          message,
+        },
+      ]);
       await supabase.functions.invoke("send-contact-notification", {
         body: {
           name: userName,
           email: user.email,
           subject: "order",
-          message: `Nouvelle demande de réservation de commande.\n\nArticles :\n${summary}\n\nTotal : ${total}€`,
+          message,
         },
       });
     } catch (err) {
@@ -117,6 +126,12 @@ const CartPage = () => {
       setReserveLoading(false);
       setShowReservedDialog(true);
     }
+  };
+
+  const handleReservedDialogOk = () => {
+    setShowReservedDialog(false);
+    clearCart();
+    navigate("/profile?tab=cart");
   };
 
   if (items.length === 0) {
@@ -205,7 +220,7 @@ const CartPage = () => {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogAction onClick={() => setShowReservedDialog(false)}>
+              <AlertDialogAction onClick={handleReservedDialogOk}>
                 OK
               </AlertDialogAction>
             </AlertDialogFooter>
