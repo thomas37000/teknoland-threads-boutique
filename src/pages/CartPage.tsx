@@ -24,11 +24,13 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const CartPage = () => {
-  const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCart();
+  const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart, reserveCart } = useCart();
   const { user } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [showReservedDialog, setShowReservedDialog] = useState(false);
+  const [reserveLoading, setReserveLoading] = useState(false);
 
   // Lien retour : si le panier contient des vinyles distributeur, on renvoie
   // vers /distribution plutôt que vers la boutique grand public.
@@ -80,6 +82,41 @@ const CartPage = () => {
 
   const handleLoginRedirect = () => {
     navigate("/auth");
+  };
+
+  const handleReserve = async () => {
+    if (!user) {
+      setShowLoginDialog(true);
+      return;
+    }
+    setReserveLoading(true);
+    try {
+      const summary = items
+        .map(
+          (i) =>
+            `- ${i.name}${i.size ? ` (Taille ${i.size})` : ""}${i.color ? ` (Couleur ${i.color})` : ""} x${i.quantity} — ${(i.price * i.quantity).toFixed(2)}€`,
+        )
+        .join("\n");
+      const total = getTotalPrice().toFixed(2);
+      const userName =
+        (user.user_metadata?.full_name as string | undefined) ||
+        (user.email as string | undefined)?.split("@")[0] ||
+        "Vendeur";
+      await supabase.functions.invoke("send-contact-notification", {
+        body: {
+          name: userName,
+          email: user.email,
+          subject: "order",
+          message: `Nouvelle demande de réservation de commande.\n\nArticles :\n${summary}\n\nTotal : ${total}€`,
+        },
+      });
+    } catch (err) {
+      console.error("Reservation notification error:", err);
+    } finally {
+      reserveCart();
+      setReserveLoading(false);
+      setShowReservedDialog(true);
+    }
   };
 
   if (items.length === 0) {
@@ -135,6 +172,7 @@ const CartPage = () => {
               totalPrice={getTotalPrice()}
               onCheckout={handleCheckout}
               onClearCart={clearCart}
+              onReserve={handleReserve}
             />
           </div>
         </div>
@@ -151,6 +189,24 @@ const CartPage = () => {
               <AlertDialogCancel>{t("cart.cancel")}</AlertDialogCancel>
               <AlertDialogAction onClick={handleLoginRedirect}>
                 {t("cart.goToLogin")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog open={showReservedDialog} onOpenChange={setShowReservedDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Réservation confirmée</AlertDialogTitle>
+              <AlertDialogDescription>
+                Votre commande a bien été réservée. L'administrateur va recevoir
+                une notification et validera votre réservation dans les meilleurs
+                délais.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => setShowReservedDialog(false)}>
+                OK
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
