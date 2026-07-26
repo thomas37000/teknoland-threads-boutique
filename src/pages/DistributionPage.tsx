@@ -94,6 +94,13 @@ const formatList = (v: any): string => {
   return String(v);
 };
 
+const getStockBadgeClass = (stock: number): string => {
+  if (stock >= 200) return "bg-blue-500 text-white hover:bg-blue-500";
+  if (stock >= 100) return "bg-yellow-500 text-black hover:bg-yellow-500";
+  if (stock >= 50) return "bg-green-500 text-white hover:bg-green-500";
+  return "bg-gray-400 text-white hover:bg-gray-400";
+};
+
 const toIdArray = (v: any): string[] => {
   if (!v) return [];
   if (Array.isArray(v)) return v.filter(Boolean);
