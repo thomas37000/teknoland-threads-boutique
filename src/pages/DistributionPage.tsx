@@ -469,7 +469,7 @@ const DistributionPage = () => {
                           <TableCell>{formatList(r.fields.Styles)}</TableCell>
                           <TableCell>{r.fields.Label}</TableCell>
                           <TableCell className="text-right">
-                            <Badge variant={Number(r.fields.Quantité_Stock ?? 0) > 0 ? "default" : "secondary"}>
+                            <Badge className={getStockBadgeClass(Number(r.fields.Quantité_Stock ?? 0))}>
                               {r.fields.Quantité_Stock ?? 0}
                             </Badge>
                           </TableCell>
