@@ -1,243 +1,35 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
-import PopupAdmin from "./PopupAdmin";
-import { Label } from "@/components/ui/label";
-import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { Plus } from "lucide-react";
 import StorageImagePicker from "./product/StorageImagePicker";
-import { ImageIcon } from "lucide-react";
-
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  is_active: boolean;
-  display_order: number;
-  image_url?: string | null;
-  created_at: string;
-  updated_at: string;
-}
+import AddCategoryDialog from "./categories/AddCategoryDialog";
+import EditCategoryDialog from "./categories/EditCategoryDialog";
+import CategoryTable from "./categories/CategoryTable";
+import { Category, useCategoryManagement } from "@/hooks/useCategoryManagement";
 
 const CategoryManagement = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const { categories, loading, addCategory, updateCategory, toggleCategoryStatus, deleteCategory } =
+    useCategoryManagement();
+
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
-  const [loading, setLoading] = useState(true);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [pickerTarget, setPickerTarget] = useState<"new" | "edit">("edit");
-  const [newCategory, setNewCategory] = useState({
-    name: "",
-    slug: "",
-    description: "",
-    is_active: true,
-    display_order: 0,
-    image_url: ""
-  });
+  const pickerCallbackRef = useRef<((url: string) => void) | null>(null);
 
-  // Fetch categories from Supabase
-  const fetchCategories = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .order('display_order', { ascending: true });
-
-      if (error) {
-        console.error('Error fetching categories:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les catégories",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      setCategories(data || []);
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
-    }
+  const handlePickImage = (apply: (url: string) => void) => {
+    pickerCallbackRef.current = apply;
+    setPickerOpen(true);
   };
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const handleAddCategory = async () => {
-    if (!newCategory.name) {
-      toast({
-        title: "Erreur",
-        description: "Le nom de la catégorie est requis",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      const categoryData = {
-        name: newCategory.name,
-        slug: newCategory.slug || newCategory.name.toLowerCase().replace(/\s+/g, '-'),
-        description: newCategory.description || null,
-        is_active: newCategory.is_active,
-        display_order: newCategory.display_order || categories.length + 1,
-        image_url: newCategory.image_url || null,
-      };
-
-      const { data, error } = await supabase
-        .from('categories')
-        .insert([categoryData])
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error adding category:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible d'ajouter la catégorie",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      setCategories([...categories, data]);
-      setNewCategory({
-        name: "",
-        slug: "",
-        description: "",
-        is_active: true,
-        display_order: 0,
-        image_url: ""
-      });
-      setIsAddDialogOpen(false);
-
-      toast({
-        title: "Catégorie ajoutée",
-        description: `${data.name} a été ajoutée avec succès`
-      });
-    } catch (error) {
-      console.error('Error:', error);
-    }
+  const handleEdit = (category: Category) => {
+    setCurrentCategory(category);
+    setIsEditDialogOpen(true);
   };
 
-  const handleEditCategory = async () => {
-    if (!currentCategory) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('categories')
-        .update({
-          name: currentCategory.name,
-          slug: currentCategory.slug,
-          description: currentCategory.description || null,
-          is_active: currentCategory.is_active,
-          display_order: currentCategory.display_order,
-          image_url: currentCategory.image_url || null,
-        })
-        .eq('id', currentCategory.id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error updating category:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de modifier la catégorie",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      const updatedCategories = categories.map(cat => 
-        cat.id === currentCategory.id ? data : cat
-      );
-      setCategories(updatedCategories);
-      setIsEditDialogOpen(false);
-      setCurrentCategory(null);
-
-      toast({
-        title: "Catégorie modifiée",
-        description: "Les modifications ont été sauvegardées"
-      });
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-
-  const toggleCategoryStatus = async (categoryId: string) => {
-    const category = categories.find(c => c.id === categoryId);
-    if (!category) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('categories')
-        .update({ is_active: !category.is_active })
-        .eq('id', categoryId)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error toggling category status:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de modifier le statut de la catégorie",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      const updatedCategories = categories.map(cat => 
-        cat.id === categoryId ? data : cat
-      );
-      setCategories(updatedCategories);
-
-      toast({
-        title: data.is_active ? "Catégorie activée" : "Catégorie désactivée",
-        description: `${data.name} est maintenant ${data.is_active ? 'visible' : 'cachée'} sur la boutique`
-      });
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-
-  const deleteCategory = async (categoryId: string) => {
-    const category = categories.find(c => c.id === categoryId);
-    if (!category) return;
-
-    try {
-      const { error } = await supabase
-        .from('categories')
-        .delete()
-        .eq('id', categoryId);
-
-      if (error) {
-        console.error('Error deleting category:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de supprimer la catégorie",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      const updatedCategories = categories.filter(cat => cat.id !== categoryId);
-      setCategories(updatedCategories);
-
-      toast({
-        title: "Catégorie supprimée",
-        description: `${category.name} a été supprimée`
-      });
-    } catch (error) {
-      console.error('Error:', error);
-    }
+  const handleCloseEdit = () => {
+    setIsEditDialogOpen(false);
+    setCurrentCategory(null);
   };
 
   if (loading) {
@@ -258,221 +50,34 @@ const CategoryManagement = () => {
         </Button>
       </div>
 
-      <PopupAdmin
+      <AddCategoryDialog
         isOpen={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
-        title="Ajouter une nouvelle catégorie"
-        maxWidth="w-96"
-      >
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="name">Nom de la catégorie</Label>
-            <Input
-              id="name"
-              value={newCategory.name}
-              onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
-              placeholder="Ex: T-Shirts Premium"
-            />
-          </div>
-          <div>
-            <Label htmlFor="slug">Slug (URL)</Label>
-            <Input
-              id="slug"
-              value={newCategory.slug}
-              onChange={(e) => setNewCategory({...newCategory, slug: e.target.value})}
-              placeholder="Ex: t-shirts-premium"
-            />
-          </div>
-          <div>
-            <Label htmlFor="description">Description</Label>
-            <Input
-              id="description"
-              value={newCategory.description}
-              onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
-              placeholder="Description de la catégorie"
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="is_active"
-              checked={newCategory.is_active}
-              onCheckedChange={(checked) => setNewCategory({...newCategory, is_active: checked})}
-            />
-            <Label htmlFor="is_active">Catégorie active</Label>
-          </div>
-          <div>
-            <Label>Image de la catégorie</Label>
-            <p className="text-xs text-muted-foreground mt-1">
-              Taille conseillée : 800 × 600 px (ratio 4:3) pour un rendu optimal sur les cartes.
-            </p>
-            <div className="flex items-center gap-3 mt-2">
-              {newCategory.image_url ? (
-                <img src={newCategory.image_url} alt="" className="h-16 w-16 rounded object-cover border" />
-              ) : (
-                <div className="h-16 w-16 rounded border flex items-center justify-center bg-muted">
-                  <ImageIcon className="h-5 w-5 text-muted-foreground" />
-                </div>
-              )}
-              <Button type="button" variant="outline" size="sm" onClick={() => { setPickerTarget("new"); setPickerOpen(true); }}>
-                Choisir une image
-              </Button>
-              {newCategory.image_url && (
-                <Button type="button" variant="ghost" size="sm" onClick={() => setNewCategory({ ...newCategory, image_url: "" })}>
-                  Retirer
-                </Button>
-              )}
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={handleAddCategory} className="flex-1">Ajouter</Button>
-            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="flex-1">Annuler</Button>
-          </div>
-        </div>
-      </PopupAdmin>
+        onAdd={addCategory}
+        onPickImage={handlePickImage}
+      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Catégories existantes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nom</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead>Ordre</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {categories.map((category) => (
-                <TableRow key={category.id}>
-                  <TableCell className="font-medium">{category.name}</TableCell>
-                  <TableCell>{category.slug}</TableCell>
-                  <TableCell>{category.description || "-"}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {category.is_active ? (
-                        <Eye className="h-4 w-4 text-green-600" />
-                      ) : (
-                        <EyeOff className="h-4 w-4 text-gray-400" />
-                      )}
-                      <span className={category.is_active ? "text-green-600" : "text-gray-400"}>
-                        {category.is_active ? "Visible" : "Cachée"}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{category.display_order}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleCategoryStatus(category.id)}
-                      >
-                        {category.is_active ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setCurrentCategory(category);
-                          setIsEditDialogOpen(true);
-                        }}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteCategory(category.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <CategoryTable
+        categories={categories}
+        onToggleStatus={toggleCategoryStatus}
+        onEdit={handleEdit}
+        onDelete={deleteCategory}
+      />
 
-      <PopupAdmin
+      <EditCategoryDialog
         isOpen={isEditDialogOpen}
-        onClose={() => setIsEditDialogOpen(false)}
-        title="Modifier la catégorie"
-        maxWidth="w-96"
-      >
-        {currentCategory && (
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="edit-name">Nom de la catégorie</Label>
-              <Input
-                id="edit-name"
-                value={currentCategory.name}
-                onChange={(e) => setCurrentCategory({...currentCategory, name: e.target.value})}
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-slug">Slug (URL)</Label>
-              <Input
-                id="edit-slug"
-                value={currentCategory.slug}
-                onChange={(e) => setCurrentCategory({...currentCategory, slug: e.target.value})}
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-description">Description</Label>
-              <Input
-                id="edit-description"
-                value={currentCategory.description || ""}
-                onChange={(e) => setCurrentCategory({...currentCategory, description: e.target.value})}
-              />
-            </div>
-            <div>
-              <Label>Image de la catégorie</Label>
-              <p className="text-xs text-muted-foreground mt-1">
-                Taille conseillée : 800 × 600 px (ratio 4:3) pour un rendu optimal sur les cartes.
-              </p>
-              <div className="flex items-center gap-3 mt-2">
-                {currentCategory.image_url ? (
-                  <img src={currentCategory.image_url} alt="" className="h-16 w-16 rounded object-cover border" />
-                ) : (
-                  <div className="h-16 w-16 rounded border flex items-center justify-center bg-muted">
-                    <ImageIcon className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                )}
-                <Button type="button" variant="outline" size="sm" onClick={() => { setPickerTarget("edit"); setPickerOpen(true); }}>
-                  Choisir une image
-                </Button>
-                {currentCategory.image_url && (
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setCurrentCategory({ ...currentCategory, image_url: null })}>
-                    Retirer
-                  </Button>
-                )}
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={handleEditCategory} className="flex-1">Sauvegarder</Button>
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="flex-1">Annuler</Button>
-            </div>
-          </div>
-        )}
-      </PopupAdmin>
+        onClose={handleCloseEdit}
+        category={currentCategory}
+        onChange={setCurrentCategory}
+        onUpdate={updateCategory}
+        onPickImage={handlePickImage}
+      />
 
       <StorageImagePicker
         open={pickerOpen}
         onClose={() => setPickerOpen(false)}
         onSelect={(url) => {
-          if (pickerTarget === "new") {
-            setNewCategory((prev) => ({ ...prev, image_url: url }));
-          } else if (currentCategory) {
-            setCurrentCategory({ ...currentCategory, image_url: url });
-          }
+          pickerCallbackRef.current?.(url);
         }}
       />
     </div>
