@@ -291,6 +291,7 @@ const SoundCloudManagement: React.FC = () => {
                   <TableHead>Followers</TableHead>
                   <TableHead>Delta</TableHead>
                   <TableHead>Dernière sync</TableHead>
+                  <TableHead>Soundcloud</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -305,6 +306,18 @@ const SoundCloudManagement: React.FC = () => {
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {formatDate(a.fields["Last Sync"])}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="bg-tekno-orange hover:bg-tekno-orange/90 text-black"
+                        onClick={() =>
+                          window.open(a.fields.Soundcloud_url, "_blank")
+                        }
+                      >
+                        SoundCloud
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
