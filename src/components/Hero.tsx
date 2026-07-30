@@ -63,7 +63,7 @@ const Hero = () => {
               </Button>
             </Link>
             <Link to="/about">
-              <Button size="lg" variant="outline" className="border-white text-tekno-black hover:bg-white/90 hover:text-tekno-black w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white/90 hover:text-tekno-black w-full sm:w-auto">
                 {t('hero.aboutButton')}
               </Button>
             </Link>

@@ -9,6 +9,7 @@ import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { useDistributorAccess } from "@/hooks/use-distributor-access";
 import LanguageSelector from "./LanguageSelector";
+import ThemeToggle from "./ThemeToggle";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -24,9 +25,9 @@ const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b">
+    <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b">
       <div className="tekno-container flex justify-between items-center h-16">
-        <Link to="/" className="text-2xl font-bold text-tekno-black">
+        <Link to="/" className="text-2xl font-bold text-foreground">
           Teknoland Clothes
         </Link>
 
@@ -73,6 +74,7 @@ const Navbar = () => {
         {/* Language Selector, Cart and Profile Buttons */}
         <div className="hidden md:flex items-center gap-4 mt-1">
           <LanguageSelector />
+          <ThemeToggle />
           
           {user ? (
             <>
@@ -108,7 +110,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden absolute w-full bg-white border-b animate-fade-in">
+        <div className="md:hidden absolute w-full bg-background border-b animate-fade-in">
           <div className="tekno-container py-4 flex flex-col">
             <Link
               to="/"
@@ -199,7 +201,10 @@ const Navbar = () => {
             )}
 
             <div className="mt-4 flex items-center justify-between">
-              <LanguageSelector />
+              <div className="flex items-center gap-2">
+                <LanguageSelector />
+                <ThemeToggle />
+              </div>
               <Link to="/cart" onClick={toggleMenu}>
                 <Button className="bg-tekno-blue text-white hover:bg-tekno-blue/90">
                   <ShoppingCart size={18} className="mr-2" />
