@@ -53,7 +53,7 @@ const AirtableManagement = () => {
             console.error(error);
             toast({
                 title: "Erreur",
-                description: "Impossible de charger les artistes.",
+                description: "Impossible de charger les API Airtable trop sollicitée, 1000 tokens par mois/free plan. Impossible de charger les artistes..",
                 variant: "destructive",
             });
         } finally {

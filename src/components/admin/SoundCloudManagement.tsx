@@ -97,7 +97,7 @@ const SoundCloudManagement: React.FC = () => {
       console.error(err);
       toast({
         title: "Erreur",
-        description: "Impossible de charger les artistes.",
+        description: "API Airtable trop sollicitée, 1000 tokens par mois/free plan. Impossible de charger les artistes.",
         variant: "destructive",
       });
     } finally {
@@ -248,7 +248,7 @@ const SoundCloudManagement: React.FC = () => {
             </Button>
             <Button onClick={handleSync} disabled={syncing} variant="outline">
               <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
-              Sync maintenant
+              Sync Artistes
             </Button>
           </div>
         </div>
@@ -333,6 +333,8 @@ const SoundCloudManagement: React.FC = () => {
           </div>
         )}
       </CardContent>
+
+      {/* Bouton Ajouter un artiste */}
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
