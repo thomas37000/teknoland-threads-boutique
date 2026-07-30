@@ -25,7 +25,7 @@ import { useNavigate } from "react-router-dom";
 
 const CartPage = () => {
   const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart, reserveCart } = useCart();
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [showLoginDialog, setShowLoginDialog] = useState(false);
@@ -187,7 +187,7 @@ const CartPage = () => {
               totalPrice={getTotalPrice()}
               onCheckout={handleCheckout}
               onClearCart={clearCart}
-              onReserve={handleReserve}
+              onReserve={userRole === "seller" ? handleReserve : undefined}
             />
           </div>
         </div>

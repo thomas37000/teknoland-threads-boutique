@@ -42,13 +42,15 @@ const CartSummary = ({ totalPrice, onCheckout, onClearCart, onReserve }: CartSum
         
         <div className="space-y-2">
            {/* Réserver la commande && Order reserve */}
-          <Button 
-            onClick={onReserve ?? onCheckout}
-            className="w-full bg-tekno-green hover:bg-tekno-green/90"
-            disabled={totalPrice === 0}
-          >
-            {t("cart.reserve")}
-          </Button>
+          {onReserve && (
+            <Button 
+              onClick={onReserve}
+              className="w-full bg-tekno-green hover:bg-tekno-green/90"
+              disabled={totalPrice === 0}
+            >
+              {t("cart.reserve")}
+            </Button>
+          )}
 
           {/* Finnaliser la commande && Order summary */}
           <Button 
