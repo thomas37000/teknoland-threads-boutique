@@ -233,7 +233,7 @@ const ShopPage = () => {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filters Sidebar - Fixed width */}
         <div className="w-full lg:w-80 lg:flex-shrink-0">
-          <div className="lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto bg-white lg:border lg:rounded-lg lg:p-4 lg:shadow-sm">
+          <div className="lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:border lg:rounded-lg lg:p-4 lg:shadow-sm">
             {/* Reset Filters Button */}
             <div className="flex justify-between items-center mb-4 pb-2 border-b">
               <h2 className="text-lg font-semibold">{t('shop.filters', { defaultValue: 'Filtres' })}</h2>
