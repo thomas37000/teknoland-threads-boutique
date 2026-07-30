@@ -64,7 +64,7 @@ const LovableManagement = () => {
     if (!currentPrompt || currentPrompt.prompt <= 0) return;
 
     const newPromptCount = currentPrompt.prompt - 1;
-    
+
     try {
       const { data, error } = await supabase
         .from('lovable')
@@ -85,8 +85,10 @@ const LovableManagement = () => {
         return;
       }
 
+
+
       setCurrentPrompt(data);
-      const updatedPrompts = prompts.map(pro => 
+      const updatedPrompts = prompts.map(pro =>
         pro.id === currentPrompt.id ? data : pro
       );
       setPrompts(updatedPrompts);
@@ -100,6 +102,50 @@ const LovableManagement = () => {
       console.error('Error:', error);
     }
   };
+
+  const decrement5Prompts = async () => {
+    if (!currentPrompt || currentPrompt.prompt <= 0) return;
+
+    const newPromptCount = currentPrompt.prompt - 5;
+
+    try {
+      const { data, error } = await supabase
+        .from('lovable')
+        .update({
+          prompt: newPromptCount
+        })
+        .eq('id', currentPrompt.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating prompt:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de décrémenter le nombre de prompts",
+          variant: "destructive"
+        });
+        return;
+      }
+
+
+
+      setCurrentPrompt(data);
+      const updatedPrompts = prompts.map(pro =>
+        pro.id === currentPrompt.id ? data : pro
+      );
+      setPrompts(updatedPrompts);
+
+      toast({
+        title: "Succès",
+        description: "Prompt utilisé avec succès",
+      });
+
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
 
   const resetPrompts = async () => {
     if (!currentPrompt) return;
@@ -125,7 +171,7 @@ const LovableManagement = () => {
       }
 
       setCurrentPrompt(data);
-      const updatedPrompts = prompts.map(pro => 
+      const updatedPrompts = prompts.map(pro =>
         pro.id === currentPrompt.id ? data : pro
       );
       setPrompts(updatedPrompts);
@@ -192,7 +238,7 @@ const LovableManagement = () => {
                 Restants
               </Badge>
             </div>
-            
+
             <div className="flex gap-2">
               <Button
                 onClick={decrementPrompt}
@@ -203,7 +249,16 @@ const LovableManagement = () => {
                 Utiliser un prompt (-1)
               </Button>
             </div>
-            
+            <div className="flex gap-2">
+              <Button
+                onClick={decrement5Prompts}
+                disabled={loading || !currentPrompt || currentPrompt.prompt <= 0}
+                variant="outline"
+                size="sm"
+              >
+                Utiliser 5 prompts (-5)
+              </Button></div>
+
             <div className="text-sm text-muted-foreground">
               Prompts disponibles ce mois-ci
             </div>
