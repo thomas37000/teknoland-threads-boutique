@@ -3,9 +3,11 @@ import { useState, useEffect } from "react";
 import { Client } from "@/types";
 import ClientTable from "./ClientTable";
 import PopupAdmin from "./PopupAdmin";
+import InviteUserDialog from "./InviteUserDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import TableSkeleton from "@/components/skeletons/TableSkeleton";
+import { UserPlus } from "lucide-react";
 
 const ClientManagement = () => {
   const [clients, setClients] = useState<Client[]>([]);
@@ -13,47 +15,48 @@ const ClientManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+
+  const fetchClients = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('updated_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Transform the data to match the Client interface
+      if (data) {
+        const transformedClients: Client[] = data.map(profile => ({
+          id: profile.id || "",
+          name: profile.full_name || profile.firstname || "No Name",
+          email: profile.email || "",
+          phone: profile.phone || "",
+          address: profile.address || "",
+          totalOrders: profile.totalOrders || 0,
+          totalSpent: profile.totalSpent || 0,
+          lastPurchase: profile.lastPurchase || "",
+          accountStatus: (profile.accountStatus as "active" | "inactive") || "active",
+          roles: (profile.roles as "client" | "admin" | "seller") || "client",
+          cookieConsent: false,
+          cookieConsentDate: ""
+        }));
+
+        setClients(transformedClients);
+      }
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+      toast.error("Erreur lors du chargement des clients");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Fetch clients from Supabase
   useEffect(() => {
-    const fetchClients = async () => {
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .order('updated_at', { ascending: false });
-        
-        if (error) throw error;
-        
-        // Transform the data to match the Client interface
-        if (data) {
-          const transformedClients: Client[] = data.map(profile => ({
-            id: profile.id || "",
-            name: profile.full_name || profile.firstname || "No Name",
-            email: profile.email || "",
-            phone: profile.phone || "",
-            address: profile.address || "",
-            totalOrders: profile.totalOrders || 0,
-            totalSpent: profile.totalSpent || 0,
-            lastPurchase: profile.lastPurchase || "",
-            accountStatus: (profile.accountStatus as "active" | "inactive") || "active",
-            roles: (profile.roles as "client" | "admin" | "seller") || "client",
-            cookieConsent: false,
-            cookieConsentDate: ""
-          }));
-          
-          setClients(transformedClients);
-        }
-      } catch (error) {
-        console.error("Error fetching clients:", error);
-        toast.error("Erreur lors du chargement des clients");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchClients();
   }, []);
 
@@ -156,12 +159,26 @@ const ClientManagement = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        <button
+          onClick={() => setIsInviteDialogOpen(true)}
+          className="ml-4 flex items-center gap-2 bg-tekno-blue text-white px-4 py-2 rounded-md hover:bg-tekno-blue/90 whitespace-nowrap"
+        >
+          <UserPlus className="h-4 w-4" />
+          Inviter un utilisateur
+        </button>
       </div>
 
       <ClientTable
         clients={filteredClients}
         onEdit={handleOpenEditDialog}
         onDelete={handleOpenDeleteDialog}
+      />
+
+      {/* Invite Dialog */}
+      <InviteUserDialog
+        isOpen={isInviteDialogOpen}
+        onClose={() => setIsInviteDialogOpen(false)}
+        onInvited={fetchClients}
       />
 
       {/* Edit Dialog */}
