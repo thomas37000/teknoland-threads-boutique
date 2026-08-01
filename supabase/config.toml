@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.soundcloud-sync]
 verify_jwt = false
+
+[functions.invite-user]
+verify_jwt = false
