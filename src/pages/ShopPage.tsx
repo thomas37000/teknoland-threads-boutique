@@ -280,6 +280,7 @@ const ShopPage = () => {
             <ColorFilter
               selectedColor={selectedColor}
               onColorChange={setSelectedColor}
+              colors={availableColors}
             />
 
             {/* Sort only visible on responsive tablet and phone */}
