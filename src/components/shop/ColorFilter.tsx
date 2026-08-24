@@ -6,16 +6,25 @@ import { getColorCode } from "@/utils/color-mapping";
 interface ColorFilterProps {
   selectedColor: string;
   onColorChange: (color: string) => void;
+  /** Couleurs disponibles pour la catégorie affichée (optionnel) */
+  colors?: string[];
 }
 
-const ColorFilter = ({ selectedColor, onColorChange }: ColorFilterProps) => {
+const ColorFilter = ({ selectedColor, onColorChange, colors }: ColorFilterProps) => {
   const { t } = useTranslation();
-  const [availableColors, setAvailableColors] = useState<string[]>([]);
+  const [fetchedColors, setFetchedColors] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const useProvided = Array.isArray(colors);
+  const availableColors = useProvided ? colors! : fetchedColors;
+
   useEffect(() => {
+    if (useProvided) {
+      setLoading(false);
+      return;
+    }
     fetchAvailableColors();
-  }, []);
+  }, [useProvided]);
 
   const fetchAvailableColors = async () => {
     try {
