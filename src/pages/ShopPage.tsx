@@ -132,6 +132,29 @@ const ShopPage = () => {
     setDisplayedProducts(result.slice(0, pageSize));
   }, [products, selectedCategory, selectedColor, sortOption, pageSize, sellersData]);
 
+  // Couleurs disponibles pour la catégorie sélectionnée
+  const categoryProducts = products.filter((p) => {
+    if (selectedCategory === "promos") return p.sold_price != null;
+    if (selectedCategory === "all") return true;
+    return p.category?.toLowerCase().includes(selectedCategory);
+  });
+  const availableColors = Array.from(
+    new Set(
+      categoryProducts.flatMap((p) =>
+        (p.colors || [])
+          .filter((c) => c && c.trim())
+          .map((c) => c.toLowerCase().trim())
+      )
+    )
+  ).sort();
+
+  // Si la couleur sélectionnée n'existe pas dans la catégorie, on réinitialise
+  useEffect(() => {
+    if (selectedColor !== "all" && !availableColors.includes(selectedColor)) {
+      setSelectedColor("all");
+    }
+  }, [selectedCategory, availableColors.join(","), selectedColor]);
+
   // Load more products handler
   const handleLoadMore = () => {
     const currentSize = displayedProducts.length;
@@ -257,6 +280,7 @@ const ShopPage = () => {
             <ColorFilter
               selectedColor={selectedColor}
               onColorChange={setSelectedColor}
+              colors={availableColors}
             />
 
             {/* Sort only visible on responsive tablet and phone */}
