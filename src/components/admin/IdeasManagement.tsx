@@ -14,6 +14,13 @@ interface IdeasManagementProps {
 }
 
 
+const priorityOrder: Record<string, number> = {
+  urgent: 4,
+  high: 3,
+  medium: 2,
+  low: 1
+};
+
 const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
   const [ideas, setIdeas] = useState<Idea[]>(initialIdeas);
   const [filteredIdeas, setFilteredIdeas] = useState<Idea[]>([]);
