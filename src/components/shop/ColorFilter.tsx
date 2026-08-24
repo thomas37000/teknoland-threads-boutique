@@ -50,7 +50,7 @@ const ColorFilter = ({ selectedColor, onColorChange, colors }: ColorFilterProps)
         }
       });
 
-      setAvailableColors(Array.from(allColors).sort());
+      setFetchedColors(Array.from(allColors).sort());
     } catch (error) {
       console.error('Error:', error);
     } finally {
