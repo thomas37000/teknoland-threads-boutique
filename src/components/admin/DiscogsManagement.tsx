@@ -203,15 +203,65 @@ const DiscogsManagement = () => {
         </Alert>
       )}
 
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Rechercher titre ou artiste..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
-        />
+      {/* Search & filters */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative max-w-sm flex-1">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher titre ou artiste..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Select
+            value={collectionSort ?? "none"}
+            onValueChange={(v) => setCollectionSort(v === "none" ? null : (v as "asc" | "desc"))}
+          >
+            <SelectTrigger className="w-[170px]">
+              <Disc3 className="h-4 w-4 mr-2 text-muted-foreground" />
+              <SelectValue placeholder="Ils l'ont" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Aucun tri</SelectItem>
+              <SelectItem value="desc">
+                <span className="flex items-center gap-2">
+                  <ArrowDown className="h-3 w-3" /> Plus l'ont d'abord
+                </span>
+              </SelectItem>
+              <SelectItem value="asc">
+                <span className="flex items-center gap-2">
+                  <ArrowUp className="h-3 w-3" /> Moins l'ont d'abord
+                </span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={wantlistSort ?? "none"}
+            onValueChange={(v) => setWantlistSort(v === "none" ? null : (v as "asc" | "desc"))}
+          >
+            <SelectTrigger className="w-[170px]">
+              <Heart className="h-4 w-4 mr-2 text-muted-foreground" />
+              <SelectValue placeholder="Ils le veulent" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Aucun tri</SelectItem>
+              <SelectItem value="desc">
+                <span className="flex items-center gap-2">
+                  <ArrowDown className="h-3 w-3" /> Plus le veulent d'abord
+                </span>
+              </SelectItem>
+              <SelectItem value="asc">
+                <span className="flex items-center gap-2">
+                  <ArrowUp className="h-3 w-3" /> Moins le veulent d'abord
+                </span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Grid */}
