@@ -39,6 +39,9 @@ const DiscogsManagement = () => {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // Filtres de tri : collection / wantlist — asc ou desc, par défaut desc
+  const [collectionSort, setCollectionSort] = useState<"asc" | "desc" | null>("desc");
+  const [wantlistSort, setWantlistSort] = useState<"asc" | "desc" | null>("desc");
 
   // Marquer comme vu à l'ouverture de l'onglet
   useEffect(() => {
