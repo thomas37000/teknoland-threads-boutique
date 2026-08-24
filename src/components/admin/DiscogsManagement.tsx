@@ -59,12 +59,23 @@ const DiscogsManagement = () => {
         )
       : releases;
     return [...list].sort((a, b) => {
+      // Tri prioritaire : collection (par défaut desc)
+      if (collectionSort) {
+        const diff = a.current_collection_count - b.current_collection_count;
+        if (diff !== 0) return collectionSort === "asc" ? diff : -diff;
+      }
+      // Puis wantlist (par défaut desc)
+      if (wantlistSort) {
+        const diff = a.current_wantlist_count - b.current_wantlist_count;
+        if (diff !== 0) return wantlistSort === "asc" ? diff : -diff;
+      }
+      // Fallback : deltas puis année
       const da = (deltas[a.release_id]?.coll ?? 0) + (deltas[a.release_id]?.want ?? 0);
       const db = (deltas[b.release_id]?.coll ?? 0) + (deltas[b.release_id]?.want ?? 0);
       if (db !== da) return db - da;
       return (b.year ?? 0) - (a.year ?? 0);
     });
-  }, [releases, deltas, search]);
+  }, [releases, deltas, search, collectionSort, wantlistSort]);
 
   const totalDeltaColl = Object.values(deltas).reduce((s, d) => s + d.coll, 0);
   const totalDeltaWant = Object.values(deltas).reduce((s, d) => s + d.want, 0);
