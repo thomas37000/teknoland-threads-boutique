@@ -98,6 +98,13 @@ const IdeasManagement = ({ initialIdeas }: IdeasManagementProps) => {
       result = result.filter(idea => idea.priority === priorityFilter);
     }
 
+    // Sort by priority descending (urgent first) by default
+    result.sort((a, b) => {
+      const priorityA = priorityOrder[a.priority] || 0;
+      const priorityB = priorityOrder[b.priority] || 0;
+      return priorityB - priorityA;
+    });
+
     setFilteredIdeas(result);
   }, [ideas, searchQuery, categoryFilter, priorityFilter]);
   
