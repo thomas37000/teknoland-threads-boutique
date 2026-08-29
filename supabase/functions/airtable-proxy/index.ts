@@ -287,7 +287,10 @@ serve(async (req) => {
       );
     }
 
+    const { method, table, recordId, fields, action } = await req.json();
+
     // --- Authentification obligatoire -------------------------------------
+
     const authHeader = req.headers.get('Authorization') ?? '';
     const token = authHeader.replace('Bearer ', '').trim();
     if (!token || !usageClient) {
