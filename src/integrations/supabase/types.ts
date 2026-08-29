@@ -687,6 +687,7 @@ export type Database = {
       generate_strict_slug: { Args: { input: string }; Returns: string }
       get_current_user_role: { Args: never; Returns: string }
       get_discogs_cron_secret: { Args: never; Returns: string }
+      get_profile_roles: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
