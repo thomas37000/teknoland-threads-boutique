@@ -287,12 +287,59 @@ serve(async (req) => {
       );
     }
 
-    const { method, table, recordId, fields, action } = await req.json();
+    // --- Authentification obligatoire -------------------------------------
+    const authHeader = req.headers.get('Authorization') ?? '';
+    const token = authHeader.replace('Bearer ', '').trim();
+    if (!token || !usageClient) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { data: userData, error: userError } = await usageClient.auth.getUser(token);
+    const user = userData?.user;
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { data: roles } = await usageClient
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+    const roleList = (roles ?? []).map((r: { role: string }) => r.role);
+    const isAdmin = roleList.includes('admin');
+    const isDistributor = roleList.includes('distributor');
+
+    if (!isAdmin && !isDistributor) {
+      console.warn(`airtable-proxy: forbidden for user ${user.id}`);
+      return new Response(
+        JSON.stringify({ error: 'Forbidden' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const isWrite =
+      (typeof method === 'string' && ['POST', 'PATCH', 'PUT', 'DELETE'].includes(method.toUpperCase())) ||
+      action === 'sync-followers';
+
+    if (isWrite && !isAdmin) {
+      console.warn(`airtable-proxy: write denied for user ${user.id}`);
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: admin role required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    // ----------------------------------------------------------------------
 
     // Compteur d'utilisation (lecture)
     if (action === 'get-usage') {
       return await getUsage();
     }
+
 
     // Handle get-live-followers action
     if (action === 'get-live-followers') {
