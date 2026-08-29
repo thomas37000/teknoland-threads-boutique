@@ -134,9 +134,18 @@ const handler = async (req: Request): Promise<Response> => {
     const body = await req.json();
     const { name, email, subject, message, type, to } = body as ContactNotificationRequest;
 
-    // Handle reply from admin
+    // Handle reply from admin (admin authentifié uniquement)
     if (type === 'reply' && to) {
+      const auth = await requireAdmin(req);
+      if (!auth.ok) {
+        return new Response(
+          JSON.stringify({ error: auth.error }),
+          { status: auth.status, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+
       const emailValidation = validateEmail(to);
+
       if (!emailValidation.isValid) {
         return new Response(
           JSON.stringify({ error: emailValidation.error }),
