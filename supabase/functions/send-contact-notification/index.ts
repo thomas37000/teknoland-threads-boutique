@@ -1,7 +1,42 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+
+// Vérifie que l'appelant est un admin authentifié
+const requireAdmin = async (req: Request): Promise<{ ok: boolean; status?: number; error?: string }> => {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return { ok: false, status: 401, error: "Authentification requise" };
+  }
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+  );
+
+  const token = authHeader.replace("Bearer ", "");
+  const { data: userData, error: userError } = await supabase.auth.getUser(token);
+  if (userError || !userData?.user) {
+    return { ok: false, status: 401, error: "Session invalide" };
+  }
+
+  const { data: roles } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userData.user.id)
+    .eq("role", "admin")
+    .maybeSingle();
+
+  if (!roles) {
+    console.warn("Tentative d'envoi de réponse par un non-admin:", userData.user.id);
+    return { ok: false, status: 403, error: "Accès réservé aux administrateurs" };
+  }
+
+  return { ok: true };
+};
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
