@@ -165,8 +165,9 @@ serve(async (req) => {
       }
 
       case "update": {
-        if (!bucketName || !newBucketName) throw new Error("Noms requis");
-        const { error } = await adminClient.storage.updateBucket(bucketName, {
+        const safeUpdateName = assertValidBucketName(bucketName);
+        if (newBucketName !== undefined) assertValidBucketName(newBucketName);
+        const { error } = await adminClient.storage.updateBucket(safeUpdateName, {
           public: isPublic ?? true,
         });
         if (error) throw error;
