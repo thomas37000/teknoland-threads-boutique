@@ -7,7 +7,19 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-async function applyBucketPolicies(bucket: string) {
+const BUCKET_NAME_RE = /^[a-z0-9][a-z0-9-]{0,62}$/;
+
+function assertValidBucketName(name: unknown): string {
+  if (typeof name !== "string" || !BUCKET_NAME_RE.test(name)) {
+    throw new Error(
+      "Nom de bucket invalide : lettres minuscules, chiffres et tirets uniquement (1-63 caractères)",
+    );
+  }
+  return name;
+}
+
+async function applyBucketPolicies(bucketRaw: string) {
+  const bucket = assertValidBucketName(bucketRaw);
   const dbUrl = Deno.env.get("SUPABASE_DB_URL");
   if (!dbUrl) {
     console.error("SUPABASE_DB_URL not set, cannot apply policies");
@@ -54,7 +66,8 @@ async function applyBucketPolicies(bucket: string) {
   return errors;
 }
 
-async function removeBucketPolicies(bucket: string) {
+async function removeBucketPolicies(bucketRaw: string) {
+  const bucket = assertValidBucketName(bucketRaw);
   const dbUrl = Deno.env.get("SUPABASE_DB_URL");
   if (!dbUrl) return;
 
@@ -132,14 +145,14 @@ serve(async (req) => {
       }
 
       case "create": {
-        if (!bucketName) throw new Error("Nom du bucket requis");
-        const { data, error } = await adminClient.storage.createBucket(bucketName, {
+        const safeName = assertValidBucketName(bucketName);
+        const { data, error } = await adminClient.storage.createBucket(safeName, {
           public: isPublic ?? true,
         });
         if (error) throw error;
 
         // Auto-apply RBAC storage policies
-        const policyErrors = await applyBucketPolicies(bucketName);
+        const policyErrors = await applyBucketPolicies(safeName);
 
         return new Response(JSON.stringify({
           success: true,
@@ -152,8 +165,9 @@ serve(async (req) => {
       }
 
       case "update": {
-        if (!bucketName || !newBucketName) throw new Error("Noms requis");
-        const { error } = await adminClient.storage.updateBucket(bucketName, {
+        const safeUpdateName = assertValidBucketName(bucketName);
+        if (newBucketName !== undefined) assertValidBucketName(newBucketName);
+        const { error } = await adminClient.storage.updateBucket(safeUpdateName, {
           public: isPublic ?? true,
         });
         if (error) throw error;
@@ -163,17 +177,17 @@ serve(async (req) => {
       }
 
       case "delete": {
-        if (!bucketName) throw new Error("Nom du bucket requis");
+        const safeDeleteName = assertValidBucketName(bucketName);
         // Remove RLS policies first
-        await removeBucketPolicies(bucketName);
+        await removeBucketPolicies(safeDeleteName);
 
         // Empty the bucket
-        const { data: files } = await adminClient.storage.from(bucketName).list("", { limit: 1000 });
+        const { data: files } = await adminClient.storage.from(safeDeleteName).list("", { limit: 1000 });
         if (files && files.length > 0) {
           const filePaths = files.map((f) => f.name);
-          await adminClient.storage.from(bucketName).remove(filePaths);
+          await adminClient.storage.from(safeDeleteName).remove(filePaths);
         }
-        const { error } = await adminClient.storage.deleteBucket(bucketName);
+        const { error } = await adminClient.storage.deleteBucket(safeDeleteName);
         if (error) throw error;
         return new Response(JSON.stringify({ success: true }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
