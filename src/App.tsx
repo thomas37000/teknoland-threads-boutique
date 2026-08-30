@@ -9,6 +9,7 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { Client } from "@/types";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
+import SellerRoute from "./components/SellerRoute";
 import DistributorRoute from "./components/DistributorRoute";
 import Index from "./pages/Index";
 import ShopPage from "./pages/ShopPage";
@@ -67,9 +68,9 @@ const AppContent = () => {
           <Route 
             path="/seller" 
             element={
-              <ProtectedRoute>
+              <SellerRoute>
                 <SellerPage />
-              </ProtectedRoute>
+              </SellerRoute>
             } 
           />
           <Route 
