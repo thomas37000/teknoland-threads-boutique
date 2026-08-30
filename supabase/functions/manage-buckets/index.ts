@@ -7,7 +7,19 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-async function applyBucketPolicies(bucket: string) {
+const BUCKET_NAME_RE = /^[a-z0-9][a-z0-9-]{0,62}$/;
+
+function assertValidBucketName(name: unknown): string {
+  if (typeof name !== "string" || !BUCKET_NAME_RE.test(name)) {
+    throw new Error(
+      "Nom de bucket invalide : lettres minuscules, chiffres et tirets uniquement (1-63 caractères)",
+    );
+  }
+  return name;
+}
+
+async function applyBucketPolicies(bucketRaw: string) {
+  const bucket = assertValidBucketName(bucketRaw);
   const dbUrl = Deno.env.get("SUPABASE_DB_URL");
   if (!dbUrl) {
     console.error("SUPABASE_DB_URL not set, cannot apply policies");
@@ -54,7 +66,8 @@ async function applyBucketPolicies(bucket: string) {
   return errors;
 }
 
-async function removeBucketPolicies(bucket: string) {
+async function removeBucketPolicies(bucketRaw: string) {
+  const bucket = assertValidBucketName(bucketRaw);
   const dbUrl = Deno.env.get("SUPABASE_DB_URL");
   if (!dbUrl) return;
 
