@@ -145,8 +145,8 @@ serve(async (req) => {
       }
 
       case "create": {
-        if (!bucketName) throw new Error("Nom du bucket requis");
-        const { data, error } = await adminClient.storage.createBucket(bucketName, {
+        const safeName = assertValidBucketName(bucketName);
+        const { data, error } = await adminClient.storage.createBucket(safeName, {
           public: isPublic ?? true,
         });
         if (error) throw error;
