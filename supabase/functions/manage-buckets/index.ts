@@ -177,17 +177,17 @@ serve(async (req) => {
       }
 
       case "delete": {
-        if (!bucketName) throw new Error("Nom du bucket requis");
+        const safeDeleteName = assertValidBucketName(bucketName);
         // Remove RLS policies first
-        await removeBucketPolicies(bucketName);
+        await removeBucketPolicies(safeDeleteName);
 
         // Empty the bucket
-        const { data: files } = await adminClient.storage.from(bucketName).list("", { limit: 1000 });
+        const { data: files } = await adminClient.storage.from(safeDeleteName).list("", { limit: 1000 });
         if (files && files.length > 0) {
           const filePaths = files.map((f) => f.name);
-          await adminClient.storage.from(bucketName).remove(filePaths);
+          await adminClient.storage.from(safeDeleteName).remove(filePaths);
         }
-        const { error } = await adminClient.storage.deleteBucket(bucketName);
+        const { error } = await adminClient.storage.deleteBucket(safeDeleteName);
         if (error) throw error;
         return new Response(JSON.stringify({ success: true }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
