@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { requireAdmin } from "../_shared/require-admin.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -45,6 +46,9 @@ async function getAccessToken(): Promise<string | null> {
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const auth = await requireAdmin(req, corsHeaders, "soundcloud-resolve");
+  if (auth.response) return auth.response;
 
   try {
     if (!SOUNDCLOUD_CLIENT_ID) {
