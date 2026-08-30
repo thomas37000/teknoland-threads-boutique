@@ -152,7 +152,7 @@ serve(async (req) => {
         if (error) throw error;
 
         // Auto-apply RBAC storage policies
-        const policyErrors = await applyBucketPolicies(bucketName);
+        const policyErrors = await applyBucketPolicies(safeName);
 
         return new Response(JSON.stringify({
           success: true,
