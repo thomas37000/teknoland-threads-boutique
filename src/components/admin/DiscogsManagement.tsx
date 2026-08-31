@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { RefreshCw, Search, Disc3, Heart, AlertCircle, Info, ArrowDown, ArrowUp } from "lucide-react";
+import { useMemo, useState } from "react";
+import { RefreshCw, Search, Disc3, Heart, AlertCircle, Info, ArrowDown, ArrowUp, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,7 +30,7 @@ import { useToast } from "@/hooks/use-toast";
  * dernière visite admin.
  *
  * - useDiscogs() : releases + state + deltas + actions
- * - À l'ouverture : appelle markSeen() pour reset le badge sidebar
+ * - Bouton « Vu » : marque les notifications comme lues (reset badge + bulles)
  * - Tri : releases avec deltas en premier, puis par année desc
  */
 const DiscogsManagement = () => {
