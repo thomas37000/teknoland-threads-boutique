@@ -85,6 +85,13 @@ const DiscogsManagement = () => {
     }
   };
 
+  const hasNotifications = totalDeltaColl > 0 || totalDeltaWant > 0;
+
+  const handleMarkSeen = async () => {
+    await markSeen();
+    toast({ title: "Notifications marquées comme vues" });
+  };
+
   const handleSyncStats = async () => {
     setError(null);
     const { error } = await syncStats();
