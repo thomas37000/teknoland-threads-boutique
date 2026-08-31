@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { RefreshCw, Search, Disc3, Heart, AlertCircle, Info, ArrowDown, ArrowUp } from "lucide-react";
+import { useMemo, useState } from "react";
+import { RefreshCw, Search, Disc3, Heart, AlertCircle, Info, ArrowDown, ArrowUp, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,7 +30,7 @@ import { useToast } from "@/hooks/use-toast";
  * dernière visite admin.
  *
  * - useDiscogs() : releases + state + deltas + actions
- * - À l'ouverture : appelle markSeen() pour reset le badge sidebar
+ * - Bouton « Vu » : marque les notifications comme lues (reset badge + bulles)
  * - Tri : releases avec deltas en premier, puis par année desc
  */
 const DiscogsManagement = () => {
@@ -42,12 +42,6 @@ const DiscogsManagement = () => {
   // Filtres de tri : collection / wantlist — asc ou desc, par défaut desc
   const [collectionSort, setCollectionSort] = useState<"asc" | "desc" | null>("desc");
   const [wantlistSort, setWantlistSort] = useState<"asc" | "desc" | null>("desc");
-
-  // Marquer comme vu à l'ouverture de l'onglet
-  useEffect(() => {
-    markSeen();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -91,6 +85,13 @@ const DiscogsManagement = () => {
     }
   };
 
+  const hasNotifications = totalDeltaColl > 0 || totalDeltaWant > 0;
+
+  const handleMarkSeen = async () => {
+    await markSeen();
+    toast({ title: "Notifications marquées comme vues" });
+  };
+
   const handleSyncStats = async () => {
     setError(null);
     const { error } = await syncStats();
@@ -119,6 +120,21 @@ const DiscogsManagement = () => {
         </div>
         <TooltipProvider delayDuration={200}>
           <div className="flex gap-2">
+            {hasNotifications && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="secondary" onClick={handleMarkSeen}>
+                    <CheckCheck className="h-4 w-4 mr-2" />
+                    Vu
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs">
+                  <p className="text-xs text-muted-foreground">
+                    Masque les notifications (bulles rouges) des nouveautés collection / wantlist.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            )}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="outline" onClick={handleSyncReleases} disabled={syncing}>
