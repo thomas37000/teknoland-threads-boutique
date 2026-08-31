@@ -43,12 +43,6 @@ const DiscogsManagement = () => {
   const [collectionSort, setCollectionSort] = useState<"asc" | "desc" | null>("desc");
   const [wantlistSort, setWantlistSort] = useState<"asc" | "desc" | null>("desc");
 
-  // Marquer comme vu à l'ouverture de l'onglet
-  useEffect(() => {
-    markSeen();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const list = q
