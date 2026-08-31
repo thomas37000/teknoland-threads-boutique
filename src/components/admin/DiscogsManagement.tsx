@@ -120,6 +120,21 @@ const DiscogsManagement = () => {
         </div>
         <TooltipProvider delayDuration={200}>
           <div className="flex gap-2">
+            {hasNotifications && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="secondary" onClick={handleMarkSeen}>
+                    <CheckCheck className="h-4 w-4 mr-2" />
+                    Vu
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs">
+                  <p className="text-xs text-muted-foreground">
+                    Masque les notifications (bulles rouges) des nouveautés collection / wantlist.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            )}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="outline" onClick={handleSyncReleases} disabled={syncing}>
