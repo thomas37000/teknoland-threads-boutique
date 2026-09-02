@@ -185,7 +185,7 @@ const DiscogsManagement = () => {
       </div>
 
       {/* KPI cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <Card>
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground">Total releases</p>
@@ -197,6 +197,16 @@ const DiscogsManagement = () => {
             <p className="text-xs text-muted-foreground">Total collection</p>
             <p className="text-2xl font-bold">
               {releases.reduce((s, r) => s + r.current_collection_count, 0)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <ShoppingCart className="h-3 w-3" /> Exemplaires en vente
+            </p>
+            <p className="text-2xl font-bold text-amber-600">
+              {releases.reduce((s, r) => s + (r.num_for_sale ?? 0), 0)}
             </p>
           </CardContent>
         </Card>
