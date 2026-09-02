@@ -82,7 +82,7 @@ Deno.serve(async (req) => {
 
     const { data: releases, error: relErr } = await supabase
       .from("discogs_releases")
-      .select("release_id, current_collection_count, current_wantlist_count")
+      .select("release_id, current_collection_count, current_wantlist_count, num_for_sale")
       .order("release_id", { ascending: true })
       .range(cursor, cursor + BATCH_SIZE - 1);
 
@@ -91,6 +91,7 @@ Deno.serve(async (req) => {
     let processed = 0;
     let totalDeltaCollection = 0;
     let totalDeltaWantlist = 0;
+    let totalDeltaForSale = 0;
     const historyRows: any[] = [];
     const updates: {
       release_id: number;
@@ -128,6 +129,7 @@ Deno.serve(async (req) => {
 
       const dColl = have - (rel.current_collection_count ?? 0);
       const dWant = want - (rel.current_wantlist_count ?? 0);
+      const dSale = forSale - (rel.num_for_sale ?? 0);
 
       historyRows.push({
         release_id: rel.release_id,
@@ -135,11 +137,14 @@ Deno.serve(async (req) => {
         wantlist_count: want,
         delta_collection: dColl,
         delta_wantlist: dWant,
+        for_sale_count: forSale,
+        delta_for_sale: dSale,
       });
       updates.push({ release_id: rel.release_id, have, want, forSale, lowest });
 
       if (dColl > 0) totalDeltaCollection += dColl;
       if (dWant > 0) totalDeltaWantlist += dWant;
+      if (dSale > 0) totalDeltaForSale += dSale;
       processed += 1;
 
       if (remaining < 5) await sleep(60_000);
@@ -173,12 +178,13 @@ Deno.serve(async (req) => {
         last_stats_cursor: nextCursor,
         unseen_collection_delta: (state?.unseen_collection_delta ?? 0) + totalDeltaCollection,
         unseen_wantlist_delta: (state?.unseen_wantlist_delta ?? 0) + totalDeltaWantlist,
+        unseen_for_sale_delta: (state?.unseen_for_sale_delta ?? 0) + totalDeltaForSale,
       })
       .eq("singleton", true);
 
     console.log(`[discogs-sync-stats] done caller=${callerId} processed=${processed} duration_ms=${Date.now() - startedAt}`);
     return new Response(
-      JSON.stringify({ ok: true, processed, totalDeltaCollection, totalDeltaWantlist, nextCursor }),
+      JSON.stringify({ ok: true, processed, totalDeltaCollection, totalDeltaWantlist, totalDeltaForSale, nextCursor }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (e) {

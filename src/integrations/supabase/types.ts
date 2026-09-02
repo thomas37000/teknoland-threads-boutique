@@ -216,7 +216,9 @@ export type Database = {
         Row: {
           collection_count: number
           delta_collection: number
+          delta_for_sale: number
           delta_wantlist: number
+          for_sale_count: number
           id: string
           recorded_at: string
           release_id: number
@@ -225,7 +227,9 @@ export type Database = {
         Insert: {
           collection_count?: number
           delta_collection?: number
+          delta_for_sale?: number
           delta_wantlist?: number
+          for_sale_count?: number
           id?: string
           recorded_at?: string
           release_id: number
@@ -234,7 +238,9 @@ export type Database = {
         Update: {
           collection_count?: number
           delta_collection?: number
+          delta_for_sale?: number
           delta_wantlist?: number
+          for_sale_count?: number
           id?: string
           recorded_at?: string
           release_id?: number
@@ -251,6 +257,7 @@ export type Database = {
           last_stats_sync_at: string | null
           singleton: boolean
           unseen_collection_delta: number
+          unseen_for_sale_delta: number
           unseen_wantlist_delta: number
           updated_at: string
         }
@@ -262,6 +269,7 @@ export type Database = {
           last_stats_sync_at?: string | null
           singleton?: boolean
           unseen_collection_delta?: number
+          unseen_for_sale_delta?: number
           unseen_wantlist_delta?: number
           updated_at?: string
         }
@@ -273,6 +281,7 @@ export type Database = {
           last_stats_sync_at?: string | null
           singleton?: boolean
           unseen_collection_delta?: number
+          unseen_for_sale_delta?: number
           unseen_wantlist_delta?: number
           updated_at?: string
         }

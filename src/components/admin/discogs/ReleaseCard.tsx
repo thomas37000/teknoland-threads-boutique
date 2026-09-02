@@ -7,10 +7,11 @@ interface ReleaseCardProps {
   release: DiscogsRelease;
   deltaCollection: number;
   deltaWantlist: number;
+  deltaForSale?: number;
 }
 
-export function ReleaseCard({ release, deltaCollection, deltaWantlist }: ReleaseCardProps) {
-  const hasNew = deltaCollection > 0 || deltaWantlist > 0;
+export function ReleaseCard({ release, deltaCollection, deltaWantlist, deltaForSale = 0 }: ReleaseCardProps) {
+  const hasNew = deltaCollection > 0 || deltaWantlist > 0 || deltaForSale > 0;
   return (
     <Card className="relative overflow-hidden hover:shadow-md transition-shadow">
       {hasNew && (
@@ -32,10 +33,11 @@ export function ReleaseCard({ release, deltaCollection, deltaWantlist }: Release
             <Disc3 className="h-12 w-12" />
           </div>
         )}
-        {(deltaCollection > 0 || deltaWantlist > 0) && (
+        {hasNew && (
           <div className="absolute top-2 left-2 flex flex-col gap-1">
             <DeltaBadge label="Coll." delta={deltaCollection} tone="collection" />
             <DeltaBadge label="Want" delta={deltaWantlist} tone="wantlist" />
+            <DeltaBadge label="Vente" delta={deltaForSale} tone="sale" />
           </div>
         )}
       </div>
@@ -80,6 +82,11 @@ export function ReleaseCard({ release, deltaCollection, deltaWantlist }: Release
           <span className="inline-flex items-center gap-1">
             <ShoppingCart className="h-3 w-3" />
             {release.num_for_sale} en vente
+            {deltaForSale > 0 && (
+              <span className="ml-1 rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                +{deltaForSale}
+              </span>
+            )}
           </span>
           {release.lowest_price != null && release.num_for_sale > 0 && (
             <span className="font-medium">dès {release.lowest_price.toFixed(2)} €</span>
