@@ -23,6 +23,7 @@ export interface DiscogsSyncState {
   last_stats_sync_at: string | null;
   unseen_collection_delta: number;
   unseen_wantlist_delta: number;
+  unseen_for_sale_delta: number;
   last_admin_viewed_at: string | null;
 }
 
@@ -30,6 +31,7 @@ export interface DiscogsDelta {
   release_id: number;
   delta_collection: number;
   delta_wantlist: number;
+  delta_for_sale: number;
   recorded_at: string;
 }
 
@@ -43,7 +45,7 @@ export interface DiscogsDelta {
 export function useDiscogs() {
   const [releases, setReleases] = useState<DiscogsRelease[]>([]);
   const [state, setState] = useState<DiscogsSyncState | null>(null);
-  const [deltas, setDeltas] = useState<Record<number, { coll: number; want: number }>>({});
+  const [deltas, setDeltas] = useState<Record<number, { coll: number; want: number; sale: number }>>({});
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
 
@@ -65,15 +67,16 @@ export function useDiscogs() {
     const since = (st as any)?.last_admin_viewed_at ?? "1970-01-01";
     const { data: hist } = await supabase
       .from("discogs_stats_history")
-      .select("release_id, delta_collection, delta_wantlist, recorded_at")
+      .select("release_id, delta_collection, delta_wantlist, delta_for_sale, recorded_at")
       .gt("recorded_at", since);
 
-    const map: Record<number, { coll: number; want: number }> = {};
+    const map: Record<number, { coll: number; want: number; sale: number }> = {};
     for (const h of (hist as DiscogsDelta[]) ?? []) {
       const k = h.release_id;
-      if (!map[k]) map[k] = { coll: 0, want: 0 };
+      if (!map[k]) map[k] = { coll: 0, want: 0, sale: 0 };
       if (h.delta_collection > 0) map[k].coll += h.delta_collection;
       if (h.delta_wantlist > 0) map[k].want += h.delta_wantlist;
+      if ((h.delta_for_sale ?? 0) > 0) map[k].sale += h.delta_for_sale;
     }
     setDeltas(map);
     setLoading(false);
@@ -123,11 +126,11 @@ export function useDiscogsUnseen() {
       // Compte le nombre de releases distinctes avec un delta positif depuis cette date
       const { data: hist } = await supabase
         .from("discogs_stats_history")
-        .select("release_id, delta_collection, delta_wantlist")
+        .select("release_id, delta_collection, delta_wantlist, delta_for_sale")
         .gt("recorded_at", since);
       const distinct = new Set<number>();
       for (const h of (hist as any[]) ?? []) {
-        if ((h.delta_collection ?? 0) > 0 || (h.delta_wantlist ?? 0) > 0) {
+        if ((h.delta_collection ?? 0) > 0 || (h.delta_wantlist ?? 0) > 0 || (h.delta_for_sale ?? 0) > 0) {
           distinct.add(h.release_id);
         }
       }

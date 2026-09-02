@@ -79,6 +79,7 @@ const DiscogsManagement = () => {
 
   const totalDeltaColl = Object.values(deltas).reduce((s, d) => s + d.coll, 0);
   const totalDeltaWant = Object.values(deltas).reduce((s, d) => s + d.want, 0);
+  const totalDeltaSale = Object.values(deltas).reduce((s, d) => s + (d.sale ?? 0), 0);
 
   const handleSyncReleases = async () => {
     setError(null);
@@ -91,7 +92,7 @@ const DiscogsManagement = () => {
     }
   };
 
-  const hasNotifications = totalDeltaColl > 0 || totalDeltaWant > 0;
+  const hasNotifications = totalDeltaColl > 0 || totalDeltaWant > 0 || totalDeltaSale > 0;
 
   const handleMarkSeen = async () => {
     await markSeen();
@@ -207,6 +208,11 @@ const DiscogsManagement = () => {
             </p>
             <p className="text-2xl font-bold text-amber-600">
               {releases.reduce((s, r) => s + (r.num_for_sale ?? 0), 0)}
+              {totalDeltaSale > 0 && (
+                <span className="ml-2 align-middle text-xs font-semibold text-red-500">
+                  +{totalDeltaSale}
+                </span>
+              )}
             </p>
           </CardContent>
         </Card>
@@ -339,6 +345,7 @@ const DiscogsManagement = () => {
               release={r}
               deltaCollection={deltas[r.release_id]?.coll ?? 0}
               deltaWantlist={deltas[r.release_id]?.want ?? 0}
+              deltaForSale={deltas[r.release_id]?.sale ?? 0}
             />
           ))}
         </div>
