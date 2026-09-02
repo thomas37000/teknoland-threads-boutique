@@ -123,7 +123,7 @@ const DiscogsManagement = () => {
             {hasNotifications && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="secondary" onClick={handleMarkSeen}>
+                  <Button variant="secondary" onClick={handleMarkSeen} className="bg-red-400 hover:bg-red-500">
                     <CheckCheck className="h-4 w-4 mr-2" />
                     Vu
                   </Button>
