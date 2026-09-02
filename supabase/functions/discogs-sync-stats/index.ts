@@ -156,6 +156,8 @@ Deno.serve(async (req) => {
         .update({
           current_collection_count: u.have,
           current_wantlist_count: u.want,
+          num_for_sale: u.forSale,
+          lowest_price: u.lowest,
           last_synced_at: new Date().toISOString(),
         })
         .eq("release_id", u.release_id);
