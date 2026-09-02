@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { RefreshCw, Search, Disc3, Heart, AlertCircle, Info, ArrowDown, ArrowUp, CheckCheck } from "lucide-react";
+import { RefreshCw, Search, Disc3, Heart, AlertCircle, Info, ArrowDown, ArrowUp, CheckCheck, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
