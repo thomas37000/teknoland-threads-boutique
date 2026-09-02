@@ -39,9 +39,10 @@ const DiscogsManagement = () => {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
-  // Filtres de tri : collection / wantlist — asc ou desc, par défaut desc
+  // Filtres de tri : collection / wantlist / en vente — asc ou desc, par défaut desc
   const [collectionSort, setCollectionSort] = useState<"asc" | "desc" | null>("desc");
   const [wantlistSort, setWantlistSort] = useState<"asc" | "desc" | null>("desc");
+  const [forSaleSort, setForSaleSort] = useState<"asc" | "desc" | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -53,7 +54,12 @@ const DiscogsManagement = () => {
         )
       : releases;
     return [...list].sort((a, b) => {
-      // Tri prioritaire : collection (par défaut desc)
+      // Tri prioritaire : exemplaires en vente (si activé)
+      if (forSaleSort) {
+        const diff = (a.num_for_sale ?? 0) - (b.num_for_sale ?? 0);
+        if (diff !== 0) return forSaleSort === "asc" ? diff : -diff;
+      }
+      // Puis collection (par défaut desc)
       if (collectionSort) {
         const diff = a.current_collection_count - b.current_collection_count;
         if (diff !== 0) return collectionSort === "asc" ? diff : -diff;
@@ -69,7 +75,7 @@ const DiscogsManagement = () => {
       if (db !== da) return db - da;
       return (b.year ?? 0) - (a.year ?? 0);
     });
-  }, [releases, deltas, search, collectionSort, wantlistSort]);
+  }, [releases, deltas, search, collectionSort, wantlistSort, forSaleSort]);
 
   const totalDeltaColl = Object.values(deltas).reduce((s, d) => s + d.coll, 0);
   const totalDeltaWant = Object.values(deltas).reduce((s, d) => s + d.want, 0);
