@@ -11,6 +11,10 @@ export interface DiscogsRelease {
   discogs_url: string | null;
   current_collection_count: number;
   current_wantlist_count: number;
+  /** Nombre d'exemplaires actuellement en vente sur la marketplace Discogs */
+  num_for_sale: number;
+  /** Prix le plus bas constaté en vente (devise du compte Discogs) */
+  lowest_price: number | null;
   last_synced_at: string | null;
 }
 
