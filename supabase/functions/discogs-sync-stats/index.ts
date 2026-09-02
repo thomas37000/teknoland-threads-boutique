@@ -92,7 +92,13 @@ Deno.serve(async (req) => {
     let totalDeltaCollection = 0;
     let totalDeltaWantlist = 0;
     const historyRows: any[] = [];
-    const updates: { release_id: number; have: number; want: number }[] = [];
+    const updates: {
+      release_id: number;
+      have: number;
+      want: number;
+      forSale: number;
+      lowest: number | null;
+    }[] = [];
 
     for (const rel of releases ?? []) {
       const url = `https://api.discogs.com/releases/${rel.release_id}`;
@@ -113,6 +119,12 @@ Deno.serve(async (req) => {
       const data = await res.json();
       const have = Number(data?.community?.have ?? 0);
       const want = Number(data?.community?.want ?? 0);
+      // Nombre d'exemplaires actuellement en vente sur la marketplace Discogs
+      const forSale = Number(data?.num_for_sale ?? 0);
+      const lowest =
+        data?.lowest_price === null || data?.lowest_price === undefined
+          ? null
+          : Number(data.lowest_price);
 
       const dColl = have - (rel.current_collection_count ?? 0);
       const dWant = want - (rel.current_wantlist_count ?? 0);
@@ -124,7 +136,7 @@ Deno.serve(async (req) => {
         delta_collection: dColl,
         delta_wantlist: dWant,
       });
-      updates.push({ release_id: rel.release_id, have, want });
+      updates.push({ release_id: rel.release_id, have, want, forSale, lowest });
 
       if (dColl > 0) totalDeltaCollection += dColl;
       if (dWant > 0) totalDeltaWantlist += dWant;
