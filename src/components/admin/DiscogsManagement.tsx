@@ -293,6 +293,29 @@ const DiscogsManagement = () => {
               </SelectItem>
             </SelectContent>
           </Select>
+
+          <Select
+            value={forSaleSort ?? "none"}
+            onValueChange={(v) => setForSaleSort(v === "none" ? null : (v as "asc" | "desc"))}
+          >
+            <SelectTrigger className="w-[170px]">
+              <ShoppingCart className="h-4 w-4 mr-2 text-muted-foreground" />
+              <SelectValue placeholder="En vente" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Aucun tri</SelectItem>
+              <SelectItem value="desc">
+                <span className="flex items-center gap-2">
+                  <ArrowDown className="h-3 w-3" /> Plus en vente d'abord
+                </span>
+              </SelectItem>
+              <SelectItem value="asc">
+                <span className="flex items-center gap-2">
+                  <ArrowUp className="h-3 w-3" /> Moins en vente d'abord
+                </span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
