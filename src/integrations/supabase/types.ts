@@ -170,6 +170,8 @@ export type Database = {
           discogs_url: string | null
           id: string
           last_synced_at: string | null
+          lowest_price: number | null
+          num_for_sale: number
           release_id: number
           thumbnail: string | null
           title: string
@@ -184,6 +186,8 @@ export type Database = {
           discogs_url?: string | null
           id?: string
           last_synced_at?: string | null
+          lowest_price?: number | null
+          num_for_sale?: number
           release_id: number
           thumbnail?: string | null
           title: string
@@ -198,6 +202,8 @@ export type Database = {
           discogs_url?: string | null
           id?: string
           last_synced_at?: string | null
+          lowest_price?: number | null
+          num_for_sale?: number
           release_id?: number
           thumbnail?: string | null
           title?: string

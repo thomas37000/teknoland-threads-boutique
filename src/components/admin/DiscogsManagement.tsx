@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { RefreshCw, Search, Disc3, Heart, AlertCircle, Info, ArrowDown, ArrowUp, CheckCheck } from "lucide-react";
+import { RefreshCw, Search, Disc3, Heart, AlertCircle, Info, ArrowDown, ArrowUp, CheckCheck, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,9 +39,10 @@ const DiscogsManagement = () => {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
-  // Filtres de tri : collection / wantlist — asc ou desc, par défaut desc
+  // Filtres de tri : collection / wantlist / en vente — asc ou desc, par défaut desc
   const [collectionSort, setCollectionSort] = useState<"asc" | "desc" | null>("desc");
   const [wantlistSort, setWantlistSort] = useState<"asc" | "desc" | null>("desc");
+  const [forSaleSort, setForSaleSort] = useState<"asc" | "desc" | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -53,7 +54,12 @@ const DiscogsManagement = () => {
         )
       : releases;
     return [...list].sort((a, b) => {
-      // Tri prioritaire : collection (par défaut desc)
+      // Tri prioritaire : exemplaires en vente (si activé)
+      if (forSaleSort) {
+        const diff = (a.num_for_sale ?? 0) - (b.num_for_sale ?? 0);
+        if (diff !== 0) return forSaleSort === "asc" ? diff : -diff;
+      }
+      // Puis collection (par défaut desc)
       if (collectionSort) {
         const diff = a.current_collection_count - b.current_collection_count;
         if (diff !== 0) return collectionSort === "asc" ? diff : -diff;
@@ -69,7 +75,7 @@ const DiscogsManagement = () => {
       if (db !== da) return db - da;
       return (b.year ?? 0) - (a.year ?? 0);
     });
-  }, [releases, deltas, search, collectionSort, wantlistSort]);
+  }, [releases, deltas, search, collectionSort, wantlistSort, forSaleSort]);
 
   const totalDeltaColl = Object.values(deltas).reduce((s, d) => s + d.coll, 0);
   const totalDeltaWant = Object.values(deltas).reduce((s, d) => s + d.want, 0);
@@ -179,7 +185,7 @@ const DiscogsManagement = () => {
       </div>
 
       {/* KPI cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <Card>
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground">Total releases</p>
@@ -191,6 +197,16 @@ const DiscogsManagement = () => {
             <p className="text-xs text-muted-foreground">Total collection</p>
             <p className="text-2xl font-bold">
               {releases.reduce((s, r) => s + r.current_collection_count, 0)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <ShoppingCart className="h-3 w-3" /> Exemplaires en vente
+            </p>
+            <p className="text-2xl font-bold text-amber-600">
+              {releases.reduce((s, r) => s + (r.num_for_sale ?? 0), 0)}
             </p>
           </CardContent>
         </Card>
@@ -273,6 +289,29 @@ const DiscogsManagement = () => {
               <SelectItem value="asc">
                 <span className="flex items-center gap-2">
                   <ArrowUp className="h-3 w-3" /> Moins le veulent d'abord
+                </span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={forSaleSort ?? "none"}
+            onValueChange={(v) => setForSaleSort(v === "none" ? null : (v as "asc" | "desc"))}
+          >
+            <SelectTrigger className="w-[170px]">
+              <ShoppingCart className="h-4 w-4 mr-2 text-muted-foreground" />
+              <SelectValue placeholder="En vente" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Aucun tri</SelectItem>
+              <SelectItem value="desc">
+                <span className="flex items-center gap-2">
+                  <ArrowDown className="h-3 w-3" /> Plus en vente d'abord
+                </span>
+              </SelectItem>
+              <SelectItem value="asc">
+                <span className="flex items-center gap-2">
+                  <ArrowUp className="h-3 w-3" /> Moins en vente d'abord
                 </span>
               </SelectItem>
             </SelectContent>

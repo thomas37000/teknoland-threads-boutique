@@ -1,4 +1,4 @@
-import { ExternalLink, Disc3, Heart } from "lucide-react";
+import { ExternalLink, Disc3, Heart, ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { DeltaBadge } from "./DeltaBadge";
 import type { DiscogsRelease } from "@/hooks/useDiscogs";
@@ -47,11 +47,11 @@ export function ReleaseCard({ release, deltaCollection, deltaWantlist }: Release
           </p>
         </div>
         <div className="flex items-center justify-between text-xs">
-          <span className="inline-flex items-center gap-1">
+          <span className="inline-flex items-center gap-1" title="Dans leur collection">
             <Disc3 className="h-3 w-3" />
             {release.current_collection_count}
           </span>
-          <span className="inline-flex items-center gap-1">
+          <span className="inline-flex items-center gap-1" title="Dans leur wantlist">
             <Heart className="h-3 w-3" />
             {release.current_wantlist_count}
           </span>
@@ -66,6 +66,25 @@ export function ReleaseCard({ release, deltaCollection, deltaWantlist }: Release
             </a>
           )}
         </div>
+        <a
+          href={`https://www.discogs.com/fr/sell/release/${release.release_id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`flex items-center justify-between rounded-md border px-2 py-1 text-xs transition-colors ${
+            release.num_for_sale > 0
+              ? "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20"
+              : "text-muted-foreground hover:bg-muted"
+          }`}
+          title="Exemplaires en vente sur la marketplace Discogs"
+        >
+          <span className="inline-flex items-center gap-1">
+            <ShoppingCart className="h-3 w-3" />
+            {release.num_for_sale} en vente
+          </span>
+          {release.lowest_price != null && release.num_for_sale > 0 && (
+            <span className="font-medium">dès {release.lowest_price.toFixed(2)} €</span>
+          )}
+        </a>
       </CardContent>
     </Card>
   );
