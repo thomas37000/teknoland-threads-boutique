@@ -1,4 +1,4 @@
-import { ExternalLink, Disc3, Heart } from "lucide-react";
+import { ExternalLink, Disc3, Heart, ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { DeltaBadge } from "./DeltaBadge";
 import type { DiscogsRelease } from "@/hooks/useDiscogs";
