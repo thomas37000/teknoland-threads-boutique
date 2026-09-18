@@ -32,6 +32,60 @@ export type Database = {
         }
         Relationships: []
       }
+      artistes: {
+        Row: {
+          actif: Database["public"]["Enums"]["actif_state"]
+          avatar: string | null
+          created_at: string
+          echange: boolean | null
+          followers: number | null
+          "followers _delat": number | null
+          followers_count: number | null
+          id: number
+          last_sync: string | null
+          relais: string | null
+          sacem_enregistré: boolean | null
+          soundcloud_permalink: string | null
+          soundcloud_url: string | null
+          soundcloud_username: string | null
+          username: string | null
+        }
+        Insert: {
+          actif: Database["public"]["Enums"]["actif_state"]
+          avatar?: string | null
+          created_at?: string
+          echange?: boolean | null
+          followers?: number | null
+          "followers _delat"?: number | null
+          followers_count?: number | null
+          id?: number
+          last_sync?: string | null
+          relais?: string | null
+          sacem_enregistré?: boolean | null
+          soundcloud_permalink?: string | null
+          soundcloud_url?: string | null
+          soundcloud_username?: string | null
+          username?: string | null
+        }
+        Update: {
+          actif?: Database["public"]["Enums"]["actif_state"]
+          avatar?: string | null
+          created_at?: string
+          echange?: boolean | null
+          followers?: number | null
+          "followers _delat"?: number | null
+          followers_count?: number | null
+          id?: number
+          last_sync?: string | null
+          relais?: string | null
+          sacem_enregistré?: boolean | null
+          soundcloud_permalink?: string | null
+          soundcloud_url?: string | null
+          soundcloud_username?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           color: string | null
@@ -718,6 +772,7 @@ export type Database = {
       slugify: { Args: { input: string }; Returns: string }
     }
     Enums: {
+      actif_state: "compose" | "compose un peu" | "ne compose plus" | "en pause"
       app_role: "admin" | "seller" | "client" | "distributor"
     }
     CompositeTypes: {
@@ -846,6 +901,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      actif_state: ["compose", "compose un peu", "ne compose plus", "en pause"],
       app_role: ["admin", "seller", "client", "distributor"],
     },
   },
