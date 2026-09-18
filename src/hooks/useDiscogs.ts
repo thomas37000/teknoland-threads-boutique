@@ -63,12 +63,19 @@ export function useDiscogs() {
     setReleases((rel as any) ?? []);
     setState((st as any) ?? null);
 
-    // Agrège les deltas (>0) depuis la dernière visite admin
+    // Agrège les deltas (>0) depuis la dernière visite admin.
+    // IMPORTANT : on filtre côté serveur sur les deltas positifs et on trie par
+    // date décroissante — sinon la limite Supabase de 1000 lignes renvoie les
+    // lignes les plus anciennes (deltas = 0) et les nouveautés sont invisibles.
     const since = (st as any)?.last_admin_viewed_at ?? "1970-01-01";
     const { data: hist } = await supabase
       .from("discogs_stats_history")
       .select("release_id, delta_collection, delta_wantlist, delta_for_sale, recorded_at")
-      .gt("recorded_at", since);
+      .gt("recorded_at", since)
+      .or("delta_collection.gt.0,delta_wantlist.gt.0,delta_for_sale.gt.0")
+      .order("recorded_at", { ascending: false })
+      .limit(1000);
+
 
     const map: Record<number, { coll: number; want: number; sale: number }> = {};
     for (const h of (hist as DiscogsDelta[]) ?? []) {
@@ -127,7 +134,10 @@ export function useDiscogsUnseen() {
       const { data: hist } = await supabase
         .from("discogs_stats_history")
         .select("release_id, delta_collection, delta_wantlist, delta_for_sale")
-        .gt("recorded_at", since);
+        .gt("recorded_at", since)
+        .or("delta_collection.gt.0,delta_wantlist.gt.0,delta_for_sale.gt.0")
+        .order("recorded_at", { ascending: false })
+        .limit(1000);
       const distinct = new Set<number>();
       for (const h of (hist as any[]) ?? []) {
         if ((h.delta_collection ?? 0) > 0 || (h.delta_wantlist ?? 0) > 0 || (h.delta_for_sale ?? 0) > 0) {
