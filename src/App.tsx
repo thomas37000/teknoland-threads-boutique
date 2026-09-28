@@ -26,6 +26,7 @@ import VendorStorePage from "./pages/VendorStorePage";
 import DistributionPage from "./pages/DistributionPage";
 import NewsletterConfirmPage from "./pages/NewsletterConfirmPage";
 import NotFound from "./pages/NotFound";
+import MacaronPage from "./pages/MacaronPage";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import FavoritesSlider from "./components/FavoritesSlider";
