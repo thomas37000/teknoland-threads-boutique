@@ -107,8 +107,25 @@ const MacaronPage = () => {
                 <Slider min={100} max={300} step={5} value={[zoom]} onValueChange={(v) => setZoom(v[0])} />
               </div>
               <div className="flex flex-wrap gap-3">
-                <Button variant="outline" onClick={() => setSpinning((s) => !s)}>
-                  <RotateCw className="mr-2 h-4 w-4" />{spinning ? "Arrêter" : "Faire tourner"}
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    if (!spinning) { setSpinning(true); setPaused(false); }
+                    else setPaused((p) => !p);
+                  }}
+                >
+                  {spinning && !paused ? (
+                    <><Pause className="mr-2 h-4 w-4" />Pause</>
+                  ) : (
+                    <><Play className="mr-2 h-4 w-4" />Lecture</>
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={!spinning}
+                  onClick={() => { setSpinning(false); setPaused(false); }}
+                >
+                  <Square className="mr-2 h-4 w-4" />Stop
                 </Button>
                 <Button onClick={downloadMockup}>
                   <Download className="mr-2 h-4 w-4" />Télécharger l'aperçu
@@ -128,6 +145,7 @@ const MacaronPage = () => {
               background:
                 "repeating-radial-gradient(circle at center, #0a0a0a 0px, #0a0a0a 3px, #1a1a1a 4px, #0a0a0a 5px)",
               animation: spinning ? "spin 1.8s linear infinite" : undefined,
+              animationPlayState: paused ? "paused" : undefined,
             }}
           >
             <div
