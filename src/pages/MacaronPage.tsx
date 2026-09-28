@@ -130,7 +130,7 @@ const MacaronPage = () => {
                 <Button onClick={downloadMockup}>
                   <Download className="mr-2 h-4 w-4" />Télécharger l'aperçu
                 </Button>
-                <Button variant="ghost" onClick={() => setImageUrl(null)}>
+                <Button variant="ghost" onClick={() => { setImageUrl(null); setSpinning(false); setPaused(false); }}>
                   <X className="mr-2 h-4 w-4" />Retirer
                 </Button>
               </div>
