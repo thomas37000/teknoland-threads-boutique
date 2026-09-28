@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Upload, Download, RotateCw, X } from "lucide-react";
+import { Upload, Download, Play, Pause, Square, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
@@ -10,6 +10,7 @@ const MAX_SIZE = 20 * 1024 * 1024;
 const MacaronPage = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [spinning, setSpinning] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [zoom, setZoom] = useState(100);
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
