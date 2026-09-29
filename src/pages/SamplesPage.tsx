@@ -3,6 +3,9 @@ import { Helmet } from "react-helmet-async";
 import { Download, Play, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const SR = 44100;
 
@@ -90,12 +93,39 @@ const EXAMPLES = ["kick 808 grave", "snare", "hihat ouvert", "bass saw", "pad lo
 const SamplesPage = () => {
   const [prompt, setPrompt] = useState("");
   const [samples, setSamples] = useState<Sample[]>([]);
+  const [mode, setMode] = useState<"synth" | "voice">("synth");
+  const [voice, setVoice] = useState("Kore");
+  const [loading, setLoading] = useState(false);
 
-  const generate = (text = prompt) => {
-    if (!text.trim()) return;
-    const url = URL.createObjectURL(toWav(synth(text)));
+  const add = (text: string, blob: Blob) => {
+    const url = URL.createObjectURL(blob);
     setSamples((s) => [{ id: Date.now(), prompt: text, url }, ...s]);
     new Audio(url).play();
+  };
+
+  const generateVoice = async (text: string) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return toast.error("Connectez-vous pour générer une voix.");
+    setLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-speech`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
+        body: JSON.stringify({ text, voice }),
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Échec de la génération");
+      add(text, await res.blob());
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generate = (text = prompt) => {
+    if (!text.trim() || loading) return;
+    if (mode === "voice") return generateVoice(text.trim());
+    add(text, toWav(synth(text)));
   };
 
   return (
@@ -107,15 +137,25 @@ const SamplesPage = () => {
       <h1 className="text-3xl font-bold mb-2">Samples</h1>
       <p className="text-muted-foreground mb-6">Décrivez un son (kick, snare, hihat, bass, pad, riser, pluck…, grave/aigu, durée en s) puis téléchargez-le en WAV.</p>
 
+      <div className="flex flex-wrap gap-2 mb-4">
+        <Button variant={mode === "synth" ? "default" : "outline"} onClick={() => setMode("synth")}>Sons (kick, pad…)</Button>
+        <Button variant={mode === "voice" ? "default" : "outline"} onClick={() => setMode("voice")}>Voix (mots, phrases)</Button>
+        {mode === "voice" && (
+          <select value={voice} onChange={(e) => setVoice(e.target.value)} className="border rounded-md px-3 bg-background" aria-label="Voix">
+            {["Kore", "Puck", "Charon", "Fenrir", "Aoede", "Leda"].map((v) => <option key={v}>{v}</option>)}
+          </select>
+        )}
+      </div>
       <form onSubmit={(e) => { e.preventDefault(); generate(); }} className="flex gap-2 mb-3">
-        <Input value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="ex : kick 808 grave" />
-        <Button type="submit"><Wand2 className="mr-2 h-4 w-4" />Générer</Button>
+        <Input value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder={mode === "voice" ? "ex : Bienvenue chez Teknoland" : "ex : kick 808 grave"} maxLength={500} />
+        <Button type="submit" disabled={loading}>{loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}Générer</Button>
       </form>
-      <div className="flex flex-wrap gap-2 mb-8">
+      {mode === "synth" && <div className="flex flex-wrap gap-2 mb-8">
         {EXAMPLES.map((ex) => (
           <Button key={ex} size="sm" variant="outline" onClick={() => { setPrompt(ex); generate(ex); }}>{ex}</Button>
         ))}
-      </div>
+      </div>}
+      {mode === "voice" && <p className="text-sm text-muted-foreground mb-8">Astuce : ajoutez le ton, ex. « Dis avec énergie : Teknoland ! ». Connexion requise.</p>}
 
       <ul className="space-y-3">
         {samples.map((s) => (
