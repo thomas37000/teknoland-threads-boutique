@@ -69,6 +69,9 @@ const Navbar = () => {
           <Link to="/macaron" className="font-medium hover:text-tekno-blue transition-colors">
             Macaron
           </Link>
+          <Link to="/samples" className="font-medium hover:text-tekno-blue transition-colors">
+            Samples
+          </Link>
           <Link to="/contact" className="font-medium hover:text-tekno-blue transition-colors">
             {t('nav.contact')}
           </Link>
@@ -142,6 +145,9 @@ const Navbar = () => {
               onClick={toggleMenu}
             >
               Macaron
+            </Link>
+            <Link to="/samples" className="py-3 border-b font-medium" onClick={toggleMenu}>
+              Samples
             </Link>
             <Link
               to="/contact"
