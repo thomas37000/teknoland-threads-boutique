@@ -144,8 +144,8 @@ const MacaronPage = () => {
             style={{
               background:
                 "repeating-radial-gradient(circle at center, #0a0a0a 0px, #0a0a0a 3px, #1a1a1a 4px, #0a0a0a 5px)",
-              animation: spinning ? "spin 1.8s linear infinite" : undefined,
-              animationPlayState: paused ? "paused" : undefined,
+              animation: spinning && imageUrl ? "spin 1.8s linear infinite" : "none",
+              animationPlayState: paused ? "paused" : "running",
             }}
           >
             <div
