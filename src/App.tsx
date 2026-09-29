@@ -27,6 +27,7 @@ import DistributionPage from "./pages/DistributionPage";
 import NewsletterConfirmPage from "./pages/NewsletterConfirmPage";
 import NotFound from "./pages/NotFound";
 import MacaronPage from "./pages/MacaronPage";
+import SamplesPage from "./pages/SamplesPage";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import FavoritesSlider from "./components/FavoritesSlider";
@@ -58,6 +59,7 @@ const AppContent = () => {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/macaron" element={<MacaronPage />} />
+          <Route path="/samples" element={<SamplesPage />} />
           <Route path="/payment-success" element={<PaymentSuccessPage />} />
           <Route 
             path="/admin" 
