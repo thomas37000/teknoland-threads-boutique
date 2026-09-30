@@ -19,19 +19,35 @@ interface VinylOption {
   groove?: string;
 }
 
-const VINYL_OPTIONS: VinylOption[] = [
+const SOLID_VINYLS: VinylOption[] = [
   { id: "noir", label: "Noir", base: "#0a0a0a", groove: "rgba(255,255,255,0.05)" },
   { id: "blanc", label: "Blanc", base: "#ececec", groove: "rgba(0,0,0,0.10)" },
   { id: "rouge", label: "Rouge", base: "#b3001b", groove: "rgba(0,0,0,0.20)" },
   { id: "bleu", label: "Bleu", base: "#0b3d91", groove: "rgba(0,0,0,0.22)" },
   { id: "orange", label: "Orange", base: "#e05e00", groove: "rgba(0,0,0,0.18)" },
+  { id: "vert", label: "Vert", base: "#15803d", groove: "rgba(0,0,0,0.20)" },
+  { id: "jaune", label: "Jaune", base: "#f2c500", groove: "rgba(0,0,0,0.18)" },
+  { id: "rose", label: "Rose", base: "#e75480", groove: "rgba(0,0,0,0.15)" },
+  { id: "or", label: "Or", base: "#c9a227", groove: "rgba(0,0,0,0.18)" },
+  { id: "gris", label: "Gris", base: "#8a8f96", groove: "rgba(0,0,0,0.18)" },
   { id: "transparent", label: "Transparent", base: "#cfd4da", groove: "rgba(255,255,255,0.45)" },
-  { id: "marbre-rouge", label: "Marbré rouge", marbled: true, swirl: ["#7a0010", "#c0203a", "#2b0008", "#d94a5a", "#8a0018"] },
-  { id: "marbre-bleu", label: "Marbré bleu", marbled: true, swirl: ["#062a6e", "#1a5cc8", "#0a1c40", "#4d7fd1", "#0b3d91"] },
-  { id: "marbre-violet", label: "Marbré violet", marbled: true, swirl: ["#3b0764", "#8b2fd6", "#c084fc", "#1e0a33", "#6b21a8"] },
-  { id: "marbre-vert", label: "Marbré vert", marbled: true, swirl: ["#052e16", "#15803d", "#4ade80", "#0a1f10", "#166534"] },
-  { id: "marbre-noir-blanc", label: "Marbré noir / blanc", marbled: true, swirl: ["#0a0a0a", "#e8e8e8", "#3a3a3a", "#f5f5f5", "#555555"] },
 ];
+
+/** Marbrés inspirés des pressages Vinylium (blanc-noir, rouge/noir, or-noir, etc.) */
+const MARBLED_VINYLS: VinylOption[] = [
+  { id: "marbre-blanc-noir", label: "Marbré blanc / noir", marbled: true, swirl: ["#e8e8e8", "#0a0a0a", "#f5f5f5", "#2a2a2a", "#d0d0d0"] },
+  { id: "marbre-rouge-noir", label: "Marbré rouge / noir", marbled: true, swirl: ["#b3001b", "#1a0004", "#d43a4a", "#40000a", "#8a0014"] },
+  { id: "marbre-orange-noir", label: "Marbré orange / noir", marbled: true, swirl: ["#e05e00", "#1c0d00", "#f28a33", "#3d1f00", "#c24d00"] },
+  { id: "marbre-bleu-pale-noir", label: "Marbré bleu pâle / noir", marbled: true, swirl: ["#9db8d9", "#0a0a0a", "#c9d9ee", "#1f2937", "#6e8bb5"] },
+  { id: "marbre-vert-noir", label: "Marbré vert / noir", marbled: true, swirl: ["#15803d", "#04140a", "#4ade80", "#0a2e18", "#166534"] },
+  { id: "marbre-blanc-rose", label: "Marbré blanc / rose", marbled: true, swirl: ["#f4f4f4", "#e75480", "#ffffff", "#c2185b", "#fce7ef"] },
+  { id: "marbre-or-noir", label: "Marbré or / noir", marbled: true, swirl: ["#c9a227", "#0a0a0a", "#e6c964", "#4a3a08", "#a3841a"] },
+  { id: "marbre-rose-jaune", label: "Marbré rose fluo / jaune", marbled: true, swirl: ["#ff2fa0", "#ffd400", "#ff7ac8", "#ffe873", "#d1006e"] },
+  { id: "marbre-transparent-noir-rouge", label: "Marbré transparent / noir / rouge", marbled: true, swirl: ["#cfd4da", "#0a0a0a", "#b3001b", "#8a8f96", "#6b0011"] },
+  { id: "marbre-multicolore", label: "Marbré multicolore", marbled: true, swirl: ["#cfd4da", "#1a5cc8", "#e75480", "#ffd400", "#8fb7e8"] },
+];
+
+const VINYL_OPTIONS: VinylOption[] = [...SOLID_VINYLS, ...MARBLED_VINYLS];
 
 const marbledSwatch = (swirl: string[]) =>
   `conic-gradient(from 45deg, ${swirl.join(", ")}, ${swirl[0]})`;
