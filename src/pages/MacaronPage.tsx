@@ -7,13 +7,62 @@ import { toast } from "sonner";
 
 const MAX_SIZE = 20 * 1024 * 1024;
 
+interface VinylOption {
+  id: string;
+  label: string;
+  marbled?: boolean;
+  /** Couleur unie */
+  base?: string;
+  /** Couleurs du marbrage (dégradé conique) */
+  swirl?: string[];
+  /** Couleur des sillons pour un vinyle uni */
+  groove?: string;
+}
+
+const VINYL_OPTIONS: VinylOption[] = [
+  { id: "noir", label: "Noir", base: "#0a0a0a", groove: "rgba(255,255,255,0.05)" },
+  { id: "blanc", label: "Blanc", base: "#ececec", groove: "rgba(0,0,0,0.10)" },
+  { id: "rouge", label: "Rouge", base: "#b3001b", groove: "rgba(0,0,0,0.20)" },
+  { id: "bleu", label: "Bleu", base: "#0b3d91", groove: "rgba(0,0,0,0.22)" },
+  { id: "orange", label: "Orange", base: "#e05e00", groove: "rgba(0,0,0,0.18)" },
+  { id: "transparent", label: "Transparent", base: "#cfd4da", groove: "rgba(255,255,255,0.45)" },
+  { id: "marbre-rouge", label: "Marbré rouge", marbled: true, swirl: ["#7a0010", "#c0203a", "#2b0008", "#d94a5a", "#8a0018"] },
+  { id: "marbre-bleu", label: "Marbré bleu", marbled: true, swirl: ["#062a6e", "#1a5cc8", "#0a1c40", "#4d7fd1", "#0b3d91"] },
+  { id: "marbre-violet", label: "Marbré violet", marbled: true, swirl: ["#3b0764", "#8b2fd6", "#c084fc", "#1e0a33", "#6b21a8"] },
+  { id: "marbre-vert", label: "Marbré vert", marbled: true, swirl: ["#052e16", "#15803d", "#4ade80", "#0a1f10", "#166534"] },
+  { id: "marbre-noir-blanc", label: "Marbré noir / blanc", marbled: true, swirl: ["#0a0a0a", "#e8e8e8", "#3a3a3a", "#f5f5f5", "#555555"] },
+];
+
+const marbledSwatch = (swirl: string[]) =>
+  `conic-gradient(from 45deg, ${swirl.join(", ")}, ${swirl[0]})`;
+
+/** Luminance approximative pour choisir une couleur de trou contrastée */
+const isLight = (hex: string) => {
+  const c = hex.replace("#", "");
+  if (c.length < 6) return false;
+  const r = parseInt(c.slice(0, 2), 16);
+  const g = parseInt(c.slice(2, 4), 16);
+  const b = parseInt(c.slice(4, 6), 16);
+  return 0.299 * r + 0.587 * g + 0.114 * b > 140;
+};
+
+const previewBackground = (option: VinylOption): string => {
+  if (option.marbled && option.swirl) {
+    return `repeating-radial-gradient(circle at center, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 3px, rgba(0,0,0,0.12) 4px, rgba(255,255,255,0.05) 5px), ${marbledSwatch(option.swirl)}`;
+  }
+  return `repeating-radial-gradient(circle at center, ${option.base} 0px, ${option.base} 3px, ${option.groove} 4px, ${option.base} 5px)`;
+};
+
 const MacaronPage = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [spinning, setSpinning] = useState(false);
   const [paused, setPaused] = useState(false);
   const [zoom, setZoom] = useState(100);
   const [dragOver, setDragOver] = useState(false);
+  const [vinylId, setVinylId] = useState("noir");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const vinyl = VINYL_OPTIONS.find((v) => v.id === vinylId) ?? VINYL_OPTIONS[0];
 
   useEffect(() => () => { if (imageUrl) URL.revokeObjectURL(imageUrl); }, [imageUrl]);
 
@@ -37,14 +86,39 @@ const MacaronPage = () => {
     c.width = c.height = size;
     const ctx = c.getContext("2d")!;
     const r = size / 2;
-    // disc
-    ctx.fillStyle = "#0a0a0a";
-    ctx.beginPath(); ctx.arc(r, r, r, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = "rgba(255,255,255,0.05)";
-    for (let i = r * 0.4; i < r * 0.97; i += 5) {
-      ctx.beginPath(); ctx.arc(r, r, i, 0, Math.PI * 2); ctx.stroke();
+
+    // disque : couleur unie ou marbrage
+    ctx.save();
+    ctx.beginPath(); ctx.arc(r, r, r, 0, Math.PI * 2); ctx.clip();
+    if (vinyl.marbled && vinyl.swirl) {
+      if (typeof (ctx as any).createConicGradient === "function") {
+        const g = (ctx as any).createConicGradient(0, r, r) as CanvasGradient;
+        const n = vinyl.swirl.length;
+        vinyl.swirl.forEach((col, i) => g.addColorStop(i / n, col));
+        g.addColorStop(1, vinyl.swirl[0]);
+        ctx.fillStyle = g;
+      } else {
+        // repli : ailes de papillon alternées
+        ctx.fillStyle = vinyl.swirl[0];
+      }
+      ctx.fillRect(0, 0, size, size);
+      // sillons translucides par-dessus le marbrage
+      for (let i = r * 0.4; i < r * 0.97; i += 5) {
+        ctx.beginPath(); ctx.arc(r, r, i, 0, Math.PI * 2);
+        ctx.strokeStyle = i % 10 === 0 ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.05)";
+        ctx.stroke();
+      }
+    } else {
+      ctx.fillStyle = vinyl.base!;
+      ctx.beginPath(); ctx.arc(r, r, r, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = vinyl.groove!;
+      for (let i = r * 0.4; i < r * 0.97; i += 5) {
+        ctx.beginPath(); ctx.arc(r, r, i, 0, Math.PI * 2); ctx.stroke();
+      }
     }
-    // label
+    ctx.restore();
+
+    // macaron
     const img = new Image();
     img.src = imageUrl;
     await img.decode();
@@ -56,11 +130,14 @@ const MacaronPage = () => {
     const w = img.width * scale, h = img.height * scale;
     ctx.drawImage(img, r - w / 2, r - h / 2, w, h);
     ctx.restore();
-    // hole
-    ctx.fillStyle = "#f5f5f5";
+
+    // trou central
+    const holeColor = vinyl.marbled || !isLight(vinyl.base!) ? "#f5f5f5" : "#333333";
+    ctx.fillStyle = holeColor;
     ctx.beginPath(); ctx.arc(r, r, r * 0.025, 0, Math.PI * 2); ctx.fill();
+
     const a = document.createElement("a");
-    a.download = "macaron-vinyle.png";
+    a.download = `macaron-vinyle-${vinyl.id}.png`;
     a.href = c.toDataURL("image/png");
     a.click();
   };
@@ -69,12 +146,12 @@ const MacaronPage = () => {
     <div className="tekno-container py-12">
       <Helmet>
         <title>Macaron vinyle – Visualisez votre label | Teknoland</title>
-        <meta name="description" content="Uploadez votre image et visualisez-la en macaron sur un vinyle noir." />
+        <meta name="description" content="Uploadez votre image et visualisez-la en macaron sur un vinyle noir, coloré ou marbré." />
       </Helmet>
 
       <h1 className="text-3xl font-bold mb-2">Macaron</h1>
       <p className="text-muted-foreground mb-8">
-        Uploadez votre image pour la voir en macaron au centre d'un vinyle.
+        Uploadez votre image pour la voir en macaron au centre d'un vinyle. Choisissez la couleur du vinyle, unie ou marbrée.
       </p>
 
       <div className="grid md:grid-cols-2 gap-10 items-center">
@@ -98,6 +175,34 @@ const MacaronPage = () => {
               className="hidden"
               onChange={(e) => { handleFile(e.target.files?.[0]); e.target.value = ""; }}
             />
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium mb-3">Couleur du vinyle</h3>
+            <div className="flex flex-wrap gap-2">
+              {VINYL_OPTIONS.map((option) => (
+                <button
+                  key={option.id}
+                  title={option.label}
+                  onClick={() => setVinylId(option.id)}
+                  className={`flex items-center gap-2 px-3 py-2 text-sm rounded-full border transition-colors ${
+                    vinylId === option.id
+                      ? "border-primary ring-1 ring-primary bg-muted"
+                      : "border-border hover:border-foreground/40"
+                  }`}
+                >
+                  <span
+                    className="w-5 h-5 rounded-full border border-border shrink-0"
+                    style={{
+                      background: option.marbled && option.swirl
+                        ? marbledSwatch(option.swirl)
+                        : option.base,
+                    }}
+                  />
+                  <span>{option.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {imageUrl && (
@@ -142,8 +247,7 @@ const MacaronPage = () => {
           <div
             className="relative w-full max-w-md aspect-square rounded-full shadow-2xl"
             style={{
-              background:
-                "repeating-radial-gradient(circle at center, #0a0a0a 0px, #0a0a0a 3px, #1a1a1a 4px, #0a0a0a 5px)",
+              background: previewBackground(vinyl),
               animation: spinning && imageUrl ? "spin 1.8s linear infinite" : "none",
               animationPlayState: paused ? "paused" : "running",
             }}
@@ -164,7 +268,10 @@ const MacaronPage = () => {
                 <span className="text-xs text-muted-foreground px-2 text-center">Votre image</span>
               )}
             </div>
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[2.5%] h-[2.5%] rounded-full bg-background" />
+            <div
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[2.5%] h-[2.5%] rounded-full"
+              style={{ background: vinyl.marbled || !isLight(vinyl.base!) ? "hsl(var(--background))" : "#333333" }}
+            />
           </div>
         </div>
       </div>
