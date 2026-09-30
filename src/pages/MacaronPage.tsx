@@ -204,31 +204,82 @@ const MacaronPage = () => {
             />
           </div>
 
-          <div>
-            <h3 className="text-sm font-medium mb-3">Couleur du vinyle</h3>
-            <div className="flex flex-wrap gap-2">
-              {VINYL_OPTIONS.map((option) => (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-medium mb-3">Couleurs unies</h3>
+              <div className="flex flex-wrap gap-2">
+                {SOLID_VINYLS.map((option) => (
+                  <button
+                    key={option.id}
+                    title={option.label}
+                    onClick={() => setVinylId(option.id)}
+                    className={`flex items-center gap-2 px-3 py-2 text-sm rounded-full border transition-colors ${
+                      vinylId === option.id
+                        ? "border-primary ring-1 ring-primary bg-muted"
+                        : "border-border hover:border-foreground/40"
+                    }`}
+                  >
+                    <span
+                      className="w-5 h-5 rounded-full border border-border shrink-0"
+                      style={{ background: option.base }}
+                    />
+                    <span>{option.label}</span>
+                  </button>
+                ))}
                 <button
-                  key={option.id}
-                  title={option.label}
-                  onClick={() => setVinylId(option.id)}
+                  onClick={() => colorInputRef.current?.click()}
                   className={`flex items-center gap-2 px-3 py-2 text-sm rounded-full border transition-colors ${
-                    vinylId === option.id
+                    vinylId === "perso"
                       ? "border-primary ring-1 ring-primary bg-muted"
                       : "border-border hover:border-foreground/40"
                   }`}
                 >
                   <span
-                    className="w-5 h-5 rounded-full border border-border shrink-0"
+                    className="w-5 h-5 rounded-full border-2 border-border shrink-0"
                     style={{
-                      background: option.marbled && option.swirl
-                        ? marbledSwatch(option.swirl)
-                        : option.base,
+                      background: vinylId === "perso"
+                        ? customColor
+                        : "conic-gradient(#ef4444, #f59e0b, #22c55e, #06b6d4, #3b82f6, #a855f7, #ef4444)",
                     }}
                   />
-                  <span>{option.label}</span>
+                  <span>
+                    Personnalisée{vinylId === "perso" ? ` · ${customColor.toUpperCase()}` : ""}
+                  </span>
+                  <input
+                    ref={colorInputRef}
+                    type="color"
+                    value={customColor}
+                    onChange={(e) => { setCustomColor(e.target.value); setVinylId("perso"); }}
+                    className="sr-only"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                  />
                 </button>
-              ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-medium mb-3">Marbrés</h3>
+              <div className="flex flex-wrap gap-2">
+                {MARBLED_VINYLS.map((option) => (
+                  <button
+                    key={option.id}
+                    title={option.label}
+                    onClick={() => setVinylId(option.id)}
+                    className={`flex items-center gap-2 px-3 py-2 text-sm rounded-full border transition-colors ${
+                      vinylId === option.id
+                        ? "border-primary ring-1 ring-primary bg-muted"
+                        : "border-border hover:border-foreground/40"
+                    }`}
+                  >
+                    <span
+                      className="w-5 h-5 rounded-full border border-border shrink-0"
+                      style={{ background: option.swirl ? marbledSwatch(option.swirl) : undefined }}
+                    />
+                    <span>{option.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
