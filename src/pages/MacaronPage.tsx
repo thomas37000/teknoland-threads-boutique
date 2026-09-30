@@ -295,6 +295,30 @@ const MacaronPage = () => {
                 ))}
               </div>
             </div>
+
+            <div>
+              <h3 className="text-sm font-medium mb-3">Couleurs éclatées</h3>
+              <div className="flex flex-wrap gap-2">
+                {ECLAT_VINYLS.map((option) => (
+                  <button
+                    key={option.id}
+                    title={option.label}
+                    onClick={() => setVinylId(option.id)}
+                    className={`flex items-center gap-2 px-3 py-2 text-sm rounded-full border transition-colors ${
+                      vinylId === option.id
+                        ? "border-primary ring-1 ring-primary bg-muted"
+                        : "border-border hover:border-foreground/40"
+                    }`}
+                  >
+                    <span
+                      className="w-5 h-5 rounded-full border border-border shrink-0"
+                      style={{ background: option.swirl ? marbledSwatch(option.swirl) : undefined }}
+                    />
+                    <span>{option.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {imageUrl && (
