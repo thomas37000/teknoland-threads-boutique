@@ -76,9 +76,20 @@ const MacaronPage = () => {
   const [zoom, setZoom] = useState(100);
   const [dragOver, setDragOver] = useState(false);
   const [vinylId, setVinylId] = useState("noir");
+  const [customColor, setCustomColor] = useState("#b3001b");
   const inputRef = useRef<HTMLInputElement>(null);
+  const colorInputRef = useRef<HTMLInputElement>(null);
 
-  const vinyl = VINYL_OPTIONS.find((v) => v.id === vinylId) ?? VINYL_OPTIONS[0];
+  const customVinyl: VinylOption = {
+    id: "perso",
+    label: "Personnalisée",
+    base: customColor,
+    groove: isLight(customColor) ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.12)",
+  };
+  const vinyl =
+    vinylId === "perso"
+      ? customVinyl
+      : VINYL_OPTIONS.find((v) => v.id === vinylId) ?? SOLID_VINYLS[0];
 
   useEffect(() => () => { if (imageUrl) URL.revokeObjectURL(imageUrl); }, [imageUrl]);
 
