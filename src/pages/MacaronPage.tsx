@@ -164,7 +164,7 @@ const MacaronPage = () => {
     ctx.beginPath(); ctx.arc(r, r, r * 0.025, 0, Math.PI * 2); ctx.fill();
 
     const a = document.createElement("a");
-    a.download = `macaron-vinyle-${vinyl.id}.png`;
+    a.download = `macaron-vinyle-${vinyl.id === "perso" ? `perso-${customColor.replace("#", "")}` : vinyl.id}.png`;
     a.href = c.toDataURL("image/png");
     a.click();
   };
