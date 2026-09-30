@@ -47,7 +47,21 @@ const MARBLED_VINYLS: VinylOption[] = [
   { id: "marbre-multicolore", label: "Marbré multicolore", marbled: true, swirl: ["#cfd4da", "#1a5cc8", "#e75480", "#ffd400", "#8fb7e8"] },
 ];
 
-const VINYL_OPTIONS: VinylOption[] = [...SOLID_VINYLS, ...MARBLED_VINYLS];
+/** Couleurs éclatées : pressages très saturés, néon et multicolores flashy */
+const ECLAT_VINYLS: VinylOption[] = [
+  { id: "eclat-rose-fluo-jaune", label: "Éclaté rose fluo / jaune", marbled: true, swirl: ["#ff1493", "#ffee00", "#ff5cc8", "#fff176", "#d6006e"] },
+  { id: "eclat-cyan-magenta", label: "Éclaté cyan / magenta", marbled: true, swirl: ["#00e5ff", "#ff00d4", "#66f0ff", "#ff6ae8", "#0077ff"] },
+  { id: "eclat-neon-vert", label: "Éclaté vert néon / cyan", marbled: true, swirl: ["#39ff14", "#00e5ff", "#a4ff3f", "#00ffc8", "#1fbf00"] },
+  { id: "eclat-orange-rose", label: "Éclaté orange / rose fluo", marbled: true, swirl: ["#ff6a00", "#ff007a", "#ffc400", "#ff4fa0", "#ff2d00"] },
+  { id: "eclat-violet-turquoise", label: "Éclaté violet / turquoise", marbled: true, swirl: ["#8a2be2", "#00ffd0", "#c46bff", "#00cfff", "#5e00b8"] },
+  { id: "eclat-arc-en-ciel", label: "Éclaté arc-en-ciel", marbled: true, swirl: ["#ff0000", "#ff9900", "#ffee00", "#22cc44", "#0099ff", "#8800ff"] },
+  { id: "eclat-jaune-cyan", label: "Éclaté jaune vif / cyan", marbled: true, swirl: ["#ffee00", "#00cfff", "#fff9a0", "#00ffe0", "#ffd000"] },
+  { id: "eclat-rouge-fluo-blanc", label: "Éclaté rouge fluo / blanc", marbled: true, swirl: ["#ff0033", "#ffffff", "#ff5c7a", "#ffd9df", "#e00020"] },
+  { id: "eclat-lime-violet", label: "Éclaté lime / violet", marbled: true, swirl: ["#c8ff00", "#7a00ff", "#eaff6a", "#b44dff", "#8fdd00"] },
+  { id: "eclat-multicolore-fluo", label: "Éclaté multicolore fluo", marbled: true, swirl: ["#ff1493", "#39ff14", "#00e5ff", "#ffee00", "#8a2be2", "#ff6a00"] },
+];
+
+const VINYL_OPTIONS: VinylOption[] = [...SOLID_VINYLS, ...MARBLED_VINYLS, ...ECLAT_VINYLS];
 
 const marbledSwatch = (swirl: string[]) =>
   `conic-gradient(from 45deg, ${swirl.join(", ")}, ${swirl[0]})`;
@@ -262,6 +276,30 @@ const MacaronPage = () => {
               <h3 className="text-sm font-medium mb-3">Marbrés</h3>
               <div className="flex flex-wrap gap-2">
                 {MARBLED_VINYLS.map((option) => (
+                  <button
+                    key={option.id}
+                    title={option.label}
+                    onClick={() => setVinylId(option.id)}
+                    className={`flex items-center gap-2 px-3 py-2 text-sm rounded-full border transition-colors ${
+                      vinylId === option.id
+                        ? "border-primary ring-1 ring-primary bg-muted"
+                        : "border-border hover:border-foreground/40"
+                    }`}
+                  >
+                    <span
+                      className="w-5 h-5 rounded-full border border-border shrink-0"
+                      style={{ background: option.swirl ? marbledSwatch(option.swirl) : undefined }}
+                    />
+                    <span>{option.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-medium mb-3">Couleurs éclatées</h3>
+              <div className="flex flex-wrap gap-2">
+                {ECLAT_VINYLS.map((option) => (
                   <button
                     key={option.id}
                     title={option.label}
