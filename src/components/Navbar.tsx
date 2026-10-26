@@ -75,6 +75,9 @@ const Navbar = () => {
           <Link to="/contact" className="font-medium hover:text-tekno-blue transition-colors">
             {t('nav.contact')}
           </Link>
+           <Link to="/blog" className="font-medium hover:text-tekno-blue transition-colors">
+            Blog
+          </Link>
         </nav>
 
         {/* Language Selector, Cart and Profile Buttons */}
@@ -155,6 +158,13 @@ const Navbar = () => {
               onClick={toggleMenu}
             >
               {t('nav.contact')}
+            </Link>
+             <Link
+              to="/blog"
+              className="py-3 border-b font-medium"
+              onClick={toggleMenu}
+            >
+              Blog
             </Link>
 
             {isAdmin && (
