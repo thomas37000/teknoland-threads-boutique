@@ -77,10 +77,8 @@ const isLight = (hex: string) => {
 };
 
 const previewBackground = (option: VinylOption): string => {
-  if (option.marbled && option.swirl) {
-    return `repeating-radial-gradient(circle at center, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 3px, rgba(0,0,0,0.12) 4px, rgba(255,255,255,0.05) 5px), ${marbledSwatch(option.swirl)}`;
-  }
-  return `repeating-radial-gradient(circle at center, ${option.base} 0px, ${option.base} 3px, ${option.groove} 4px, ${option.base} 5px)`;
+  if (option.marbled && option.swirl) return marbledSwatch(option.swirl);
+  return option.base!;
 };
 
 const MacaronPage = () => {
@@ -143,19 +141,9 @@ const MacaronPage = () => {
         ctx.fillStyle = vinyl.swirl[0];
       }
       ctx.fillRect(0, 0, size, size);
-      // sillons translucides par-dessus le marbrage
-      for (let i = r * 0.4; i < r * 0.97; i += 5) {
-        ctx.beginPath(); ctx.arc(r, r, i, 0, Math.PI * 2);
-        ctx.strokeStyle = i % 10 === 0 ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.05)";
-        ctx.stroke();
-      }
     } else {
       ctx.fillStyle = vinyl.base!;
       ctx.beginPath(); ctx.arc(r, r, r, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = vinyl.groove!;
-      for (let i = r * 0.4; i < r * 0.97; i += 5) {
-        ctx.beginPath(); ctx.arc(r, r, i, 0, Math.PI * 2); ctx.stroke();
-      }
     }
     ctx.restore();
 
