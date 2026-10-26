@@ -1,4 +1,4 @@
-import { Package, Users, Tag, Filter, Mail, Heart, Calculator, Image, Music, Disc3, Cloud, Truck, Database, DatabaseBackup, HardDrive, Cat, Star } from "lucide-react";
+import { Package, Users, Tag, Filter, Mail, Heart, Calculator, Image, Music, Disc3, Cloud, Truck, Database, DatabaseBackup, HardDrive, Cat, Star, Text } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useDiscogsUnseen } from "@/hooks/useDiscogs";
@@ -50,6 +50,7 @@ const apiMenuItems: MenuItem[]= [
   { value: "distribution", label: "Distribution", icon: Truck, href: "/distribution" },
   { value: "lovable", label: "Lovable", icon: Heart },
   { value: "soundcloud", label: "SoundCloud", icon: Cloud },
+  { value: "blog", label: "Blog", icon: Text, href: "/blog" },
 ];
 
 const linksMenuItems: MenuItem[] = [
