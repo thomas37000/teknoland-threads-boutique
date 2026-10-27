@@ -25,17 +25,19 @@ const PostEditor = ({ post, onSaved, onCancel }: Props) => {
   const [tags, setTags] = useState((post?.tags || []).join(", "));
   const [published, setPublished] = useState(post?.status === "published");
   const [mode, setMode] = useState<EditorMode>(post?.editor_mode || "blocks");
-  const [blocks, setBlocks] = useState<Block[]>(post?.editor_mode === "blocks" && Array.isArray(post?.content) ? post!.content : []);
+  const [blocks, setBlocks] = useState<Block[]>(post?.editor_mode === "blocks" && Array.isArray(post.content) ? post.content : []);
   const [html, setHtml] = useState<string>(post?.editor_mode === "rich" ? post?.content?.html || "" : "");
   const [picker, setPicker] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const save = async () => {
     if (!title.trim()) return toast.error("Le titre est obligatoire");
+    const normalizedSlug = slugify(slug.trim() || title);
+    if (!normalizedSlug) return toast.error("Renseignez une adresse contenant des lettres ou des chiffres");
     setSaving(true);
     const payload = {
       title: title.trim(),
-      slug: slugify(slug || title),
+      slug: normalizedSlug,
       excerpt: excerpt || null,
       cover_image: cover || null,
       category: category.trim() || null,
@@ -59,26 +61,26 @@ const PostEditor = ({ post, onSaved, onCancel }: Props) => {
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label>Titre</Label>
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+          <Label htmlFor="post-title">Titre</Label>
+          <Input id="post-title" value={title} onChange={(e) => setTitle(e.target.value)} />
         </div>
         <div className="space-y-2">
-          <Label>Adresse (slug)</Label>
-          <Input value={slug} placeholder={slugify(title)} onChange={(e) => setSlug(e.target.value)} />
+          <Label htmlFor="post-slug">Adresse (slug)</Label>
+          <Input id="post-slug" value={slug} placeholder={slugify(title)} onChange={(e) => setSlug(e.target.value)} />
         </div>
         <div className="space-y-2">
-          <Label>Catégorie</Label>
-          <Input value={category} placeholder="Actu, Sorties, Interviews…" onChange={(e) => setCategory(e.target.value)} />
+          <Label htmlFor="post-category">Catégorie</Label>
+          <Input id="post-category" value={category} placeholder="Actu, Sorties, Interviews…" onChange={(e) => setCategory(e.target.value)} />
         </div>
         <div className="space-y-2">
-          <Label>Tags (séparés par des virgules)</Label>
-          <Input value={tags} onChange={(e) => setTags(e.target.value)} />
+          <Label htmlFor="post-tags">Tags (séparés par des virgules)</Label>
+          <Input id="post-tags" value={tags} onChange={(e) => setTags(e.target.value)} />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label>Extrait</Label>
-        <Textarea value={excerpt} rows={2} onChange={(e) => setExcerpt(e.target.value)} />
+        <Label htmlFor="post-excerpt">Extrait</Label>
+        <Textarea id="post-excerpt" value={excerpt} rows={2} onChange={(e) => setExcerpt(e.target.value)} />
       </div>
 
       <div className="space-y-2">
@@ -107,7 +109,7 @@ const PostEditor = ({ post, onSaved, onCancel }: Props) => {
 
       <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-4">
         <label className="flex items-center gap-2 text-sm">
-          <Switch checked={published} onCheckedChange={setPublished} />
+          <Switch aria-label="Publier l'article" checked={published} onCheckedChange={setPublished} />
           {published ? "Publié" : "Brouillon"}
         </label>
         <div className="flex gap-2">
