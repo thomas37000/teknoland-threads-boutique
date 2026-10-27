@@ -56,13 +56,13 @@ const BlogPostPage = () => {
         <title>{post.title} | Blog Teknoland</title>
         {post.excerpt && <meta name="description" content={post.excerpt} />}
       </Helmet>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <Link to="/blog" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Blog</Link>
         {isAdmin && !editing && <Button variant="outline" onClick={() => setEditing(true)}><Pencil className="mr-1 h-4 w-4" /> Modifier sur la page</Button>}
       </div>
 
-      {editing ? (
-        <div className="rounded-xl border border-border bg-card p-6">
+      {isAdmin && editing ? (
+        <div className="border-y border-border py-6">
           <PostEditor
             post={post}
             onCancel={() => setEditing(false)}
@@ -76,7 +76,7 @@ const BlogPostPage = () => {
             {post.category && <span className="font-semibold uppercase">{post.category}</span>}
             {post.published_at && <span>{new Date(post.published_at).toLocaleDateString("fr-FR", { dateStyle: "long" })}</span>}
           </div>
-          <h1 className="mb-6 text-4xl font-bold md:text-5xl">{post.title}</h1>
+          <h1 className="mb-6 break-words text-4xl font-bold md:text-5xl">{post.title}</h1>
           {post.cover_image && <img src={post.cover_image} alt={post.title} className="mb-8 w-full rounded-xl" />}
           <BlockRenderer mode={post.editor_mode} content={post.content} />
           {post.tags?.length > 0 && (
@@ -95,8 +95,8 @@ const BlogPostPage = () => {
                 ))}
               </div>
               <form onSubmit={sendComment} className="space-y-3">
-                <Input placeholder="Votre nom" value={name} maxLength={80} onChange={(e) => setName(e.target.value)} required />
-                <Textarea placeholder="Votre commentaire" value={message} maxLength={2000} rows={4} onChange={(e) => setMessage(e.target.value)} required />
+                <Input aria-label="Votre nom" placeholder="Votre nom" value={name} maxLength={80} onChange={(e) => setName(e.target.value)} required />
+                <Textarea aria-label="Votre commentaire" placeholder="Votre commentaire" value={message} maxLength={2000} rows={4} onChange={(e) => setMessage(e.target.value)} required />
                 <Button type="submit" disabled={sending}>{sending ? "Envoi…" : "Publier le commentaire"}</Button>
               </form>
             </section>

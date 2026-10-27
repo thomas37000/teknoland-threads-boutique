@@ -29,6 +29,7 @@ const staticEntries: SitemapEntry[] = [
   { path: "/shop", changefreq: "daily", priority: "0.9" },
   { path: "/about", changefreq: "monthly", priority: "0.6" },
   { path: "/contact", changefreq: "monthly", priority: "0.6" },
+  { path: "/blog", changefreq: "weekly", priority: "0.7" },
 ];
 
 function xml(entries: SitemapEntry[]) {
@@ -72,6 +73,18 @@ async function main() {
         path: `/shop/${c.slug}`,
         changefreq: "daily",
         priority: "0.8",
+      });
+    }
+
+    const { data: posts, error: blogErr } = await supabase
+      .from("blog_posts").select("slug, updated_at").eq("status", "published");
+    if (blogErr) console.warn("sitemap blog error:", blogErr);
+    for (const post of posts ?? []) {
+      entries.push({
+        path: `/blog/${encodeURIComponent(post.slug)}`,
+        lastmod: new Date(post.updated_at).toISOString().split("T")[0],
+        changefreq: "weekly",
+        priority: "0.7",
       });
     }
 

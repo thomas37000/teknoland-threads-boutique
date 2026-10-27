@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Plus } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
@@ -18,7 +19,10 @@ const BlogPage = () => {
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
-    blogDb.from("blog_posts").select("*").order("published_at", { ascending: false, nullsFirst: true }).then(({ data }: any) => {
+    let query = blogDb.from("blog_posts").select("*").order("published_at", { ascending: false, nullsFirst: false });
+    if (!isAdmin) query = query.eq("status", "published");
+    query.then(({ data, error }: any) => {
+      if (error) toast.error("Impossible de charger les articles");
       setPosts(data || []);
       setLoading(false);
     });
@@ -38,8 +42,8 @@ const BlogPage = () => {
         {isAdmin && !creating && <Button onClick={() => setCreating(true)}><Plus className="mr-1 h-4 w-4" /> Nouvel article</Button>}
       </div>
 
-      {creating && (
-        <div className="mb-10 rounded-xl border border-border bg-card p-6">
+      {isAdmin && creating && (
+        <div className="mb-10 border-y border-border py-6">
           <PostEditor onSaved={(p) => navigate(`/blog/${p.slug}`)} onCancel={() => setCreating(false)} />
         </div>
       )}
@@ -61,7 +65,7 @@ const BlogPage = () => {
       ) : (
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
-            <article key={p.id} className="overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-lg">
+            <article key={p.id} className="overflow-hidden rounded-lg border border-border bg-card">
               <Link to={`/blog/${p.slug}`}>
                 <div className="aspect-video bg-muted">
                   {p.cover_image && <img src={p.cover_image} alt={p.title} loading="lazy" className="h-full w-full object-cover" />}

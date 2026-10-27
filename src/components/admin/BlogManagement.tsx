@@ -14,12 +14,13 @@ const BlogManagement = () => {
   const [editing, setEditing] = useState<BlogPost | null | "new">(null);
 
   const load = async () => {
-    const [{ data: p }, { data: c }] = await Promise.all([
+    const [{ data: p, error: postError }, { data: c, error: commentError }] = await Promise.all([
       blogDb.from("blog_posts").select("*").order("created_at", { ascending: false }),
       blogDb.from("blog_comments").select("*, blog_posts(title)").order("created_at", { ascending: false }),
     ]);
-    setPosts(p || []);
-    setComments(c || []);
+    if (postError || commentError) toast.error("Impossible de charger le blog");
+    if (!postError) setPosts(p || []);
+    if (!commentError) setComments(c || []);
   };
   useEffect(() => { load(); }, []);
 
@@ -30,14 +31,24 @@ const BlogManagement = () => {
     toast.success("Article supprimé");
     load();
   };
-  const approve = async (id: string) => { await blogDb.from("blog_comments").update({ approved: true }).eq("id", id); load(); };
-  const removeComment = async (id: string) => { await blogDb.from("blog_comments").delete().eq("id", id); load(); };
+  const approve = async (id: string) => {
+    const { error } = await blogDb.from("blog_comments").update({ approved: true }).eq("id", id);
+    if (error) return toast.error("Impossible de valider le commentaire");
+    toast.success("Commentaire validé");
+    load();
+  };
+  const removeComment = async (id: string) => {
+    if (!confirm("Supprimer ce commentaire ?")) return;
+    const { error } = await blogDb.from("blog_comments").delete().eq("id", id);
+    if (error) return toast.error("Impossible de supprimer le commentaire");
+    load();
+  };
 
   const pending = comments.filter((c) => !c.approved).length;
 
   if (editing) {
     return (
-      <div className="rounded-xl border border-border bg-card p-6">
+      <div className="border-y border-border py-6">
         <h2 className="mb-4 text-2xl font-bold">{editing === "new" ? "Nouvel article" : "Modifier l'article"}</h2>
         <PostEditor post={editing === "new" ? null : editing} onCancel={() => setEditing(null)} onSaved={() => { setEditing(null); load(); }} />
       </div>
@@ -57,7 +68,7 @@ const BlogManagement = () => {
       <TabsContent value="posts" className="space-y-2">
         {posts.length === 0 && <p className="text-muted-foreground">Aucun article.</p>}
         {posts.map((p) => (
-          <div key={p.id} className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
+          <div key={p.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-3">
             {p.cover_image ? <img src={p.cover_image} alt="" className="h-12 w-20 rounded object-cover" /> : <div className="h-12 w-20 rounded bg-muted" />}
             <div className="min-w-0 flex-1">
               <p className="truncate font-semibold">{p.title}</p>
@@ -80,7 +91,7 @@ const BlogManagement = () => {
               <p className="mt-1 whitespace-pre-line text-sm">{c.content}</p>
             </div>
             {!c.approved && <Button size="sm" onClick={() => approve(c.id)}><Check className="mr-1 h-4 w-4" /> Valider</Button>}
-            <Button variant="ghost" size="icon" className="text-destructive" onClick={() => removeComment(c.id)}><Trash2 className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" title="Supprimer le commentaire" className="text-destructive" onClick={() => removeComment(c.id)}><Trash2 className="h-4 w-4" /></Button>
           </div>
         ))}
       </TabsContent>

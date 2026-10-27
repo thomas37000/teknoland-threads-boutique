@@ -39,6 +39,7 @@ const dashboardMenuItems: MenuItem[] = [
   { value: "filters", label: "Filtres", icon: Filter },
   { value: "idees", label: "Idées", icon: Users },
   { value: "images", label: "Images", icon: Image },
+  { value: "blog", label: "Blog", icon: Text },
   { value: "moni", label: "Moni", icon: Calculator },
   { value: "products", label: "Produits", icon: Package, badge: "newProductsCount" },
 ];
@@ -50,7 +51,6 @@ const apiMenuItems: MenuItem[]= [
   { value: "distribution", label: "Distribution", icon: Truck, href: "/distribution" },
   { value: "lovable", label: "Lovable", icon: Heart },
   { value: "soundcloud", label: "SoundCloud", icon: Cloud },
-  { value: "blog", label: "Blog", icon: Text, href: "/blog" },
 ];
 
 const linksMenuItems: MenuItem[] = [

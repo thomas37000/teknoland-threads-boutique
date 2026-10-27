@@ -29,6 +29,7 @@ import NotFound from "./pages/NotFound";
 import MacaronPage from "./pages/MacaronPage";
 import SamplesPage from "./pages/SamplesPage";
 import BlogPage from "./pages/BlogPage";
+import BlogPostPage from "./pages/BlogPostPage";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import FavoritesSlider from "./components/FavoritesSlider";
@@ -62,6 +63,7 @@ const AppContent = () => {
           <Route path="/macaron" element={<MacaronPage />} />
           <Route path="/samples" element={<SamplesPage />} />
           <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/payment-success" element={<PaymentSuccessPage />} />
           <Route 
             path="/admin" 

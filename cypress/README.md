@@ -300,6 +300,23 @@ cy.contains("Produit Test").should("be.visible");
 
 ## 📚 Ressources
 
+## Blog : écrire et maintenir les tests
+
+- `e2e/blog.cy.ts` : visiteur, lecture d'un article et envoi d'un commentaire en attente de validation.
+- `component/BlogEditor.cy.tsx` : brouillon par défaut, publication, modification, adresse déjà utilisée, nettoyage du HTML et validation admin d'un commentaire.
+- `fixtures/blog-post.json` : article fictif à adapter pour vos scénarios.
+
+Avec le site déjà démarré :
+
+```bash
+npm run cy:run -- --spec cypress/e2e/blog.cy.ts
+npm run cy:run:component -- --spec cypress/component/BlogEditor.cy.tsx
+```
+
+Toutes les lectures et écritures du Blog sont simulées avec `cy.intercept` : ces tests ne créent aucun article réel. Pour ajouter un cas, copiez un test puis changez la réponse simulée et l'assertion sur `request.body`. Une erreur peut être simulée avec `statusCode: 403` ou `409`. Les champs de l'éditeur ont des identifiants stables (`#post-title`, `#post-slug`, `#post-category`, `#post-tags`, `#post-excerpt`).
+
+Ces tests vérifient l'interface, pas les autorisations Supabase : un contrôle réel de publication nécessite une session admin et un contrôle avec un compte non-admin. Ne remplacez pas ces contrôles par `loginAsMockUser`.
+
 - [Documentation Cypress](https://docs.cypress.io/)
 - [Best practices](https://docs.cypress.io/guides/references/best-practices)
 - [Component testing React](https://docs.cypress.io/guides/component-testing/react/overview)

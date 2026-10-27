@@ -18,6 +18,7 @@ import SoundCloudManagement from "@/components/admin/SoundCloudManagement";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import ApiAirtableManagement from "@/components/admin/ApiAirtableManagement";
+import BlogManagement from "@/components/admin/BlogManagement";
 
 const AdminPage = () => {
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
@@ -105,6 +106,7 @@ const AdminPage = () => {
             {activeTab === "artistes" && <AirtableManagement />}
             {activeTab === "discogs" && <DiscogsManagement />}
             {activeTab === "soundcloud" && <SoundCloudManagement />}
+            {activeTab === "blog" && <BlogManagement />}
           </div>
         </main>
       </div>

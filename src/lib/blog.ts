@@ -1,4 +1,4 @@
-// import DOMPurify from "dompurify";
+import DOMPurify from "dompurify";
 import { supabase } from "@/integrations/supabase/client";
 
 // Blog tables are accessed through an untyped handle so the module stays independent of generated types.
