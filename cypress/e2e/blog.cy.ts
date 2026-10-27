@@ -1,4 +1,4 @@
-import post from "../fixtures/blog-post.json";
+import * as post from "../fixtures/blog-post.json";
 
 describe("Blog : parcours visiteur (requêtes simulées)", () => {
   beforeEach(() => {
