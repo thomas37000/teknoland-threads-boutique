@@ -49,7 +49,7 @@ const BlockFields = ({ block, update }: { block: Block; update: (data: Record<st
           <Input placeholder="Description (alt)" value={d.alt} onChange={(e) => update({ alt: e.target.value })} />
           <Input placeholder="Légende" value={d.caption} onChange={(e) => update({ caption: e.target.value })} />
           {d.url && <img src={d.url} alt="" className="max-h-40 rounded" />}
-          <StorageImagePicker open={picker} onClose={() => setPicker(false)} onSelect={(url) => { update({ url }); setPicker(false); }} />
+          <StorageImagePicker preferredBucket="blog" open={picker} onClose={() => setPicker(false)} onSelect={(url) => { update({ url }); setPicker(false); }} />
         </div>
       );
     case "video":
