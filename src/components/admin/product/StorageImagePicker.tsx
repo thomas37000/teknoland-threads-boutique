@@ -19,6 +19,7 @@ interface StorageImagePickerProps {
   onSelect: (url: string) => void;
   multiple?: boolean;
   onSelectMultiple?: (urls: string[]) => void;
+  preferredBucket?: string;
 }
 
 
@@ -37,6 +38,7 @@ const StorageImagePicker: React.FC<StorageImagePickerProps> = ({
   onSelect,
   multiple = false,
   onSelectMultiple,
+  preferredBucket,
 }) => {
   const { buckets: BUCKETS } = useBuckets();
   const [images, setImages] = useState<Record<string, StorageImage[]>>({});
@@ -46,9 +48,9 @@ const StorageImagePicker: React.FC<StorageImagePickerProps> = ({
 
   useEffect(() => {
     if (BUCKETS.length > 0 && !activeBucket) {
-      setActiveBucket(BUCKETS[0]);
+      setActiveBucket(preferredBucket && BUCKETS.includes(preferredBucket) ? preferredBucket : BUCKETS[0]);
     }
-  }, [BUCKETS, activeBucket]);
+  }, [BUCKETS, activeBucket, preferredBucket]);
 
   useEffect(() => {
     if (open && BUCKETS.length > 0) {
@@ -110,7 +112,7 @@ const StorageImagePicker: React.FC<StorageImagePickerProps> = ({
         </DialogHeader>
 
         <Tabs value={activeBucket} onValueChange={setActiveBucket}>
-          <TabsList>
+          <TabsList className="h-auto flex-wrap justify-start">
             {BUCKETS.map((b) => (
               <TabsTrigger key={b} value={b}>
                 {b}
@@ -132,11 +134,13 @@ const StorageImagePicker: React.FC<StorageImagePickerProps> = ({
                     {images[bucket].map((img) => {
                       const isSelected = selectedUrls.includes(img.url);
                       return (
-                        <button
+                        <Button
                           key={img.name}
                           type="button"
+                          variant="ghost"
+                          aria-label={`Choisir ${img.name}`}
                           onClick={() => toggleSelect(img.url)}
-                          className={`relative group rounded-md overflow-hidden border-2 transition-all ${
+                          className={`relative group h-auto min-w-0 flex-col items-stretch p-0 rounded-md overflow-hidden border-2 transition-all ${
                             isSelected
                               ? "border-primary ring-2 ring-primary/30"
                               : "border-transparent hover:border-muted-foreground/30"
@@ -163,7 +167,7 @@ const StorageImagePicker: React.FC<StorageImagePickerProps> = ({
                               {formatFileSize(img.size)}
                             </Badge>
                           </div>
-                        </button>
+                        </Button>
                       );
                     })}
                   </div>

@@ -91,7 +91,7 @@ const PostEditor = ({ post, onSaved, onCancel }: Props) => {
           <Button type="button" variant="outline" onClick={() => setPicker(true)}>Choisir</Button>
         </div>
         {cover && <img src={cover} alt="" className="max-h-48 rounded-lg" />}
-        <StorageImagePicker open={picker} onClose={() => setPicker(false)} onSelect={(url) => { setCover(url); setPicker(false); }} />
+        <StorageImagePicker preferredBucket="blog" open={picker} onClose={() => setPicker(false)} onSelect={(url) => { setCover(url); setPicker(false); }} />
       </div>
 
       <div className="space-y-3">

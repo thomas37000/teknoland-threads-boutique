@@ -189,7 +189,7 @@ const AllBucketsGallery = () => {
       <CardContent>
         <Tabs value={activeBucket} onValueChange={(v) => { setActiveBucket(v); setSearchQuery(""); }}>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
-            <TabsList className="flex-wrap">
+            <TabsList className="h-auto flex-wrap justify-start">
               {BUCKETS.map((b) => (
                 <TabsTrigger key={b} value={b} className="capitalize">
                   {b}
