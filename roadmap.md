@@ -4,3 +4,4 @@
 - [x] Page Samples : générer des samples audio WAV à partir d'un texte (synthèse navigateur), puis les télécharger
 - [ ] Blog : terminer les accès publics et la gestion admin
 - [ ] Blog : vérifier création, publication, édition et commentaires avec tests Cypress
+- [ ] Blog : créer le bucket blog, accessible dans Images admin et dans l’éditeur avec les autres buckets

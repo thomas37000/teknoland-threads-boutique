@@ -21,6 +21,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://teknoland-threads-boutique.lovable.app/blog</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://teknoland-threads-boutique.lovable.app/shop/t-shirts</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
@@ -39,6 +44,12 @@
     <loc>https://teknoland-threads-boutique.lovable.app/shop/stickers</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://teknoland-threads-boutique.lovable.app/blog/doomland-3-pour-2027</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://teknoland-threads-boutique.lovable.app/product/t-shirts/table-de-mixage</loc>
