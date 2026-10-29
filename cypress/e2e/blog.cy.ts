@@ -69,7 +69,7 @@ describe("Blog : pagination de la liste (8 articles par page)", () => {
     cy.get("article").should("have.length", 1);
     cy.contains("a", "Article 9").should("be.visible");
     cy.contains("a", "Article 1").should("not.exist");
-    cy.get('nav[aria-label="pagination"]').get('button[aria-label="Page suivante"]').should("be.disabled");
+    cy.get('button[aria-label="Page suivante"]').should("be.disabled");
   });
 
   it("masque la pagination quand il y a 8 articles ou moins", () => {
