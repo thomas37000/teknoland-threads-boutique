@@ -85,8 +85,8 @@ const BlogPage = () => {
         <>
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {visible.map((p) => (
-              <article key={p.id} className="overflow-hidden rounded-lg border border-border bg-card">
-                <Link to={`/blog/${p.slug}`}>
+              <article key={p.id} className="tekno-card tekno-card-framed group overflow-hidden bg-card">
+                <Link to={`/blog/${p.slug}`} className="tekno-card-media">
                   <div className="aspect-video bg-muted">
                     {p.cover_image && <img src={p.cover_image} alt={p.title} loading="lazy" className="h-full w-full object-cover" />}
                   </div>
