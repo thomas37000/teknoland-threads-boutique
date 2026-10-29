@@ -39,3 +39,58 @@ describe("Blog : parcours visiteur (requêtes simulées)", () => {
     cy.get("article").should("not.contain.text", "Merci pour cette sortie");
   });
 });
+describe("Blog : pagination de la liste (8 articles par page)", () => {
+  const many = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({
+      ...post,
+      id: `11111111-1111-4111-8111-${String(i + 1).padStart(12, "0")}`,
+      title: `Article ${i + 1}`,
+      slug: `article-${i + 1}`,
+      published_at: new Date(Date.UTC(2026, 9, 27 - i)).toISOString(),
+      created_at: new Date(Date.UTC(2026, 9, 27 - i)).toISOString(),
+    }));
+
+  beforeEach(() => {
+    cy.intercept("GET", "**/rest/v1/blog_posts*", (req) => {
+      if (new URL(req.url).searchParams.has("slug")) req.reply({ body: post });
+      else req.reply({ body: many(9) });
+    }).as("posts");
+    cy.intercept("GET", "**/rest/v1/blog_comments*", { body: [] });
+  });
+
+  it("affiche 8 articles sur la première page et le reste sur la seconde", () => {
+    cy.visit("/blog");
+    cy.get("article").should("have.length", 8);
+    cy.contains("a", "Article 9").should("not.exist");
+    cy.get('nav[aria-label="pagination"]').within(() => {
+      cy.contains("button", "Page précédente").should("be.disabled");
+      cy.contains("button", "2").click();
+    });
+    cy.get("article").should("have.length", 1);
+    cy.contains("a", "Article 9").should("be.visible");
+    cy.contains("a", "Article 1").should("not.exist");
+    cy.get('nav[aria-label="pagination"]').contains("button", "Page suivante").should("be.disabled");
+  });
+
+  it("masque la pagination quand il y a 8 articles ou moins", () => {
+    cy.intercept("GET", "**/rest/v1/blog_posts*", { body: many(8) });
+    cy.visit("/blog");
+    cy.get("article").should("have.length", 8);
+    cy.get('nav[aria-label="pagination"]').should("not.exist");
+  });
+
+  it("revient à la première page quand on change de catégorie", () => {
+    cy.intercept("GET", "**/rest/v1/blog_posts*", {
+      body: many(17).map((p, i) => ({ ...p, category: i < 9 ? "Sorties" : "Ateliers" })),
+    });
+    cy.visit("/blog");
+    cy.get("article").should("have.length", 8);
+    cy.get('nav[aria-label="pagination"]').contains("button", "3").click();
+    cy.get("article").should("have.length", 1);
+    cy.contains("a", "Article 17").should("be.visible");
+    cy.contains("button", "Sorties").click();
+    cy.get("article").should("have.length", 8);
+    cy.contains("a", "Article 1").should("be.visible");
+    cy.contains("a", "Article 17").should("not.exist");
+  });
+});
