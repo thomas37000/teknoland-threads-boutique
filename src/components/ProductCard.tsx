@@ -51,13 +51,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   return (
-    <div className="group">
-      <Link to={`/product/${product.category}/${slugify(product.name)}`} className="block overflow-hidden rounded-md">
+    <div className="group tekno-card p-3">
+      <Link to={`/product/${product.category}/${slugify(product.name)}`} className="tekno-card-media block rounded-md">
         <div className="aspect-square overflow-hidden bg-gray-100 relative">
           <img
             src={product.image}
             alt={product.name}
-            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+            className="object-cover w-full h-full"
           />
           {/* the seller name badge is only visible when there is more than 1 seller */}
           {product.seller_id && product.seller_id.length > 1 && (

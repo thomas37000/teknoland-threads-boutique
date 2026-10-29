@@ -37,13 +37,13 @@ const CategorySection = () => {
             <Link 
               key={category.id}
               to={`/shop/${category.slug}`}
-              className="group block relative overflow-hidden rounded-lg aspect-[4/3]"
+              className="group tekno-card tekno-card-media block relative overflow-hidden rounded-lg aspect-[4/3]"
             >
               <div className="absolute inset-0 bg-tekno-black/50 group-hover:bg-tekno-black/30 transition-colors z-10" />
               <img 
                 src={category.image_url || PLACEHOLDER}
                 alt={category.name}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-full object-cover"
                 onError={(e) => { e.currentTarget.src = PLACEHOLDER; }}
               />
               <div className="absolute inset-0 z-20 flex items-center justify-center">
