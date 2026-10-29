@@ -1,13 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination";
 import { useAuth } from "@/hooks/use-auth";
 import { BlogPost, blogDb } from "@/lib/blog";
 import PostEditor from "@/components/blog/PostEditor";
+
+// Au-delà de 8 articles, la liste se découpe en pages.
+const PAGE_SIZE = 8;
+
 
 const BlogPage = () => {
   const { isAdmin } = useAuth();
