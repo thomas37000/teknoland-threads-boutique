@@ -107,6 +107,31 @@
   .tekno-button-primary {
     @apply bg-tekno-blue text-white border-tekno-blue hover:bg-tekno-blue/90;
   }
+
+  /* ---- Cartes client : animation et effet de survol identiques partout ---- */
+  /* Bordure transparente au repos pour éviter tout saut de mise en page au survol. */
+  .tekno-card {
+    @apply rounded-lg border border-transparent transition-all duration-300 ease-out;
+  }
+
+  /* Variante avec bordure visible au repos (cartes d'articles de blog). */
+  .tekno-card-framed {
+    @apply border-border;
+  }
+
+  /* Au survol : bordure soulignée et ombre légère. */
+  .tekno-card:hover {
+    @apply border-primary/60 shadow-md shadow-foreground/10;
+  }
+
+  /* Zone image de la carte : l'image zoome doucement quand la carte est survolée. */
+  .tekno-card-media {
+    @apply block overflow-hidden;
+  }
+
+  .tekno-card-media img {
+    @apply transition-transform duration-300 ease-out group-hover:scale-105;
+  }
 }
 
 .product-grid {
