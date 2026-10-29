@@ -5,4 +5,5 @@
 - [ ] Blog : terminer les accès publics et la gestion admin
 - [x] Blog : vérifier création, publication, édition et commentaires avec tests Cypress
 - [x] Blog (admin) : filtre publié / brouillon dans la liste des articles, publiés affichés par défaut et triés par date décroissant
+- [x] Blog : pagination de la page publique à partir de 9 articles (8 par page), testée sur Cypress
 - [ ] Blog : créer le bucket blog, accessible dans Images admin et dans l’éditeur avec les autres buckets — bloqué tant que les buckets publics ne sont pas activés dans les paramètres de l'espace

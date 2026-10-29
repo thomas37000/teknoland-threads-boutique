@@ -317,7 +317,7 @@ C'est la technique utilisée dans `component/BlogImages.cy.tsx` pour faire croir
 
 ## Blog : écrire et maintenir les tests
 
-- `e2e/blog.cy.ts` : visiteur, lecture d'un article et envoi d'un commentaire en attente de validation.
+- `e2e/blog.cy.ts` : visiteur, lecture d'un article, envoi d'un commentaire en attente de validation, et pagination de la liste (8 articles par page, noyée quand il y en a 8 ou moins, retour à la première page au changement de catégorie).
 - `component/BlogEditor.cy.tsx` : brouillon par défaut, publication, modification, adresse déjà utilisée, nettoyage du HTML, validation admin d'un commentaire, et filtre de la liste admin (publié / brouillon / tous, tri par date décroissant).
 - `fixtures/blog-post.json` : article fictif à adapter pour vos scénarios.
 
