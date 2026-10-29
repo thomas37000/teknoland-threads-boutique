@@ -283,7 +283,22 @@ cy.wait("@getProducts");
 cy.contains("Produit Test").should("be.visible");
 ```
 
+### Mocker une Edge Function
+
+`supabase.functions` est un *getter* qui renvoie une nouvelle instance à chaque accès :
+`cy.stub(supabase.functions, "invoke")` ne serait jamais vu par le composant.
+On intercepte donc l'appel HTTP de la fonction :
+
+```ts
+cy.intercept("POST", "**/functions/v1/manage-buckets*", {
+  body: { buckets: [{ name: "blog" }, { name: "products" }] },
+}).as("buckets");
+```
+
+C'est la technique utilisée dans `component/BlogImages.cy.tsx` pour faire croire que le bucket `blog` existe.
+
 ---
+
 
 ## ➕ Tests à ajouter (suggestions)
 
