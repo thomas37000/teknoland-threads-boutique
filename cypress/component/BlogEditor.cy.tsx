@@ -70,4 +70,29 @@ describe("Blog : édition et modération (requêtes simulées)", () => {
     cy.wait("@approve").its("request.body").should("deep.equal", { approved: true });
     cy.contains("button", "Valider").should("not.exist");
   });
+
+  it("affiche les articles publiés par défaut, du plus récent au plus ancien", () => {
+    const draft: BlogPost = { ...post, id: "22222222-2222-4222-8222-222222222222", title: "Brouillon test", slug: "brouillon-test", status: "draft", published_at: null, created_at: "2026-10-20T09:00:00Z" };
+    const older: BlogPost = { ...post, id: "33333333-3333-4333-8333-333333333333", title: "Article plus ancien", slug: "article-plus-ancien", published_at: "2026-10-10T09:00:00Z", created_at: "2026-10-10T09:00:00Z" };
+    cy.intercept("GET", "**/rest/v1/blog_posts*", { body: [draft, older, post] });
+    cy.intercept("GET", "**/rest/v1/blog_comments*", { body: [] });
+    cy.mount(<BrowserRouter><BlogManagement /></BrowserRouter>);
+    cy.contains("Brouillon test").should("not.exist");
+    cy.get("[data-post-row]").should("have.length", 2).then(($rows) => {
+      expect($rows.toArray().map((r) => r.getAttribute("data-post-row"))).to.deep.equal([post.title, older.title]);
+    });
+  });
+
+  it("bascule la liste sur les brouillons puis sur tous les articles", () => {
+    const draft: BlogPost = { ...post, id: "22222222-2222-4222-8222-222222222222", title: "Brouillon test", slug: "brouillon-test", status: "draft", published_at: null, created_at: "2026-10-20T09:00:00Z" };
+    cy.intercept("GET", "**/rest/v1/blog_posts*", { body: [draft, post] });
+    cy.intercept("GET", "**/rest/v1/blog_comments*", { body: [] });
+    cy.mount(<BrowserRouter><BlogManagement /></BrowserRouter>);
+    cy.get('[aria-label="Filtrer par statut"]').click();
+    cy.contains('[role="option"]', "Brouillons").click();
+    cy.get("[data-post-row]").should("have.length", 1).and("contain.text", "Brouillon test");
+    cy.get('[aria-label="Filtrer par statut"]').click();
+    cy.contains('[role="option"]', "Tous").click();
+    cy.get("[data-post-row]").should("have.length", 2);
+  });
 });

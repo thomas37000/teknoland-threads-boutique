@@ -283,7 +283,22 @@ cy.wait("@getProducts");
 cy.contains("Produit Test").should("be.visible");
 ```
 
+### Mocker une Edge Function
+
+`supabase.functions` est un *getter* qui renvoie une nouvelle instance à chaque accès :
+`cy.stub(supabase.functions, "invoke")` ne serait jamais vu par le composant.
+On intercepte donc l'appel HTTP de la fonction :
+
+```ts
+cy.intercept("POST", "**/functions/v1/manage-buckets*", {
+  body: { buckets: [{ name: "blog" }, { name: "products" }] },
+}).as("buckets");
+```
+
+C'est la technique utilisée dans `component/BlogImages.cy.tsx` pour faire croire que le bucket `blog` existe.
+
 ---
+
 
 ## ➕ Tests à ajouter (suggestions)
 
@@ -303,7 +318,7 @@ cy.contains("Produit Test").should("be.visible");
 ## Blog : écrire et maintenir les tests
 
 - `e2e/blog.cy.ts` : visiteur, lecture d'un article et envoi d'un commentaire en attente de validation.
-- `component/BlogEditor.cy.tsx` : brouillon par défaut, publication, modification, adresse déjà utilisée, nettoyage du HTML et validation admin d'un commentaire.
+- `component/BlogEditor.cy.tsx` : brouillon par défaut, publication, modification, adresse déjà utilisée, nettoyage du HTML, validation admin d'un commentaire, et filtre de la liste admin (publié / brouillon / tous, tri par date décroissant).
 - `fixtures/blog-post.json` : article fictif à adapter pour vos scénarios.
 
 Avec le site déjà démarré :
