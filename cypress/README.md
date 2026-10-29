@@ -303,7 +303,7 @@ cy.contains("Produit Test").should("be.visible");
 ## Blog : écrire et maintenir les tests
 
 - `e2e/blog.cy.ts` : visiteur, lecture d'un article et envoi d'un commentaire en attente de validation.
-- `component/BlogEditor.cy.tsx` : brouillon par défaut, publication, modification, adresse déjà utilisée, nettoyage du HTML et validation admin d'un commentaire.
+- `component/BlogEditor.cy.tsx` : brouillon par défaut, publication, modification, adresse déjà utilisée, nettoyage du HTML, validation admin d'un commentaire, et filtre de la liste admin (publié / brouillon / tous, tri par date décroissant).
 - `fixtures/blog-post.json` : article fictif à adapter pour vos scénarios.
 
 Avec le site déjà démarré :
