@@ -8,15 +8,12 @@ const Probe = () => {
 };
 
 describe("debug buckets", () => {
-  it("shows what the picker renders", () => {
-    cy.stub(supabase.functions, "invoke").resolves({ data: { buckets: [{ name: "blog" }, { name: "products" }] }, error: null });
+  it("intercepts the manage-buckets HTTP call", () => {
+    cy.intercept("POST", "**/functions/v1/manage-buckets*", { body: { buckets: [{ name: "blog" }, { name: "products" }] } }).as("buckets");
     cy.mount(<Probe />);
     cy.get('[data-testid="probe"]', { timeout: 8000 }).should("contain.text", "blog");
     cy.mount(<StorageImagePicker open preferredBucket="blog" onClose={cy.stub()} onSelect={cy.stub()} />);
-    cy.get("body").then(($b) => cy.log($b.text().slice(0, 400)));
-    cy.get("body").then(($b) => {
-      // eslint-disable-next-line no-console
-      console.log("DOM:", $b.html().slice(0, 1500));
-    });
+    cy.get('[role="tab"]', { timeout: 8000 }).should("have.length", 2);
+    cy.get('[role="tab"][data-state="active"]').should("contain.text", "blog");
   });
 });
