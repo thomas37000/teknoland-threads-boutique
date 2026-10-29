@@ -63,7 +63,7 @@ describe("Blog : pagination de la liste (8 articles par page)", () => {
     cy.get("article").should("have.length", 8);
     cy.contains("a", "Article 9").should("not.exist");
     cy.get('nav[aria-label="pagination"]').within(() => {
-      cy.contains("button", "Page précédente").should("be.disabled");
+      cy.get('button[aria-label="Page précédente"]').should("be.disabled");
       cy.contains("button", "2").click();
     });
     cy.get("article").should("have.length", 1);
