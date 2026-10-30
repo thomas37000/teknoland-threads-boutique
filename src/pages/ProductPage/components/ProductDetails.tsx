@@ -270,7 +270,7 @@ const ProductDetails = ({
             </span>
           )}
           {/* Seller badge */}
-          <Link 
+          {/* <Link 
             to={product.seller_id ? `/vendor/${product.seller_id}` : '#'}
             className={product.seller_id ? "hover:opacity-80 transition-opacity" : "cursor-default"}
             onClick={(e) => !product.seller_id && e.preventDefault()}
@@ -279,7 +279,7 @@ const ProductDetails = ({
               <User size={12} className="mr-1" />
               {sellerName}
             </Badge>
-          </Link>
+          </Link> */}
         </div>
       </div>
 
