@@ -83,7 +83,7 @@ const Navbar = () => {
         {/* Language Selector, Cart and Profile Buttons */}
         <div className="hidden md:flex items-center gap-4 mt-1">
           <LanguageSelector />
-          {/* <ThemeToggle /> */}
+          <ThemeToggle />
           
           {user ? (
             <>
@@ -229,7 +229,7 @@ const Navbar = () => {
             <div className="mt-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <LanguageSelector />
-                {/* <ThemeToggle /> */}
+                <ThemeToggle />
               </div>
               <Link to="/cart" onClick={toggleMenu}>
                 <Button className="bg-tekno-blue text-white hover:bg-tekno-blue/90">
