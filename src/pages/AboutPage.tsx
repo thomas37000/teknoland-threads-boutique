@@ -125,22 +125,22 @@ const AboutPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {/* Team members would go here */}
             <div className="team-member">
-              <div className="aspect-square bg-gray-200 rounded-lg mb-4"></div>
+              <div className="aspect-square bg-muted rounded-lg mb-4"></div>
               <h3 className="font-bold">Alex Chen</h3>
               <p className="text-tekno-gray">Founder & CEO</p>
             </div>
             <div className="team-member">
-              <div className="aspect-square bg-gray-200 rounded-lg mb-4"></div>
+              <div className="aspect-square bg-muted rounded-lg mb-4"></div>
               <h3 className="font-bold">Jamie Smith</h3>
               <p className="text-tekno-gray">Lead Designer</p>
             </div>
             <div className="team-member">
-              <div className="aspect-square bg-gray-200 rounded-lg mb-4"></div>
+              <div className="aspect-square bg-muted rounded-lg mb-4"></div>
               <h3 className="font-bold">Morgan Lee</h3>
               <p className="text-tekno-gray">Tech Director</p>
             </div>
             <div className="team-member">
-              <div className="aspect-square bg-gray-200 rounded-lg mb-4"></div>
+              <div className="aspect-square bg-muted rounded-lg mb-4"></div>
               <h3 className="font-bold">Taylor Kim</h3>
               <p className="text-tekno-gray">Marketing Lead</p>
             </div>
