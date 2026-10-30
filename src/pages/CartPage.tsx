@@ -168,7 +168,7 @@ const CartPage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm">
+            <div className="bg-card rounded-lg shadow-sm">
               <div className="p-6 space-y-4">
                 {items.map((item) => (
                   <CartItem
