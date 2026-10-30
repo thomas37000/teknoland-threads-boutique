@@ -59,7 +59,7 @@ const ColorFilter = ({ selectedColor, onColorChange, colors }: ColorFilterProps)
   };
 
   if (loading) {
-    return <div className="animate-pulse h-20 bg-gray-200 rounded"></div>;
+    return <div className="animate-pulse h-20 bg-muted rounded"></div>;
   }
 
   if (availableColors.length === 0) {

@@ -45,7 +45,7 @@ const CategoryFilter = ({ selectedCategory, handleResetFilters }: CategoryFilter
   };
 
   if (loading) {
-    return <div className="animate-pulse h-20 bg-gray-200 rounded"></div>;
+    return <div className="animate-pulse h-20 bg-muted rounded"></div>;
   }
 
   const allCategories = [

@@ -107,9 +107,9 @@ const ProfilePage = () => {
     return (
       <div className="tekno-container py-20 flex justify-center">
         <div className="animate-pulse text-center">
-          <div className="h-32 w-32 rounded-full bg-gray-200 mx-auto mb-4"></div>
-          <div className="h-8 bg-gray-200 rounded w-64 mx-auto mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-48 mx-auto"></div>
+          <div className="h-32 w-32 rounded-full bg-muted mx-auto mb-4"></div>
+          <div className="h-8 bg-muted rounded w-64 mx-auto mb-4"></div>
+          <div className="h-4 bg-muted rounded w-48 mx-auto"></div>
         </div>
       </div>
     );

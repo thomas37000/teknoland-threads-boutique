@@ -53,7 +53,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
   return (
     <div className="group tekno-card p-3">
       <Link to={`/product/${product.category}/${slugify(product.name)}`} className="tekno-card-media block rounded-md">
-        <div className="aspect-square overflow-hidden bg-gray-100 relative">
+        <div className="aspect-square overflow-hidden bg-muted relative">
           <img
             src={product.image}
             alt={product.name}
@@ -94,7 +94,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
                 e.preventDefault();
                 toggleFavorite(product);
               }}
-              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-1 hover:bg-muted rounded-full transition-colors"
               aria-label={isFavorite(product.id) ? "Remove from favorites" : "Add to favorites"}
             >
               <Heart
