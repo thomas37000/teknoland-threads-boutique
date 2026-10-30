@@ -36,8 +36,8 @@ const CookieConsent = () => {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-muted border-t border-gray-200 p-4 flex items-center justify-between">
-      <p className="text-sm text-gray-700">
+    <div className="fixed bottom-0 left-0 w-full bg-muted border-t border-border p-4 flex items-center justify-between">
+      <p className="text-sm text-foreground">
         We use cookies to improve your experience. By using our site, you agree to our use of cookies.
       </p>
       <Button onClick={acceptCookies} variant="outline" size="sm">
