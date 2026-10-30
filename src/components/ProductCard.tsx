@@ -35,21 +35,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
             alt={product.name}
             className="object-cover w-full h-full"
           />
-          {/* the seller name badge is only visible when there is more than 1 seller */}
-          {product.seller_id && product.seller_id.length > 1 && (
-            <div className="absolute bottom-2 right-2">
-              <Link
-                to={product.seller_id ? `/vendor/${product.seller_id}` : '#'}
-                className={product.seller_id ? "hover:opacity-80 transition-opacity" : "cursor-default"}
-                onClick={(e) => !product.seller_id && e.preventDefault()}
-              >
-                <Badge variant="secondary" className="text-xs"> {/* 0.75rem (12px) */}
-                  {sellerName}
-                </Badge>
-              </Link>
-            </div>
-          )}
-
           {product.isNew && (
             <div className="absolute top-2 right-2 bg-tekno-blue text-white text-xs font-bold uppercase tracking-wider px-2 py-1 rounded">
               {t('common.new')}
