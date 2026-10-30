@@ -63,12 +63,12 @@ const AboutPage = () => {
       </section>
       
       {/* Our Values */}
-      <section className="py-16 bg-tekno-lightgray">
+      <section className="py-16 bg-muted">
         <div className="tekno-container">
           <h2 className="text-3xl font-bold text-center mb-12">Our Values</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-card p-6 rounded-lg shadow-sm">
               <div className="w-12 h-12 bg-tekno-blue rounded-full flex items-center justify-center mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
                   <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
@@ -82,7 +82,7 @@ const AboutPage = () => {
               </p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-card p-6 rounded-lg shadow-sm">
               <div className="w-12 h-12 bg-tekno-blue rounded-full flex items-center justify-center mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
                   <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z" />
@@ -96,7 +96,7 @@ const AboutPage = () => {
               </p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-card p-6 rounded-lg shadow-sm">
               <div className="w-12 h-12 bg-tekno-blue rounded-full flex items-center justify-center mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -125,22 +125,22 @@ const AboutPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {/* Team members would go here */}
             <div className="team-member">
-              <div className="aspect-square bg-gray-200 rounded-lg mb-4"></div>
+              <div className="aspect-square bg-muted rounded-lg mb-4"></div>
               <h3 className="font-bold">Alex Chen</h3>
               <p className="text-tekno-gray">Founder & CEO</p>
             </div>
             <div className="team-member">
-              <div className="aspect-square bg-gray-200 rounded-lg mb-4"></div>
+              <div className="aspect-square bg-muted rounded-lg mb-4"></div>
               <h3 className="font-bold">Jamie Smith</h3>
               <p className="text-tekno-gray">Lead Designer</p>
             </div>
             <div className="team-member">
-              <div className="aspect-square bg-gray-200 rounded-lg mb-4"></div>
+              <div className="aspect-square bg-muted rounded-lg mb-4"></div>
               <h3 className="font-bold">Morgan Lee</h3>
               <p className="text-tekno-gray">Tech Director</p>
             </div>
             <div className="team-member">
-              <div className="aspect-square bg-gray-200 rounded-lg mb-4"></div>
+              <div className="aspect-square bg-muted rounded-lg mb-4"></div>
               <h3 className="font-bold">Taylor Kim</h3>
               <p className="text-tekno-gray">Marketing Lead</p>
             </div>

@@ -81,7 +81,7 @@ export function AdminSidebar({
   };
 
   return (
-    <Sidebar className={isCollapsed ? "w-14 bg-gray-100" : "w-44 bg-gray-100"} collapsible="icon">
+    <Sidebar className={isCollapsed ? "w-14 bg-muted" : "w-44 bg-muted"} collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="m-6">Administration</SidebarGroupLabel>

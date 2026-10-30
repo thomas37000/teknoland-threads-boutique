@@ -76,7 +76,7 @@ const ProductImages = ({ currentImage, setCurrentImage, images, variations, colo
     <>
       {/* Main Image with Zoom */}
       <div
-        className="rounded-lg overflow-hidden bg-gray-100 relative"
+        className="rounded-lg overflow-hidden bg-muted relative"
         ref={imageRef}
         onMouseMove={handleMouseMove}
         style={{ cursor: isZoomed ? 'zoom-out' : 'zoom-in' }}

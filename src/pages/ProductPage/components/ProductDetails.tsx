@@ -294,7 +294,7 @@ const ProductDetails = ({
 
       {/* Vinyl Tracks Section */}
       {(product.category === "Vinyles" || product.category === "Double Vinyles") && product.size_stocks && (
-        <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+        <div className="bg-muted rounded-lg p-4 space-y-4">
           <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
             🎵 Liste des titres
           </h3>
@@ -413,7 +413,7 @@ const ProductDetails = ({
                     currentSize === size
                       ? "border-tekno-blue bg-tekno-blue/10 text-tekno-blue"
                       : isAvailable
-                        ? "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                        ? "border-gray-200 hover:border-gray-300 hover:bg-muted"
                         : "border-gray-300 text-gray-400 opacity-50"
                   }`}
                 >
@@ -469,7 +469,7 @@ const ProductDetails = ({
         <div className="flex items-center border rounded-md w-32">
           <button
             onClick={() => handleQuantityChange(currentQuantity - 1)}
-            className="px-3 py-1 text-lg border-r hover:bg-gray-50 transition-colors"
+            className="px-3 py-1 text-lg border-r hover:bg-muted transition-colors"
             disabled={currentQuantity <= 1}
             aria-label="Decrease quantity"
           >
@@ -478,7 +478,7 @@ const ProductDetails = ({
           <div className="px-3 py-1 flex-1 text-center">{currentQuantity}</div>
           <button
             onClick={() => handleQuantityChange(currentQuantity + 1)}
-            className="px-3 py-1 text-lg border-l hover:bg-gray-50 transition-colors"
+            className="px-3 py-1 text-lg border-l hover:bg-muted transition-colors"
             disabled={currentQuantity >= product.stock}
             aria-label="Increase quantity"
           >

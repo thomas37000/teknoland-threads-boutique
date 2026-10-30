@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 const CartHeader = () => {
   const { t } = useTranslation();
   return (
-    <div className="hidden sm:grid grid-cols-12 gap-4 p-4 bg-gray-50 border-b">
+    <div className="hidden sm:grid grid-cols-12 gap-4 p-4 bg-muted border-b">
       <div className="col-span-6">
         <h3 className="font-medium">{t("cart.itemName")}</h3>
       </div>

@@ -62,7 +62,7 @@ const FavoritesSlider = () => {
   // Don't display if loading or no favorites
   if (loading) {
     return (
-      <section className="bg-gray-50 py-10 mt-8">
+      <section className="bg-muted py-10 mt-8">
         <div className="tekno-container text-center">
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-tekno-gray" />
@@ -77,7 +77,7 @@ const FavoritesSlider = () => {
   }
 
   return (
-    <section className="bg-gray-50 py-10 mt-8">
+    <section className="bg-muted py-10 mt-8">
       <div className="tekno-container">
         <Accordion type="single" collapsible defaultValue="favorites">
           <AccordionItem value="favorites" className="border-none">
