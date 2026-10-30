@@ -33,7 +33,7 @@ const LanguageSelector = () => {
             key={language.code}
             onClick={() => changeLanguage(language.code)}
             className={`flex items-center gap-2 cursor-pointer hover:bg-gray-100 ${
-              currentLanguage.code === language.code ? 'bg-gray-50' : ''
+              currentLanguage.code === language.code ? 'bg-muted' : ''
             }`}
           >
             <span className="text-lg">{language.flag}</span>
