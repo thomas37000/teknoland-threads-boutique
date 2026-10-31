@@ -1,18 +1,15 @@
 import { useState } from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { X, Plus, Trash2, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import PopupAdmin from "../PopupAdmin";
 import StorageImagePicker from "./StorageImagePicker";
+import { BasicProductFields, StockField, TextField, STREAMING_PLACEHOLDER } from "./form/BasicProductFields";
+import { MainImageField, AdditionalImagesField } from "./form/ImageFields";
+import { VariationsEditor } from "./form/VariationsEditor";
+import { VinylTracksEditor } from "./form/VinylTracksEditor";
+
+const NO_VARIATION_CATEGORIES = ["Vinyles", "Double Vinyles", "Stickers"];
+const VINYL_CATEGORIES = ["Vinyles", "Double Vinyles"];
 
 export function EditProductDialog({
   isOpen,
@@ -20,585 +17,125 @@ export function EditProductDialog({
   onConfirm,
   currentProduct,
   setCurrentProduct,
-  variations,
-  setVariations,
   addVariation,
-  editVariations,
+  editVariations = [],
   removeVariation,
   updateVariation,
-  vinylTracks,
-  editVinylTracks,
-  setVinylTracks,
+  editVinylTracks = [],
   updateVinylTrack,
   handleVinylAudioUpload,
-  multipleImageFiles,
-  setMultipleImageFiles,
-  imageFile,
-  setImageFile,
   editImageFile,
   handleImageChange,
-  handleEditWithImage,
-  editMultipleImageFiles,
+  editMultipleImageFiles = [],
   handleMultipleImageChange,
   removeImage,
   CATEGORIES,
   COLOR_OPTIONS,
   SIZE_OPTIONS,
-  setIsEditDialogOpen,
-  mode, // "add" ou "edit"
 }: any) {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerMode, setPickerMode] = useState<"main" | "additional">("main");
 
-  const handlePickerSelect = (url: string) => {
-    if (pickerMode === "main" && currentProduct) {
-      setCurrentProduct({ ...currentProduct, image: url });
-    }
-  };
+  const patch = (p: Record<string, any>) => currentProduct && setCurrentProduct({ ...currentProduct, ...p });
+  const openPicker = (mode: "main" | "additional") => { setPickerMode(mode); setPickerOpen(true); };
+  const category = currentProduct?.category;
+  const sizeStocks = (currentProduct?.size_stocks as any) || {};
 
-  const handlePickerSelectMultiple = (urls: string[]) => {
-    if (currentProduct) {
-      setCurrentProduct({ ...currentProduct, images: urls });
-    }
-  };
+  const imageOptions = [
+    ...(currentProduct?.image ? [{ value: currentProduct.image, label: "Image principale" }] : []),
+    ...(editImageFile ? [{ value: URL.createObjectURL(editImageFile), label: "Nouvelle image principale" }] : []),
+    ...(currentProduct?.images || []).map((img: string, i: number) => ({ value: img, label: `Image ${i + 1}` })),
+    ...editMultipleImageFiles.map((f: File, i: number) => ({ value: URL.createObjectURL(f), label: `Nouvelle image ${i + 1}` })),
+  ];
 
   return (
     <>
-    <PopupAdmin
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Modifiez un produit"
-      maxWidth="max-w-2xl"
-    >
-      <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="edit-name" className="text-right">
-            Nom
-          </Label>
-          <Input
-            id="edit-name"
-            value={currentProduct?.name || ""}
-            onChange={(e) =>
-              setCurrentProduct(
-                currentProduct
-                  ? { ...currentProduct, name: e.target.value }
-                  : null
-              )
-            }
-            className="col-span-3"
+      <PopupAdmin isOpen={isOpen} onClose={onClose} title="Modifiez un produit" maxWidth="max-w-2xl">
+        <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
+          <BasicProductFields product={currentProduct} onChange={patch} categories={CATEGORIES} idPrefix="edit-" />
+
+          <MainImageField
+            id="edit-image"
+            preview={currentProduct?.image}
+            onPreviewClick={setPreviewImage}
+            onFileChange={(e) => handleImageChange(e, true)}
+            onOpenStorage={() => openPicker("main")}
+            showCompressHint
           />
-        </div>
-        {/* Category Dropdown */}
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="edit-category" className="text-right">
-            Categorie
-          </Label>
-          <div className="col-span-3">
-            <Select
-              value={currentProduct?.category || ""}
-              onValueChange={(value) =>
-                setCurrentProduct(
-                  currentProduct
-                    ? { ...currentProduct, category: value }
-                    : null
-                )
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent position="popper">
-                {CATEGORIES.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Price */}
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="edit-price" className="text-right">
-            Prix
-          </Label>
-          <Input
-            id="edit-price"
-            type="number"
-            value={currentProduct?.price || ""}
-            onChange={(e) =>
-              setCurrentProduct(
-                currentProduct
-                  ? { ...currentProduct, price: parseFloat(e.target.value) }
-                  : null
-              )
-            }
-            className="col-span-3"
+          <AdditionalImagesField
+            id="edit-additional-images"
+            existing={currentProduct?.images || []}
+            files={editMultipleImageFiles}
+            onPreviewClick={setPreviewImage}
+            onFileChange={(e) => handleMultipleImageChange(e, true)}
+            onRemoveFile={(i) => removeImage(i, true)}
+            onOpenStorage={() => openPicker("additional")}
+            hint="Upload up to 4 new additional images. Will replace existing images. JPG, PNG, or WebP. Max 10MB each."
           />
-        </div>
 
-        {/* Sold Price */}
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="edit-sold-price" className="text-right">
-            Prix soldé (optionnel)
-          </Label>
-          <Input
-            id="edit-sold-price"
-            type="number"
-            value={currentProduct?.sold_price ?? ""}
-            onChange={(e) => {
-              const value = e.target.value;
-              const numValue = value ? parseFloat(value) : null;
-              // Si la valeur est 0 ou vide, on met null pour supprimer la promo
-              setCurrentProduct(
-                currentProduct
-                  ? { ...currentProduct, sold_price: numValue && numValue > 0 ? numValue : null }
-                  : null
-              );
-            }}
-            className="col-span-3"
-            placeholder="Laisser vide ou mettre 0 pour supprimer la promo"
-          />
-        </div>
-
-        {/* Main Image Upload */}
-        <div className="grid grid-cols-4 items-start gap-4">
-          <Label htmlFor="edit-image" className="text-right">
-            Image principale
-          </Label>
-          <div className="col-span-3 space-y-2">
-            {currentProduct?.image && (
-              <div className="mb-2">
-                <img
-                  src={currentProduct.image}
-                  alt={currentProduct.name}
-                  className="h-20 w-auto object-contain rounded cursor-pointer hover:opacity-80 transition-opacity"
-                  onClick={() => setPreviewImage(currentProduct.image)}
-                />
-              </div>
-            )}
-            <div className="flex gap-2">
-              <Input
-                id="edit-image"
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                onChange={(e) => handleImageChange(e, true)}
-                className="flex-1"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => { setPickerMode("main"); setPickerOpen(true); }}
-              >
-                <ImageIcon className="h-4 w-4 mr-1" />
-                Stockage
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              JPG, PNG, or WebP. Max 10MB.
-            </p>
-            <div className="text-xs text-muted-foreground">
-              Site pour comprésser vos fichiers si suppérier à 10MB: https://compresspng.com/fr/
-            </div>
-          </div>
-        </div>
-
-        {/* Additional Images Upload */}
-        <div className="grid grid-cols-4 items-start gap-4">
-          <Label htmlFor="edit-additional-images" className="text-right">
-           Images supplémentaires (4 max)
-          </Label>
-          <div className="col-span-3">
-            {/* Show existing additional images */}
-            {currentProduct?.images && currentProduct.images.length > 0 && (
-              <div className="grid grid-cols-2 gap-2 mb-2">
-                {currentProduct.images.map((img, index) => (
-                  <div key={index} className="relative border rounded p-2">
-                    <img
-                      src={img}
-                      alt={`Image ${index}`}
-                      className="h-20 w-full object-contain cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={() => setPreviewImage(img)}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="flex gap-2">
-              <Input
-                id="edit-additional-images"
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                onChange={(e) => handleMultipleImageChange(e, true)}
-                className="flex-1"
-                disabled={editMultipleImageFiles.length >= 4}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => { setPickerMode("additional"); setPickerOpen(true); }}
-              >
-                <ImageIcon className="h-4 w-4 mr-1" />
-                Stockage
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Upload up to 4 new additional images. Will replace existing images. JPG, PNG, or WebP. Max 10MB each.
-            </p>
-
-            {editMultipleImageFiles.length > 0 && (
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                {editMultipleImageFiles.map((file, index) => (
-                  <div key={index} className="relative border rounded p-2">
-                    <img
-                      src={URL.createObjectURL(file)}
-                      alt={`Preview ${index}`}
-                      className="h-20 w-full object-contain"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index, true)}
-                      className="absolute top-1 right-1 bg-white rounded-full p-1"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                    <p className="text-xs truncate">{file.name}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* VariationList.tsx */}
-        {/* Variations Tshirts && Sweats */}
-        {currentProduct && !["Vinyles", "Double Vinyles", "Stickers"].includes(currentProduct.category) && (
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label className="text-right pt-2">
-              Variations
-            </Label>
-            <div className="col-span-3 space-y-4">
-              {editVariations.map((variation, index) => (
-                <div key={index} className="border rounded-lg p-4 space-y-3 bg-muted/20">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Variation {index + 1}</h4>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeVariation(index, true)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  <div className="grid grid-cols-4 gap-3">
-                    <div>
-                      <Label className="text-sm">Image</Label>
-                      <div className="space-y-2">
-                        <Select
-                          value={variation.image || ''}
-                          onValueChange={(value) => updateVariation(index, 'image', value, true)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choisir image" />
-                          </SelectTrigger>
-                          <SelectContent position="popper" className="max-h-[300px]">
-                            {currentProduct?.image && (
-                              <SelectItem value={currentProduct.image}>
-                                Image principale
-                              </SelectItem>
-                            )}
-                            {editImageFile && (
-                              <SelectItem value={URL.createObjectURL(editImageFile)}>
-                                Nouvelle image principale
-                              </SelectItem>
-                            )}
-                            {currentProduct?.images?.map((img, imgIndex) => (
-                              <SelectItem key={imgIndex} value={img}>
-                                Image {imgIndex + 1}
-                              </SelectItem>
-                            ))}
-                            {editMultipleImageFiles.map((file, imgIndex) => (
-                              <SelectItem key={`new-${imgIndex}`} value={URL.createObjectURL(file)}>
-                                Nouvelle image {imgIndex + 1}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {variation.image && (
-                          <img
-                            src={variation.image}
-                            alt={`Variation ${index + 1}`}
-                            className="w-12 h-12 object-cover rounded border"
-                          />
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm">Couleur</Label>
-                      <Select
-                        value={variation.color}
-                        onValueChange={(value) => updateVariation(index, 'color', value, true)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent position="popper">
-                          {COLOR_OPTIONS.map(color => (
-                            <SelectItem key={color} value={color}>{color}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm">Taille</Label>
-                      <Select
-                        value={variation.size}
-                        onValueChange={(value) => updateVariation(index, 'size', value, true)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent position="popper">
-                          {SIZE_OPTIONS.map(size => (
-                            <SelectItem key={size} value={size}>{size}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm">Stock</Label>
-                      <Input
-                        type="number"
-                        min="0"
-                        value={variation.stock}
-                        onChange={(e) => updateVariation(index, 'stock', e.target.value, true)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => addVariation(true)}
-                className="w-full"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Ajouter une variation
-              </Button>
-
-              {editVariations.length > 0 && (
-                <div className="text-sm text-muted-foreground">
-                  Stock total: {editVariations.reduce((sum, v) => sum + v.stock, 0)} unités
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* VinylTracksEditor.tsx */}
-        {/* Vinyl Tracks for Edit */}
-        {currentProduct && ["Vinyles", "Double Vinyles"].includes(currentProduct.category) && (
-          <>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-stock" className="text-right">
-                Stock
-              </Label>
-              <Input
-                id="edit-stock"
-                type="number"
-                min="0"
-                value={currentProduct.stock || ""}
-                onChange={(e) =>
-                  setCurrentProduct(
-                    currentProduct
-                      ? { ...currentProduct, stock: parseInt(e.target.value) || 0 }
-                      : null
-                  )
-                }
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-start gap-4">
-              <Label className="text-right pt-2">
-                Pistes
-              </Label>
-              <div className="col-span-3 space-y-4">
-                {editVinylTracks.map((track, index) => (
-                  <div key={track.id} className="border rounded-lg p-4 space-y-3 bg-muted/20">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-medium">Piste {track.id}</h4>
-                    </div>
-
-                    <div className="grid grid-cols-4 gap-3">
-                      <div>
-                        <Label className="text-sm">Nom de la piste</Label>
-                        <Input
-                          value={track.name}
-                          onChange={(e) => updateVinylTrack(index, 'name', e.target.value, true)}
-                          placeholder="Titre de la chanson"
-                        />
-                      </div>
-
-                      <div>
-                        <Label className="text-sm">Durée (MM:SS)</Label>
-                        <Input
-                          value={track.duration}
-                          onChange={(e) => updateVinylTrack(index, 'duration', e.target.value, true)}
-                          placeholder="3:45"
-                        />
-                      </div>
-
-                      <div>
-                        <Label className="text-sm">Artiste</Label>
-                        <Input
-                          value={track.artist}
-                          onChange={(e) => updateVinylTrack(index, 'artist', e.target.value, true)}
-                          placeholder="Nom de l'artiste"
-                        />
-                      </div>
-
-                      <div>
-                        <Label className="text-sm">Année</Label>
-                        <Input
-                          value={track.year}
-                          onChange={(e) => updateVinylTrack(index, 'year', e.target.value, true)}
-                          placeholder="2024"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Upload audio par piste */}
-                    <div className="space-y-1">
-                      <Label className="text-sm">Fichier audio</Label>
-                      <Input
-                        type="file"
-                        accept=".mp3,.wav,.flac,.aac,.aiff,.aif,audio/mpeg,audio/wav,audio/x-wav,audio/flac,audio/aac,audio/aiff,audio/x-aiff"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleVinylAudioUpload?.(index, file, true);
-                        }}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Formats acceptés : MP3, WAV, FLAC, AAC, AIFF. Max 50MB.
-                      </p>
-                      {track.audioUrl && (
-                        <audio controls src={track.audioUrl} className="w-full mt-1" />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Streaming URL for Vinyles */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-streaming-url" className="text-right">
-                Lien Streaming
-              </Label>
-              <Input
-                id="edit-streaming-url"
-                type="url"
-                value={(currentProduct?.size_stocks as any)?.streamingUrl || ""}
-                onChange={(e) => {
-                  const currentSizeStocks = (currentProduct?.size_stocks as any) || {};
-                  setCurrentProduct(
-                    currentProduct
-                      ? { 
-                          ...currentProduct, 
-                          size_stocks: { 
-                            ...currentSizeStocks, 
-                            streamingUrl: e.target.value 
-                          } 
-                        }
-                      : null
-                  );
-                }}
-                placeholder="https://soundcloud.com/... ou https://open.spotify.com/..."
-                className="col-span-3"
-              />
-            </div>
-          </>
-        )}
-
-        {/* Simple Stock for Stickers Edit */}
-        {currentProduct && ["Stickers"].includes(currentProduct.category) && (
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="edit-stock" className="text-right">
-              Stock
-            </Label>
-            <Input
-              id="edit-stock"
-              type="number"
-              min="0"
-              value={currentProduct.stock || ""}
-              onChange={(e) =>
-                setCurrentProduct(
-                  currentProduct
-                    ? { ...currentProduct, stock: parseInt(e.target.value) || 0 }
-                    : null
-                )
-              }
-              className="col-span-3"
+          {currentProduct && !NO_VARIATION_CATEGORIES.includes(category) && (
+            <VariationsEditor
+              variations={editVariations}
+              imageOptions={imageOptions}
+              colorOptions={COLOR_OPTIONS}
+              sizeOptions={SIZE_OPTIONS}
+              onAdd={() => addVariation(true)}
+              onRemove={(i) => removeVariation(i, true)}
+              onUpdate={(i, f, v) => updateVariation(i, f, v, true)}
             />
-          </div>
-        )}
+          )}
 
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="edit-description" className="text-right">
-            Description
-          </Label>
-          <Input
+          {currentProduct && VINYL_CATEGORIES.includes(category) && (
+            <>
+              <StockField id="edit-stock" value={currentProduct.stock} onChange={(stock) => patch({ stock })} />
+              <VinylTracksEditor
+                tracks={editVinylTracks}
+                onUpdate={(i, f, v) => updateVinylTrack(i, f, v, true)}
+                onAudioUpload={(i, file) => handleVinylAudioUpload?.(i, file, true)}
+              />
+              <TextField
+                id="edit-streaming-url"
+                label="Lien Streaming"
+                type="url"
+                value={sizeStocks.streamingUrl}
+                onChange={(streamingUrl) => patch({ size_stocks: { ...sizeStocks, streamingUrl } })}
+                placeholder={STREAMING_PLACEHOLDER}
+              />
+            </>
+          )}
+
+          {currentProduct && category === "Stickers" && (
+            <StockField id="edit-stock" value={currentProduct.stock} onChange={(stock) => patch({ stock })} />
+          )}
+
+          <TextField
             id="edit-description"
-            value={currentProduct?.description || ""}
-            onChange={(e) =>
-              setCurrentProduct(
-                currentProduct
-                  ? { ...currentProduct, description: e.target.value }
-                  : null
-              )
-            }
-            className="col-span-3"
+            label="Description"
+            value={currentProduct?.description}
+            onChange={(description) => patch({ description })}
           />
+          <div className="flex gap-2 mt-6">
+            <Button variant="outline" onClick={onClose} className="flex-1">Annulez</Button>
+            <Button onClick={onConfirm} className="flex-1">Sauvegardez</Button>
+          </div>
         </div>
-        <div className="flex gap-2 mt-6">
-          <Button variant="outline" onClick={onClose} className="flex-1">
-            Annulez
-          </Button>
-          <Button onClick={onConfirm} className="flex-1">Sauvegardez</Button>
-        </div>
-      </div>
-    </PopupAdmin>
+      </PopupAdmin>
 
-    <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
-      <DialogContent className="max-w-3xl p-2">
-        {previewImage && (
-          <img
-            src={previewImage}
-            alt="Aperçu"
-            className="w-full h-auto object-contain max-h-[80vh] rounded"
-          />
-        )}
-      </DialogContent>
-    </Dialog>
-    <StorageImagePicker
-      open={pickerOpen}
-      onClose={() => setPickerOpen(false)}
-      onSelect={handlePickerSelect}
-      multiple={pickerMode === "additional"}
-      onSelectMultiple={handlePickerSelectMultiple}
-    />
+      <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
+        <DialogContent className="max-w-3xl p-2">
+          {previewImage && (
+            <img src={previewImage} alt="Aperçu" className="w-full h-auto object-contain max-h-[80vh] rounded" />
+          )}
+        </DialogContent>
+      </Dialog>
+      <StorageImagePicker
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={(url: string) => pickerMode === "main" && patch({ image: url })}
+        multiple={pickerMode === "additional"}
+        onSelectMultiple={(urls: string[]) => patch({ images: urls })}
+      />
     </>
   );
 }
