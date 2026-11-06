@@ -2,14 +2,14 @@ import { ExternalLink, Disc3, Heart, ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { DeltaBadge } from "./DeltaBadge";
 import type { DiscogsRelease } from "@/hooks/useDiscogs";
-import type { VinyleFields } from "@/pages/DistributionPage/types";
 
 interface ReleaseCardProps {
   release: DiscogsRelease;
   deltaCollection: number;
   deltaWantlist: number;
   deltaForSale?: number;
-  stock: VinyleFields;
+  /** Stock Airtable (Quantité_Stock), undefined si le vinyle n'est pas relié */
+  stock?: number;
 }
 
 export function ReleaseCard({ release, deltaCollection, deltaWantlist, deltaForSale = 0, stock }: ReleaseCardProps) {
@@ -50,10 +50,9 @@ export function ReleaseCard({ release, deltaCollection, deltaWantlist, deltaForS
           <p className="text-xs text-muted-foreground line-clamp-1">
             {release.artist ?? "—"} {release.year ? `- ${release.year}` : ""}
           </p>
-          <div>Stock
-            <p className="text-xs text-muted-foreground line-clamp-1">
-              {stock.Quantité_Stock}
-            </p></div>
+          <p className="text-xs text-muted-foreground">
+            Stock : <span className="font-medium text-foreground">{stock ?? "—"}</span>
+          </p>
         </div>
         <div className="flex items-center justify-between text-xs">
           <span className="inline-flex items-center gap-1" title="Dans leur collection">
