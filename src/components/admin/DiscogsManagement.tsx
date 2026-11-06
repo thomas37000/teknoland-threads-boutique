@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { RefreshCw, Search, Disc3, Heart, AlertCircle, Info, ArrowDown, ArrowUp, CheckCheck, ShoppingCart } from "lucide-react";
+import { RefreshCw, Search, Disc3, Heart, AlertCircle, Info, ArrowDown, ArrowUp, CheckCheck, ShoppingCart, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,6 +20,11 @@ import {
 } from "@/components/ui/tooltip";
 import { useDiscogs } from "@/hooks/useDiscogs";
 import { ReleaseCard } from "./discogs/ReleaseCard";
+import {
+  filterAndSortReleases,
+  type SortDir,
+  type StockFilter,
+} from "./discogs/discogsFilters";
 import { useToast } from "@/hooks/use-toast";
 import { useVinylesData } from "@/pages/DistributionPage/hooks/useVinylesData";
 
@@ -51,42 +56,29 @@ const DiscogsManagement = () => {
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
   // Filtres de tri : collection / wantlist / en vente — asc ou desc, par défaut desc
-  const [collectionSort, setCollectionSort] = useState<"asc" | "desc" | null>("desc");
-  const [wantlistSort, setWantlistSort] = useState<"asc" | "desc" | null>("desc");
-  const [forSaleSort, setForSaleSort] = useState<"asc" | "desc" | null>(null);
+  const [collectionSort, setCollectionSort] = useState<SortDir>("desc");
+  const [wantlistSort, setWantlistSort] = useState<SortDir>("desc");
+  const [forSaleSort, setForSaleSort] = useState<SortDir>(null);
+  // Filtre stock (quantité Airtable) : tous / en stock / rupture
+  const [stockFilter, setStockFilter] = useState<StockFilter>("all");
+  // Tri par stock : aucun par défaut
+  const [stockSort, setStockSort] = useState<SortDir>(null);
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    const list = q
-      ? releases.filter(
-        (r) =>
-          r.title.toLowerCase().includes(q) ||
-          (r.artist ?? "").toLowerCase().includes(q),
-      )
-      : releases;
-    return [...list].sort((a, b) => {
-      // Tri prioritaire : exemplaires en vente (si activé)
-      if (forSaleSort) {
-        const diff = (a.num_for_sale ?? 0) - (b.num_for_sale ?? 0);
-        if (diff !== 0) return forSaleSort === "asc" ? diff : -diff;
-      }
-      // Puis collection (par défaut desc)
-      if (collectionSort) {
-        const diff = a.current_collection_count - b.current_collection_count;
-        if (diff !== 0) return collectionSort === "asc" ? diff : -diff;
-      }
-      // Puis wantlist (par défaut desc)
-      if (wantlistSort) {
-        const diff = a.current_wantlist_count - b.current_wantlist_count;
-        if (diff !== 0) return wantlistSort === "asc" ? diff : -diff;
-      }
-      // Fallback : deltas puis année
-      const da = (deltas[a.release_id]?.coll ?? 0) + (deltas[a.release_id]?.want ?? 0);
-      const db = (deltas[b.release_id]?.coll ?? 0) + (deltas[b.release_id]?.want ?? 0);
-      if (db !== da) return db - da;
-      return (b.year ?? 0) - (a.year ?? 0);
-    });
-  }, [releases, deltas, search, collectionSort, wantlistSort, forSaleSort]);
+  const filtered = useMemo(
+    () =>
+      filterAndSortReleases({
+        releases,
+        deltas,
+        stockByRelease,
+        search,
+        collectionSort,
+        wantlistSort,
+        forSaleSort,
+        stockSort,
+        stockFilter,
+      }),
+    [releases, deltas, stockByRelease, search, collectionSort, wantlistSort, forSaleSort, stockSort, stockFilter],
+  );
 
   const totalDeltaColl = Object.values(deltas).reduce((s, d) => s + d.coll, 0);
   const totalDeltaWant = Object.values(deltas).reduce((s, d) => s + d.want, 0);
@@ -333,6 +325,49 @@ const DiscogsManagement = () => {
               </SelectItem>
             </SelectContent>
           </Select>
+
+          <Select value={stockFilter} onValueChange={(v) => setStockFilter(v as StockFilter)}>
+            <SelectTrigger className="w-[170px]">
+              <Package className="h-4 w-4 mr-2 text-muted-foreground" />
+              <SelectValue placeholder="Stock" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les stocks</SelectItem>
+              <SelectItem value="in">
+                <span className="flex items-center gap-2">
+                  <ArrowUp className="h-3 w-3" /> En stock uniquement
+                </span>
+              </SelectItem>
+              <SelectItem value="out">
+                <span className="flex items-center gap-2">
+                  <ArrowDown className="h-3 w-3" /> Rupture de stock
+                </span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={stockSort ?? "none"}
+            onValueChange={(v) => setStockSort(v === "none" ? null : (v as SortDir))}
+          >
+            <SelectTrigger className="w-[170px]">
+              <Package className="h-4 w-4 mr-2 text-muted-foreground" />
+              <SelectValue placeholder="Tri stock" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Aucun tri</SelectItem>
+              <SelectItem value="desc">
+                <span className="flex items-center gap-2">
+                  <ArrowDown className="h-3 w-3" /> Plus de stock d'abord
+                </span>
+              </SelectItem>
+              <SelectItem value="asc">
+                <span className="flex items-center gap-2">
+                  <ArrowUp className="h-3 w-3" /> Moins de stock d'abord
+                </span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -347,7 +382,11 @@ const DiscogsManagement = () => {
       ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           <Disc3 className="h-12 w-12 mx-auto mb-3 opacity-40" />
-          <p>Aucune release. Cliquez sur « Importer releases ».</p>
+          <p>
+            {search.trim() || stockFilter !== "all"
+              ? "Aucun résultat avec ces filtres."
+              : "Aucune release. Cliquez sur « Importer releases »."}
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
