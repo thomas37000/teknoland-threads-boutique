@@ -25,7 +25,7 @@ import { useToast } from "@/hooks/use-toast";
 /**
  * DiscogsManagement
  *
- * Onglet admin Discogs. Affiche les releases du label 1625918 avec leurs stats
+ * Onglet admin Discogs. Affiche les releases du label Teknoland Production avec leurs stats
  * collection / wantlist, et met en évidence les nouveaux ajouts depuis la
  * dernière visite admin.
  *
@@ -36,6 +36,7 @@ import { useToast } from "@/hooks/use-toast";
 const DiscogsManagement = () => {
   const { releases, state, deltas, loading, syncing, syncReleases, syncStats, markSeen } =
     useDiscogs();
+    
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -48,10 +49,10 @@ const DiscogsManagement = () => {
     const q = search.trim().toLowerCase();
     const list = q
       ? releases.filter(
-          (r) =>
-            r.title.toLowerCase().includes(q) ||
-            (r.artist ?? "").toLowerCase().includes(q),
-        )
+        (r) =>
+          r.title.toLowerCase().includes(q) ||
+          (r.artist ?? "").toLowerCase().includes(q),
+      )
       : releases;
     return [...list].sort((a, b) => {
       // Tri prioritaire : exemplaires en vente (si activé)
@@ -155,7 +156,7 @@ const DiscogsManagement = () => {
                     <Info className="h-3 w-3" /> Importer releases
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Récupère toutes les releases vinyles du label Discogs 1625918.
+                    Récupère toutes les releases vinyles du label Discogs Teknoland Prodcution
                     À utiliser la première fois ou pour actualiser le catalogue complet.
                   </p>
                 </div>
@@ -327,6 +328,7 @@ const DiscogsManagement = () => {
 
       {/* Grid */}
       {loading ? (
+        /* Skeleton cards */
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {Array.from({ length: 10 }).map((_, i) => (
             <Skeleton key={i} className="aspect-square w-full" />
@@ -346,6 +348,7 @@ const DiscogsManagement = () => {
               deltaCollection={deltas[r.release_id]?.coll ?? 0}
               deltaWantlist={deltas[r.release_id]?.want ?? 0}
               deltaForSale={deltas[r.release_id]?.sale ?? 0}
+              stockVinyl={r}
             />
           ))}
         </div>

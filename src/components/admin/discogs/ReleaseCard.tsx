@@ -2,15 +2,18 @@ import { ExternalLink, Disc3, Heart, ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { DeltaBadge } from "./DeltaBadge";
 import type { DiscogsRelease } from "@/hooks/useDiscogs";
+import type { VinyleFields } from "@/pages/DistributionPage/types";
 
 interface ReleaseCardProps {
   release: DiscogsRelease;
   deltaCollection: number;
   deltaWantlist: number;
   deltaForSale?: number;
+  stock: VinyleFields;
 }
 
-export function ReleaseCard({ release, deltaCollection, deltaWantlist, deltaForSale = 0 }: ReleaseCardProps) {
+export function ReleaseCard({ release, deltaCollection, deltaWantlist, deltaForSale = 0, stock }: ReleaseCardProps) {
+  
   const hasNew = deltaCollection > 0 || deltaWantlist > 0 || deltaForSale > 0;
   return (
     <Card className="relative overflow-hidden hover:shadow-md transition-shadow">
@@ -45,8 +48,12 @@ export function ReleaseCard({ release, deltaCollection, deltaWantlist, deltaForS
         <div>
           <p className="font-semibold text-sm leading-tight line-clamp-2">{release.title}</p>
           <p className="text-xs text-muted-foreground line-clamp-1">
-            {release.artist ?? "—"} {release.year ? `· ${release.year}` : ""}
+            {release.artist ?? "—"} {release.year ? `- ${release.year}` : ""}
           </p>
+          <div>Stock
+            <p className="text-xs text-muted-foreground line-clamp-1">
+              {stock.Quantité_Stock}
+            </p></div>
         </div>
         <div className="flex items-center justify-between text-xs">
           <span className="inline-flex items-center gap-1" title="Dans leur collection">
@@ -72,11 +79,10 @@ export function ReleaseCard({ release, deltaCollection, deltaWantlist, deltaForS
           href={`https://www.discogs.com/fr/sell/release/${release.release_id}`}
           target="_blank"
           rel="noopener noreferrer"
-          className={`flex items-center justify-between rounded-md border px-2 py-1 text-xs transition-colors ${
-            release.num_for_sale > 0
+          className={`flex items-center justify-between rounded-md border px-2 py-1 text-xs transition-colors ${release.num_for_sale > 0
               ? "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20"
               : "text-muted-foreground hover:bg-muted"
-          }`}
+            }`}
           title="Exemplaires en vente sur la marketplace Discogs"
         >
           <span className="inline-flex items-center gap-1">
