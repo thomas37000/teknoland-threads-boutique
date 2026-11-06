@@ -313,6 +313,44 @@ C'est la technique utilisée dans `component/BlogImages.cy.tsx` pour faire croir
 
 ---
 
+## 💿 Discogs : filtre et tri par stock
+
+L'onglet admin Discogs dispose de deux contrôles « Stock » (icône carton) à côté
+des tris « Ils l'ont », « Ils le veulent » et « En vente » :
+
+| Contrôle | Valeurs | Effet |
+|----------|---------|-------|
+| **Filtre stock** | Tous les stocks · En stock uniquement · Rupture de stock | Garde les vinyles dont la quantité Airtable est > 0, ou = 0 |
+| **Tri stock** | Aucun tri · Plus de stock d'abord · Moins de stock d'abord | Ordonne les cartes par quantité |
+
+Règles à connaître quand on modifie cette logique :
+
+- Le stock vient de la table Airtable **Vinyles**, champ `Quantité_Stock`, relié à
+  la release par le numéro contenu dans `Discogs_url` (`.../release/<numéro>`).
+- Un vinyle **non relié** a un stock inconnu (carte « Stock : — ») : il n'apparaît
+  que dans « Tous les stocks » et reste **toujours en dernier** quand on trie.
+- « En stock » = quantité strictement positive ; « Rupture » = quantité exactement 0.
+
+Deux fichiers de test, du plus rapide au plus complet :
+
+- `component/DiscogsStockFilter.cy.ts` : teste la fonction pure
+  `src/components/admin/discogs/discogsFilters.ts` (recherche + filtre + tris).
+  Aucun composant, aucun réseau → à exécuter en premier en cas de modification.
+- `component/DiscogsStockManagement.cy.tsx` : monte le vrai `DiscogsManagement`
+  avec les données Airtable et Discogs simulées par `cy.intercept`, et vérifie
+  les cartes affichées après clic sur les menus « Stock ».
+
+```bash
+npm run cy:run:component -- --spec cypress/component/DiscogsStockFilter.cy.ts
+npm run cy:run:component -- --spec cypress/component/DiscogsStockManagement.cy.tsx
+```
+
+Pour ajouter un cas : modifiez les tableaux `releases` / `vinyles` en haut du
+fichier (ou `stockByRelease` dans le test de la fonction pure), puis ajoutez un
+`it` qui compare la liste des titres obtenue à la liste attendue.
+
+---
+
 ## 📚 Ressources
 
 ## Blog : écrire et maintenir les tests
