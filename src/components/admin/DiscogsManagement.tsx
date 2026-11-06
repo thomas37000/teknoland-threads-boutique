@@ -21,6 +21,7 @@ import {
 import { useDiscogs } from "@/hooks/useDiscogs";
 import { ReleaseCard } from "./discogs/ReleaseCard";
 import { useToast } from "@/hooks/use-toast";
+import { useVinylesData } from "@/pages/DistributionPage/hooks/useVinylesData";
 
 /**
  * DiscogsManagement
@@ -36,7 +37,16 @@ import { useToast } from "@/hooks/use-toast";
 const DiscogsManagement = () => {
   const { releases, state, deltas, loading, syncing, syncReleases, syncStats, markSeen } =
     useDiscogs();
-    
+  // Stock Airtable : on relie chaque vinyle à sa release via l'id présent dans Discogs_url
+  const { records: vinyles } = useVinylesData();
+  const stockByRelease = useMemo(() => {
+    const map: Record<number, number> = {};
+    for (const v of vinyles) {
+      const m = String(v.fields.Discogs_url ?? "").match(/release\/(\d+)/);
+      if (m) map[Number(m[1])] = Number(v.fields.Quantité_Stock ?? 0);
+    }
+    return map;
+  }, [vinyles]);
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -348,7 +358,7 @@ const DiscogsManagement = () => {
               deltaCollection={deltas[r.release_id]?.coll ?? 0}
               deltaWantlist={deltas[r.release_id]?.want ?? 0}
               deltaForSale={deltas[r.release_id]?.sale ?? 0}
-              stockVinyl={r}
+              stock={stockByRelease[r.release_id]}
             />
           ))}
         </div>
