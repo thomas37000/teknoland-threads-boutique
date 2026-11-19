@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
 import { BlogComment, BlogPost, blogDb } from "@/lib/blog";
 import BlockRenderer from "@/components/blog/BlockRenderer";
+import ZoomableImages from "@/components/blog/ZoomableImages";
 import PostEditor from "@/components/blog/PostEditor";
 
 const BlogPostPage = () => {
@@ -77,8 +78,16 @@ const BlogPostPage = () => {
             {post.published_at && <span>{new Date(post.published_at).toLocaleDateString("fr-FR", { dateStyle: "long" })}</span>}
           </div>
           <h1 className="mb-6 break-words text-4xl font-bold md:text-5xl">{post.title}</h1>
-          {post.cover_image && <img src={post.cover_image} alt={post.title} className="mb-8 w-full rounded-xl" />}
-          <BlockRenderer mode={post.editor_mode} content={post.content} />
+          <ZoomableImages>
+            {post.cover_image && (
+              <img
+                src={post.cover_image}
+                alt={post.title}
+                className="mb-8 w-full rounded-xl"
+              />
+            )}
+            <BlockRenderer mode={post.editor_mode} content={post.content} />
+          </ZoomableImages>
           {post.tags?.length > 0 && (
             <div className="mt-8 flex flex-wrap gap-2">{post.tags.map((t) => <Badge key={t} variant="secondary">#{t}</Badge>)}</div>
           )}

@@ -359,6 +359,14 @@ fichier (ou `stockByRelease` dans le test de la fonction pure), puis ajoutez un
 - `component/BlogEditor.cy.tsx` : brouillon par défaut, publication, modification, adresse déjà utilisée, nettoyage du HTML, validation admin d'un commentaire, et filtre de la liste admin (publié / brouillon / tous, tri par date décroissant).
 - `fixtures/blog-post.json` : article fictif à adapter pour vos scénarios.
 
+### Agrandissement des images d'un article
+
+Dans un article, un clic sur une image (couverture, bloc image ou image insérée dans le texte) l'ouvre en grand par-dessus la page, avec ses dimensions natives et un bouton « Taille réelle ». C'est le composant `src/components/ui/lightbox.tsx`, déclenché par `src/components/blog/ZoomableImages.tsx` qui enveloppe le contenu de `BlogPostPage.tsx`. Fermeture : touche Échap, clic sur le fond sombre, ou croix.
+
+- `e2e/blog.cy.ts`, bloc « Blog : agrandissement des images de l'article » : 4 tests (couverture à sa taille réelle, image du texte, fermeture par le fond sombre, URL inchangée).
+- Les images de test sont des SVG intégrés dans la spec (`svg(640, 400, …)`) : dimensions connues à l'avance, aucune requête réseau. Pour tester une autre taille, changez les chiffres de `svg(...)` et l'assertion sur le libellé `640 × 400 px`.
+- La visionneuse est repérée par `[role="dialog"]`. Ne cliquez pas sur l'image agrandie pour la fermer : utilisez Échap, la croix `button[aria-label="Fermer"]` ou un coin du fond sombre.
+
 Avec le site déjà démarré :
 
 ```bash

@@ -139,3 +139,8 @@
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 2rem;
 }
+
+/* Images cliquables des articles de blog : le curseur indique qu'on peut agrandir. */
+.zoomable-images img {
+  cursor: zoom-in;
+}

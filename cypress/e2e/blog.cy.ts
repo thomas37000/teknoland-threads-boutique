@@ -94,3 +94,78 @@ describe("Blog : pagination de la liste (8 articles par page)", () => {
     cy.contains("a", "Article 17").should("not.exist");
   });
 });
+
+// --- Visionneuse d'image (clic sur une image de l'article) ---
+// Image SVG intégrée au test : dimensions connues (640 × 400), aucune requête réseau.
+const svg = (w: number, h: number, color: string) =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="${w}" height="${h}" fill="${color}"/></svg>`,
+  )}`;
+
+describe("Blog : agrandissement des images de l'article", () => {
+  const cover = svg(640, 400, "#1f6f54");
+  const inline = svg(240, 180, "#8b2f2f");
+
+  beforeEach(() => {
+    cy.intercept("GET", "**/rest/v1/blog_posts*", (req) => {
+      const body = {
+        ...post,
+        cover_image: cover,
+        content: { html: `<p>Un nouveau disque arrive.</p><p><img src="${inline}" alt="Pochette"></p>` },
+      };
+      const url = new URL(req.url);
+      if (url.searchParams.has("slug")) req.reply({ body });
+      else req.reply({ body: [body] });
+    }).as("posts");
+    cy.intercept("GET", "**/rest/v1/blog_comments*", { body: [] });
+  });
+
+  it("agrandit l'image de couverture au clic, à sa taille réelle", () => {
+    cy.visit(`/blog/${post.slug}`);
+    cy.get('[role="dialog"]').should("not.exist");
+
+    // Clic sur la couverture : la visionneuse s'ouvre avec les dimensions natives.
+    cy.get("article img").first().click();
+    cy.get('[role="dialog"]').should("be.visible").and("contain.text", "640 × 400 px");
+    cy.get('[role="dialog"] img').should("be.visible");
+
+    // "Taille réelle" affiche l'image à ses dimensions natives.
+    cy.contains("button", "Taille réelle").click();
+    cy.get('[role="dialog"]').should("contain.text", "taille réelle");
+    cy.get('[role="dialog"] img').should("have.attr", "style").and("include", "width: 640px");
+
+    // Échap referme la visionneuse.
+    cy.get("body").type("{esc}");
+    cy.get('[role="dialog"]').should("not.exist");
+  });
+
+  it("agrandit aussi une image insérée dans le texte de l'article", () => {
+    cy.visit(`/blog/${post.slug}`);
+    cy.contains("p", "Un nouveau disque arrive.").should("be.visible");
+
+    // La 2e image du texte s'ouvre avec ses propres dimensions (240 × 180).
+    cy.get("article img").eq(1).click();
+    cy.get('[role="dialog"]').should("be.visible").and("contain.text", "240 × 180 px");
+
+    // La croix referme la visionneuse.
+    cy.get('button[aria-label="Fermer"]').last().click();
+    cy.get('[role="dialog"]').should("not.exist");
+  });
+
+  it("ferme la visionneuse en cliquant sur le fond sombre", () => {
+    cy.visit(`/blog/${post.slug}`);
+    cy.get("article img").first().click();
+    cy.get('[role="dialog"]').should("be.visible");
+
+    // Clic dans un coin (hors de l'image) = fond sombre.
+    cy.get('[role="dialog"]').click(20, 20);
+    cy.get('[role="dialog"]').should("not.exist");
+  });
+
+  it("ne ferme pas la page : un clic sur une image ne change pas l'URL", () => {
+    cy.visit(`/blog/${post.slug}`);
+    cy.get("article img").first().click();
+    cy.location("pathname").should("equal", `/blog/${post.slug}`);
+    cy.get('[role="dialog"]').should("be.visible");
+  });
+});
