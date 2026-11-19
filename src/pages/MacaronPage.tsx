@@ -33,7 +33,10 @@ const SOLID_VINYLS: VinylOption[] = [
   { id: "transparent", label: "Transparent", base: "#cfd4da", groove: "rgba(255,255,255,0.45)" },
 ];
 
-/** Marbrés inspirés des pressages Vinylium (blanc-noir, rouge/noir, or-noir, etc.) */
+/** Marbrés inspirés des pressages Vinylium (blanc-noir, rouge/noir, or-noir, etc.)
+ *  Désactivés temporairement : décommenter le bloc ci-dessous pour les réafficher.
+ */
+/*
 const MARBLED_VINYLS: VinylOption[] = [
   { id: "marbre-blanc-noir", label: "Marbré blanc / noir", marbled: true, swirl: ["#e8e8e8", "#0a0a0a", "#f5f5f5", "#2a2a2a", "#d0d0d0"] },
   { id: "marbre-rouge-noir", label: "Marbré rouge / noir", marbled: true, swirl: ["#b3001b", "#1a0004", "#d43a4a", "#40000a", "#8a0014"] },
@@ -46,8 +49,12 @@ const MARBLED_VINYLS: VinylOption[] = [
   { id: "marbre-transparent-noir-rouge", label: "Marbré transparent / noir / rouge", marbled: true, swirl: ["#cfd4da", "#0a0a0a", "#b3001b", "#8a8f96", "#6b0011"] },
   { id: "marbre-multicolore", label: "Marbré multicolore", marbled: true, swirl: ["#cfd4da", "#1a5cc8", "#e75480", "#ffd400", "#8fb7e8"] },
 ];
+*/
 
-/** Couleurs éclatées : pressages très saturés, néon et multicolores flashy */
+/** Couleurs éclatées : pressages très saturés, néon et multicolores flashy
+ *  Désactivées temporairement : décommenter le bloc ci-dessous pour les réafficher.
+ */
+/*
 const ECLAT_VINYLS: VinylOption[] = [
   { id: "eclat-rose-fluo-jaune", label: "Éclaté rose fluo / jaune", marbled: true, swirl: ["#ff1493", "#ffee00", "#ff5cc8", "#fff176", "#d6006e"] },
   { id: "eclat-cyan-magenta", label: "Éclaté cyan / magenta", marbled: true, swirl: ["#00e5ff", "#ff00d4", "#66f0ff", "#ff6ae8", "#0077ff"] },
@@ -60,8 +67,12 @@ const ECLAT_VINYLS: VinylOption[] = [
   { id: "eclat-lime-violet", label: "Éclaté lime / violet", marbled: true, swirl: ["#c8ff00", "#7a00ff", "#eaff6a", "#b44dff", "#8fdd00"] },
   { id: "eclat-multicolore-fluo", label: "Éclaté multicolore fluo", marbled: true, swirl: ["#ff1493", "#39ff14", "#00e5ff", "#ffee00", "#8a2be2", "#ff6a00"] },
 ];
+*/
 
-const VINYL_OPTIONS: VinylOption[] = [...SOLID_VINYLS, ...MARBLED_VINYLS, ...ECLAT_VINYLS];
+// Seules les couleurs unies sont proposées pour l'instant.
+// Pour réactiver les marbrés et les couleurs éclatées : décommenter leurs blocs
+// ci-dessus, puis ajouter `...MARBLED_VINYLS, ...ECLAT_VINYLS` au tableau.
+const VINYL_OPTIONS: VinylOption[] = [...SOLID_VINYLS];
 
 const marbledSwatch = (swirl: string[]) =>
   `conic-gradient(from 45deg, ${swirl.join(", ")}, ${swirl[0]})`;
@@ -175,12 +186,12 @@ const MacaronPage = () => {
     <div className="tekno-container py-12">
       <Helmet>
         <title>Macaron vinyle – Visualisez votre label | Teknoland</title>
-        <meta name="description" content="Uploadez votre image et visualisez-la en macaron sur un vinyle noir, coloré ou marbré." />
+        <meta name="description" content="Uploadez votre image et visualisez-la en macaron sur un vinyle noir ou coloré." />
       </Helmet>
 
       <h1 className="text-3xl font-bold mb-2">Macaron</h1>
       <p className="text-muted-foreground mb-8">
-        Uploadez votre image pour la voir en macaron au centre d'un vinyle. Choisissez la couleur du vinyle, unie ou marbrée.
+        Uploadez votre image pour la voir en macaron au centre d'un vinyle. Choisissez la couleur du vinyle.
       </p>
 
       <div className="grid md:grid-cols-2 gap-10 items-center">
@@ -260,6 +271,7 @@ const MacaronPage = () => {
               </div>
             </div>
 
+            {/* Marbrés — désactivés temporairement, on garde seulement les couleurs unies.
             <div>
               <h3 className="text-sm font-medium mb-3">Marbrés</h3>
               <div className="flex flex-wrap gap-2">
@@ -283,7 +295,9 @@ const MacaronPage = () => {
                 ))}
               </div>
             </div>
+            */}
 
+            {/* Couleurs éclatées — désactivées temporairement, on garde seulement les couleurs unies.
             <div>
               <h3 className="text-sm font-medium mb-3">Couleurs éclatées</h3>
               <div className="flex flex-wrap gap-2">
@@ -307,6 +321,7 @@ const MacaronPage = () => {
                 ))}
               </div>
             </div>
+            */}
           </div>
 
           {imageUrl && (
