@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { products } from "@/data/products";
 import ProductManagement from "@/components/admin/product/ProductManagement";
 import ClientManagement from "@/components/admin/ClientManagement";
-import AdminNotifications from "@/components/admin/AdminNotifications";
+// import AdminNotifications from "@/components/admin/AdminNotifications";
 import CategoryManagement from "@/components/admin/CategoryManagement";
 import FilterManagement from "@/components/admin/FilterManagement";
 import ContactManagement from "@/components/admin/ContactManagement";
@@ -89,9 +89,9 @@ const AdminPage = () => {
         <main className="flex-1 overflow-auto">
           <div className="tekno-container py-12">
             <div className="flex items-center justify-between mb-6">
-              <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+              <h1 className="text-3xl text-primary font-bold">Admin Dashboard</h1>
             </div>
-            <AdminNotifications />
+            {/* <AdminNotifications /> */}
 
             {activeTab === "products" && <ProductManagement initialProducts={products} />}
             {activeTab === "categories" && <CategoryManagement />}
