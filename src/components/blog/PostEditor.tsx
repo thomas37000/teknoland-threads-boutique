@@ -30,6 +30,23 @@ const PostEditor = ({ post, onSaved, onCancel }: Props) => {
   const [picker, setPicker] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // Restaure tous les champs depuis l'article enregistré (annule les modifications non sauvegardées)
+  const resetChanges = () => {
+    if (!post) return;
+    if (!window.confirm("Annuler toutes les modifications non enregistrées et recharger l'article ?")) return;
+    setTitle(post.title || "");
+    setSlug(post.slug || "");
+    setExcerpt(post.excerpt || "");
+    setCover(post.cover_image || "");
+    setCategory(post.category || "");
+    setTags((post.tags || []).join(", "));
+    setPublished(post.status === "published");
+    setMode(post.editor_mode || "blocks");
+    setBlocks(post.editor_mode === "blocks" && Array.isArray(post.content) ? post.content : []);
+    setHtml(post.editor_mode === "rich" ? post.content?.html || "" : "");
+    toast.success("Modifications annulées, article rechargé");
+  };
+
   const save = async () => {
     if (!title.trim()) return toast.error("Le titre est obligatoire");
     const normalizedSlug = slugify(slug.trim() || title);
@@ -113,7 +130,12 @@ const PostEditor = ({ post, onSaved, onCancel }: Props) => {
           {published ? "Publié" : "Brouillon"}
         </label>
         <div className="flex gap-2">
-          {onCancel && <Button variant="outline" onClick={onCancel}>Annuler</Button>}
+          {post && (
+            <Button type="button" variant="ghost" onClick={resetChanges} disabled={saving}>
+              Annuler les modifications
+            </Button>
+          )}
+          {onCancel && <Button variant="outline" onClick={onCancel}>Fermer</Button>}
           <Button onClick={save} disabled={saving}>{saving ? "Enregistrement…" : "Enregistrer"}</Button>
         </div>
       </div>
