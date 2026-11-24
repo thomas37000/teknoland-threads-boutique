@@ -5,6 +5,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Block, BlogPost, EditorMode, blogDb, slugify } from "@/lib/blog";
 import BlockEditor from "./BlockEditor";
 import RichTextEditor from "./RichTextEditor";
@@ -29,11 +39,12 @@ const PostEditor = ({ post, onSaved, onCancel }: Props) => {
   const [html, setHtml] = useState<string>(post?.editor_mode === "rich" ? post?.content?.html || "" : "");
   const [picker, setPicker] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [askReset, setAskReset] = useState(false);
 
   // Restaure tous les champs depuis l'article enregistré (annule les modifications non sauvegardées)
   const resetChanges = () => {
     if (!post) return;
-    if (!window.confirm("Annuler toutes les modifications non enregistrées et recharger l'article ?")) return;
+    setAskReset(false);
     setTitle(post.title || "");
     setSlug(post.slug || "");
     setExcerpt(post.excerpt || "");
@@ -131,7 +142,7 @@ const PostEditor = ({ post, onSaved, onCancel }: Props) => {
         </label>
         <div className="flex gap-2">
           {post && (
-            <Button type="button" variant="ghost" onClick={resetChanges} disabled={saving}>
+            <Button type="button" variant="ghost" aria-label="Annuler les modifications non enregistrées" onClick={() => setAskReset(true)} disabled={saving}>
               Annuler les modifications
             </Button>
           )}
@@ -139,6 +150,21 @@ const PostEditor = ({ post, onSaved, onCancel }: Props) => {
           <Button onClick={save} disabled={saving}>{saving ? "Enregistrement…" : "Enregistrer"}</Button>
         </div>
       </div>
+
+      <AlertDialog open={askReset} onOpenChange={setAskReset}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Annuler les modifications ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Toutes les modifications non enregistrées seront perdues et l'article sera rechargé dans sa dernière version enregistrée.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Garder mes modifications</AlertDialogCancel>
+            <AlertDialogAction onClick={resetChanges}>Annuler les modifications</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

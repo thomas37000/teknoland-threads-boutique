@@ -95,4 +95,26 @@ describe("Blog : édition et modération (requêtes simulées)", () => {
     cy.contains('[role="option"]', "Tous").click();
     cy.get("[data-post-row]").should("have.length", 2);
   });
+
+  it("ouvre une popup de confirmation au lieu d'une alerte navigateur", () => {
+    cy.mount(<PostEditor post={post} onSaved={cy.stub()} />);
+    cy.get("#post-title").clear().type("Titre provisoire");
+    cy.get('[aria-label="Annuler les modifications non enregistrées"]').click();
+    cy.get('[role="alertdialog"]').should("be.visible").and("contain.text", "Annuler les modifications ?");
+    cy.contains("button", "Garder mes modifications").click();
+    cy.get('[role="alertdialog"]').should("not.exist");
+    cy.get("#post-title").should("have.value", "Titre provisoire");
+  });
+
+  it("restaure l'article enregistré depuis la popup de confirmation", () => {
+    cy.mount(<><Toaster /><PostEditor post={post} onSaved={cy.stub()} /></>);
+    cy.get("#post-title").clear().type("Titre provisoire");
+    cy.get("#post-tags").clear().type("autre, tag");
+    cy.get('[aria-label="Annuler les modifications non enregistrées"]').click();
+    cy.get('[role="alertdialog"]').contains("button", "Annuler les modifications").click();
+    cy.get('[role="alertdialog"]').should("not.exist");
+    cy.get("#post-title").should("have.value", post.title);
+    cy.get("#post-tags").should("have.value", "vinyle");
+    cy.contains("Modifications annulées, article rechargé").should("be.visible");
+  });
 });
