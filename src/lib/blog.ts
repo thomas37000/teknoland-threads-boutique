@@ -59,7 +59,12 @@ export const defaultBlock = (type: BlockType): Block => {
     image: { url: "", alt: "", caption: "" },
     video: { url: "" },
     quote: { text: "Une citation", author: "" },
-    columns: { left: "<p>Colonne gauche</p>", right: "<p>Colonne droite</p>" },
+    columns: {
+      left: "<p>Colonne gauche</p>",
+      right: "<p>Colonne droite</p>",
+      leftImage: "", leftAlt: "", leftCaption: "",
+      rightImage: "", rightAlt: "", rightCaption: "",
+    },
     button: { label: "En savoir plus", href: "/" },
     spacer: { size: 40 },
   };

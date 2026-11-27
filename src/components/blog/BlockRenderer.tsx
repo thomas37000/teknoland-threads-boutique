@@ -33,13 +33,25 @@ export const RenderBlock = ({ block }: { block: Block }) => {
           {d.author && <footer className="mt-2 text-sm not-italic text-muted-foreground">— {d.author}</footer>}
         </blockquote>
       );
-    case "columns":
-      return (
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: sanitize(d.left) }} />
-          <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: sanitize(d.right) }} />
+    case "columns": {
+      const column = (html: string, img: string, alt: string, caption: string) => (
+        <div className="space-y-3">
+          {img ? (
+            <figure>
+              <img src={img} alt={alt || ""} loading="lazy" className="w-full rounded-lg" />
+              {caption && <figcaption className="mt-2 text-center text-sm text-muted-foreground">{caption}</figcaption>}
+            </figure>
+          ) : null}
+          <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: sanitize(html) }} />
         </div>
       );
+      return (
+        <div className="grid gap-6 md:grid-cols-2">
+          {column(d.left, d.leftImage, d.leftAlt, d.leftCaption)}
+          {column(d.right, d.rightImage, d.rightAlt, d.rightCaption)}
+        </div>
+      );
+    }
     case "button":
       return (
         <div className="text-center">
