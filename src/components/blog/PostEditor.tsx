@@ -15,6 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { X } from "lucide-react";
 import { Block, BlogPost, EditorMode, blogDb, slugify } from "@/lib/blog";
 import BlockEditor from "./BlockEditor";
 import RichTextEditor from "./RichTextEditor";
@@ -118,7 +119,22 @@ const PostEditor = ({ post, onSaved, onCancel }: Props) => {
           <Input value={cover} placeholder="Adresse de l'image" onChange={(e) => setCover(e.target.value)} />
           <Button type="button" variant="outline" onClick={() => setPicker(true)}>Choisir</Button>
         </div>
-        {cover && <img src={cover} alt="" className="max-h-48 rounded-lg" />}
+        {cover && (
+          <div className="relative inline-flex min-h-24 min-w-24 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted">
+            <img src={cover} alt="" className="max-h-48 rounded-lg" />
+            <Button
+              type="button"
+              size="icon"
+              variant="destructive"
+              aria-label="Retirer l'image de couverture"
+              title="Retirer l'image de couverture"
+              className="absolute right-2 top-2 h-8 w-8 rounded-full shadow-md"
+              onClick={() => setCover("")}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
         <StorageImagePicker preferredBucket="blog" open={picker} onClose={() => setPicker(false)} onSelect={(url) => { setCover(url); setPicker(false); }} />
       </div>
 

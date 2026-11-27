@@ -117,4 +117,24 @@ describe("Blog : édition et modération (requêtes simulées)", () => {
     cy.get("#post-tags").should("have.value", "vinyle");
     cy.contains("Modifications annulées, article rechargé").should("be.visible");
   });
+
+  it("affiche une croix uniquement quand une image de couverture est présente", () => {
+    cy.mount(<PostEditor post={post} onSaved={cy.stub()} />);
+    cy.get('[aria-label="Retirer l\'image de couverture"]').should("not.exist");
+    cy.get('input[placeholder="Adresse de l\'image"]').type("https://example.com/couverture.jpg");
+    cy.get('[aria-label="Retirer l\'image de couverture"]').should("be.visible");
+  });
+
+  it("retire l'image de couverture et enregistre null à sa place", () => {
+    cy.intercept("PATCH", "**/rest/v1/blog_posts*", { body: { ...post, cover_image: null } }).as("update");
+    cy.mount(<PostEditor post={post} onSaved={cy.stub().as("saved")} />);
+    cy.get('input[placeholder="Adresse de l\'image"]').type("https://example.com/couverture.jpg");
+    cy.get('[aria-label="Retirer l\'image de couverture"]').click();
+    cy.get('[aria-label="Retirer l\'image de couverture"]').should("not.exist");
+    cy.get('input[placeholder="Adresse de l\'image"]').should("have.value", "");
+    cy.get("#post-title").should("have.value", post.title);
+    cy.contains("button", "Enregistrer").click();
+    cy.wait("@update").its("request.body").should("include", { cover_image: null });
+    cy.get("@saved").should("have.been.calledOnce");
+  });
 });
